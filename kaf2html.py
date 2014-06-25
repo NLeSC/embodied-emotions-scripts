@@ -2,10 +2,18 @@
 including line numbers.
 """
 from bs4 import BeautifulSoup
+import sys
 
 
-with open('data/minnenijd.kaf') as f:
-    xml_doc = BeautifulSoup(f)
+xml_doc = None
+
+if len(sys.argv) < 2:
+    print 'Please provide a kaf input file.'
+    print 'Usage: python kaf2html.py <kaf input>'                               
+    sys.exit(1)
+else:
+    with open(sys.argv[1]) as f:
+        xml_doc = BeautifulSoup(f)
 
 output_html = ['<html><head>',
                '<meta http-equiv="Content-Type" content="text/html; '
