@@ -85,9 +85,9 @@ if __name__ == '__main__':
             terms = etree.SubElement(root, 'terms')
 
             for elem in a.descendants:
-                if sentence(elem):
+                if sentence(elem) and not note(elem.parent):
                     s_id += 1
-                elif word(elem):
+                elif word(elem) and not note(elem.parent.parent):
                     add_word2kaf(elem, w_id, str(s_id), term_id, text, terms)
 
                     term_id += 1
