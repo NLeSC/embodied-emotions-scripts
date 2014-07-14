@@ -133,3 +133,11 @@ if __name__ == '__main__':
     print 'Match <t> and <s> in <event>s.'
     events = soup.find_all(event)
     match_t_and_s(events)
+
+    print 'Printing all <pos>-tags.'
+    pos_coll = {}
+    pos_tags = soup.find_all('pos')
+    for elem in pos_tags:
+        pos_coll[elem.get('head')] = None
+
+    print '\n'.join(pos_coll.keys())
