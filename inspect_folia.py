@@ -4,7 +4,7 @@ Usage: inspect_folia.py <FoLiA XML file>"""
 from bs4 import BeautifulSoup
 from bs4_helpers import tag_or_string, scene, act, sub_act, stage_direction, \
     speaker_turn, event_without_class, head, line_feed, text_content, \
-    sentence, paragraph, note, ref, list_, item
+    sentence, paragraph, note, ref, list_, item, event
 
 
 def inspect(elements, expected, not_expected, ignored):
@@ -33,10 +33,25 @@ def inspect(elements, expected, not_expected, ignored):
                                                       id_=child.get('xml:id'))
 
 
+def match_t_and_s(elements):
+    """Check whether every element in elements has matching <t> and <s> tags.
+    """
+    for elem in elements:
+        t_found = False
+        s_found = False
+        for child in elem.children:
+            if text_content(child):
+                t_found = True
+            if sentence(child):
+                s_found = True
+        if not t_found and s_found:
+            print '<t> and <s> mismatch: {id_}'.format(id_=elem.get('xml:id'))
+
+
 if __name__ == '__main__':
-    #file_name = '/home/jvdzwaan/Documents/Emotion-mining/nederlab-voorbeeld/vos_002mede03_01.xml'
+    file_name = '/home/jvdzwaan/Documents/Emotion-mining/nederlab-voorbeeld/vos_002mede03_01.xml'
     #file_name = '/home/jvdzwaan/Documents/Emotion-mining/nederlab-voorbeeld/feit007patr01_01.xml'
-    file_name = '/home/jvdzwaan/Documents/Emotion-mining/nederlab-voorbeeld/hoof002door01_01.xml'
+    #file_name = '/home/jvdzwaan/Documents/Emotion-mining/nederlab-voorbeeld/hoof002door01_01.xml'
 
     with open(file_name) as f:
         soup = BeautifulSoup(f, 'xml')
@@ -114,3 +129,7 @@ if __name__ == '__main__':
     not_expected = {}
     ignored = [note, ref]
     inspect(events_without_class, expected, not_expected, ignored)
+
+    print 'Match <t> and <s> in <event>s.'
+    events = soup.find_all(event)
+    match_t_and_s(events)

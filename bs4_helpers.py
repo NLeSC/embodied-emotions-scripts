@@ -48,6 +48,10 @@ def event_without_class(tag):
     return is_tag(tag, 'event') and not tag.has_attr('class')
 
 
+def event(tag):
+    return is_tag(tag, 'event')
+
+
 def head(tag):
     return is_tag(tag, 'head')
 
