@@ -1,10 +1,10 @@
 """Create a KAF file for each act in a FoLiA file
 Usage: python folia2kaf.py <file in>
 """
-from pynlpl.formats import folia
 from lxml import etree
 from bs4 import BeautifulSoup
 from bs4_helpers import act, sentence, word, speaker_turn, note
+import argparse
 import os
 
 
@@ -54,14 +54,16 @@ def add_word2kaf(elem, w_id, s_id, term_id, text, terms):
 
 
 if __name__ == '__main__':
-    #file_name = '/home/jvdzwaan/Documents/Emotion-mining/nederlab-voorbeeld/vos_002mede03_01.xml'
-    #file_name = '/home/jvdzwaan/Documents/Emotion-mining/nederlab-voorbeeld/feit007patr01_01.xml'
-    file_name = '/home/jvdzwaan/Documents/Emotion-mining/nederlab-voorbeeld/hoof002door01_01.xml'
+    parser = argparse.ArgumentParser()
+    parser.add_argument('file', help='the name of the FoLiA XML file to ' \
+                        'generate KAF files for')
+    args = parser.parse_args()
+
+    file_name = args.file
 
     # Load document
     #doc = folia.Document(file='medea-folia-no_events.xml')
-    
-    with open(file_name) as f:
+    with open(file_name, 'r') as f:
         soup = BeautifulSoup(f, 'xml')
 
     acts = soup.find_all(act)
