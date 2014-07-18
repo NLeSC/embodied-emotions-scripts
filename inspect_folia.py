@@ -5,6 +5,8 @@ from bs4 import BeautifulSoup
 from bs4_helpers import tag_or_string, scene, act, sub_act, stage_direction, \
     speaker_turn, event_without_class, head, line_feed, text_content, \
     sentence, paragraph, note, ref, list_, item, event
+import argparse
+import os
 
 
 def inspect(elements, expected, not_expected, ignored):
@@ -49,9 +51,12 @@ def match_t_and_s(elements):
 
 
 if __name__ == '__main__':
-    file_name = '/home/jvdzwaan/Documents/Emotion-mining/nederlab-voorbeeld/vos_002mede03_01.xml'
-    #file_name = '/home/jvdzwaan/Documents/Emotion-mining/nederlab-voorbeeld/feit007patr01_01.xml'
-    #file_name = '/home/jvdzwaan/Documents/Emotion-mining/nederlab-voorbeeld/hoof002door01_01.xml'
+    parser = argparse.ArgumentParser()
+    parser.add_argument('file', help='the name of the FoLiA XML file to ' \
+                        'generate KAF files for')
+    args = parser.parse_args()
+
+    file_name = args.file
 
     with open(file_name) as f:
         soup = BeautifulSoup(f, 'xml')
