@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 import requests
 from bs4 import BeautifulSoup
 from time import sleep
 import json
 import sys
+import codecs
 
 def get_spelling_variants(term, categories, y_from, y_to):
     """Retrieve historic spelling variants from the INL Lexicon service.
@@ -44,32 +44,27 @@ def get_spelling_variants(term, categories, y_from, y_to):
     else:
         r.raise_for_status()
 
+
 if __name__ == '__main__':
-    #ws =  get_spelling_variants('actueel', [], 1600, 1830)
-
-    #print ws
-    #for w in ws:
-    #    print w.encode('utf-8')
-
-    #sys.exit()
-    with open('LIWC_Dutch_dictionary.dic', 'r') as f:
+    # read file and convert byte strings to unicode
+    with codecs.open('LIWC_Dutch_dictionary.dic', 'rb', 'latin-1') as f:
         lines = f.readlines()
 
+    liwc_category_output = []
     liwc_output = {}
     for line in lines:
         # legend
         if line[0].isdigit() or line.startswith(('%', '\r')):
-            print line.strip()
+            liwc_category_output.append(line.strip())
         # word
         else:
             entry = line.split()
             term = entry[0]
             categories = entry[1:]
-            t = term.decode('latin-1')
-            words = get_spelling_variants(t, categories, 1600, 1830)
-            words.append(t)
-            #print term, words
             sleep(1)
+            words = get_spelling_variants(term, categories, 1600, 1830)
+            words.append(term)
+            print term, words
             for word in words:
                 if liwc_output.get(word) and not categories == liwc_output[word]:
                     new_c = list(set(categories + liwc_output.get(word)))
@@ -78,10 +73,19 @@ if __name__ == '__main__':
                 else:
                     liwc_output[word] = categories
 
-    json.dumps(liwc_output, open('liwc_output.json','w'), sort_keys=True)
-    #liwc_output = json.loads(open('liwc_output.json', 'r'), encoding='utf-8')
+    with codecs.open('liwc_output.json', 'w', 'utf8') as f:
+        json.dump(liwc_output, f, sort_keys=True, ensure_ascii=False, indent=2)
+    
+    #with codecs.open('liwc_output.json', 'rb', 'utf8') as f:
+    #    liwc_output = json.load(f, encoding='utf-8')
 
-    entries = liwc_output.keys()
-    entries.sort()
-    for entry in entries:
-        print '{e}\t\t{l}'.format(e=entry.encode('utf8'), l='\t'.join(liwc_output[entry]))
+    with codecs.open('historic_Dutch_LIWC.dic', 'wb', 'utf8') as f:
+        f.write('\n'.join(liwc_category_output))
+        
+        entries = liwc_output.keys()
+        entries.sort()
+        for entry in entries:
+            f.write(entry)
+            f.write('\t\t')
+            f.write('\t'.join(liwc_output[entry]))
+            f.write('\n')
