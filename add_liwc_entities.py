@@ -11,7 +11,7 @@ import json
 from datetime import datetime
 
 
-def add_entity(soup, sentence, cls, word_ids):
+def add_entity(soup, sentence, cls, words):
     # bevat sentence al een entity layer?
     if sentence.find('entities'):
         entities = sentence.entities
@@ -21,8 +21,8 @@ def add_entity(soup, sentence, cls, word_ids):
 
     entity = soup.new_tag('entity')
     entity['class'] = cls
-    for w in word_ids:
-        entity.append(soup.new_tag('wref', id=w))
+    for w in words:
+        entity.append(soup.new_tag('wref', id=w['xml:id'], t=w.t.string))
 
     entities.append(entity)
     print entities
@@ -61,10 +61,10 @@ if __name__ == '__main__':
         if w in liwc_dict.keys():
             # posemo
             if '13' in liwc_dict[w]:
-                add_entity(soup, word.parent, 'liwc-posemo', [word['xml:id']])
+                add_entity(soup, word.parent, 'liwc-posemo', [word])
             # negemo
             if '16' in liwc_dict[w]:
-                add_entity(soup, word.parent, 'liwc-negemo', [word['xml:id']])
+                add_entity(soup, word.parent, 'liwc-negemo', [word])
 
     annotation_tag = soup.new_tag('entity-annotation')
     annotation_tag['annotator'] = 'liwc'
