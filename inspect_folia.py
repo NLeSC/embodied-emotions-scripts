@@ -2,9 +2,9 @@
 Usage: inspect_folia.py <FoLiA XML file>"""
 
 from bs4 import BeautifulSoup
-from bs4_helpers import tag_or_string, scene, act, sub_act, stage_direction, \
-    speaker_turn, event_without_class, head, line_feed, text_content, \
-    sentence, paragraph, note, ref, list_, item, event
+from emotools.bs4_helpers import tag_or_string, scene, act, sub_act, \
+     stage_direction, speaker_turn, event_without_class, head, line_feed, \
+     text_content, sentence, paragraph, note, ref, list_, item, event
 import argparse
 import os
 
