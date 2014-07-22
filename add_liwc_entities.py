@@ -3,16 +3,12 @@
 """Add LIWC words as entities in FoLiA XML file.
 Usage: python add_liwc_entities.py <file in>
 """
-from lxml import etree
 from bs4 import BeautifulSoup
-from emotools import bs4_helpers
-import argparse
-import json
 from datetime import datetime
+import argparse
 
 
 def add_entity(soup, sentence, cls, words):
-    # bevat sentence al een entity layer?
     if sentence.find('entities'):
         entities = sentence.entities
     else:
@@ -25,13 +21,11 @@ def add_entity(soup, sentence, cls, words):
         entity.append(soup.new_tag('wref', id=w['xml:id'], t=w.t.string))
 
     entities.append(entity)
-    print entities
-    print '-----'
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('file_in', help='the name of the FoLiA XML file add ' \
+    parser.add_argument('file_in', help='the name of the FoLiA XML file add '
                         'LIWC entities to')
     args = parser.parse_args()
 
@@ -43,15 +37,15 @@ if __name__ == '__main__':
 
     liwc_dict = {}
     for line in lines:
-        # word 
+        # word
         if line[0].isalpha():
             entry = line.split()
             term = entry[0]
             categories = entry[1:]
             liwc_dict[term] = categories
-   
+
     # Load document
-    #doc = folia.Document(file='medea-folia-no_events.xml')
+    # doc = folia.Document(file='medea-folia-no_events.xml')
     with open(file_name, 'r') as f:
         soup = BeautifulSoup(f, 'xml')
 
