@@ -20,7 +20,6 @@ def add_entity(soup, sentence, cls, word_ids):
         sentence.append(entities)
 
     entity = soup.new_tag('entity')
-    entity['xml:id'] = 'entity_id'
     entity['class'] = cls
     for w in word_ids:
         entity.append(soup.new_tag('wref', id=w))
