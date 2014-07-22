@@ -8,6 +8,7 @@ from bs4 import BeautifulSoup
 from emotools import bs4_helpers
 import argparse
 import json
+from datetime import datetime
 
 
 def add_entity(soup, sentence, cls, word_ids):
@@ -65,6 +66,14 @@ if __name__ == '__main__':
             # negemo
             if '16' in liwc_dict[w]:
                 add_entity(soup, word.parent, 'liwc-negemo', [word['xml:id']])
+
+    annotation_tag = soup.new_tag('entity-annotation')
+    annotation_tag['annotator'] = 'liwc'
+    annotation_tag['annotatortype'] = 'auto'
+    annotation_tag['datetime'] = datetime.now()
+    annotation_tag['set'] = 'liwc-set'
+
+    soup.annotations.append(annotation_tag)
 
     output_xml = soup.prettify("utf-8")
     with open('test.xml', 'w') as file:
