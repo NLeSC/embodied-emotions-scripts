@@ -6,6 +6,9 @@ Usage: python add_liwc_entities.py <file in>
 from bs4 import BeautifulSoup
 from datetime import datetime
 import argparse
+import codecs
+
+from emotools import string_helpers
 
 
 def add_entity(soup, sentence, cls, words):
@@ -32,7 +35,7 @@ if __name__ == '__main__':
     file_name = args.file_in
 
     # Load liwc dict
-    with open('LIWC_Dutch_dictionary.dic', 'r') as f:
+    with codecs.open('historic_Dutch_LIWC.dic', 'rb', 'utf8') as f:
         lines = f.readlines()
 
     liwc_dict = {}
