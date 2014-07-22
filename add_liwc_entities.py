@@ -7,8 +7,7 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 import argparse
 import codecs
-
-from emotools import string_helpers
+import os
 
 
 def add_entity(soup, sentence, cls, words):
@@ -24,6 +23,15 @@ def add_entity(soup, sentence, cls, words):
         entity.append(soup.new_tag('wref', id=w['xml:id'], t=w.t.string))
 
     entities.append(entity)
+
+
+def write_folia_file(soup, folia_in, ext):
+    output_xml = soup.prettify()
+    head, tail = os.path.split(folia_in)
+    p = tail.split('.')   
+    file_out = '{h}{s}{n}-{e}.xml'.format(n=p[0], h=head, s=os.sep, e=ext)
+    with codecs.open(file_out, 'wb', 'utf8') as f:
+        f.write(output_xml)
 
 
 if __name__ == '__main__':
@@ -71,6 +79,4 @@ if __name__ == '__main__':
 
     soup.annotations.append(annotation_tag)
 
-    output_xml = soup.prettify("utf-8")
-    with open('test.xml', 'w') as file:
-        file.write(output_xml)
+    write_folia_file(soup, file_name, 'liwc')
