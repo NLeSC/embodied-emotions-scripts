@@ -46,10 +46,18 @@ if __name__ == '__main__':
     with codecs.open('historic_Dutch_LIWC.dic', 'rb', 'utf8') as f:
         lines = f.readlines()
 
+    liwc_categories = {}
     liwc_dict = {}
+
     for line in lines:
+        # LIWC category
+        if line[0].isdigit():
+            entry = line.split()
+            # remove 0 from strings like 01
+            c = str(int(entry[0]))
+            liwc_categories[c] = entry[1]
         # word
-        if line[0].isalpha():
+        elif line[0].isalpha():
             entry = line.split()
             term = entry[0]
             categories = entry[1:]
@@ -64,12 +72,9 @@ if __name__ == '__main__':
     for word in words:
         w = word.t.string
         if w in liwc_dict.keys():
-            # posemo
-            if '13' in liwc_dict[w]:
-                add_entity(soup, word.parent, 'liwc-posemo', [word])
-            # negemo
-            if '16' in liwc_dict[w]:
-                add_entity(soup, word.parent, 'liwc-negemo', [word])
+            for cat in liwc_dict[w]:
+                cat_label = 'liwc-{}'.format(liwc_categories[cat])
+                add_entity(soup, word.parent, cat_label, [word])
 
     annotation_tag = soup.new_tag('entity-annotation')
     annotation_tag['annotator'] = 'liwc'
