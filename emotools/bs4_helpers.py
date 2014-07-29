@@ -91,3 +91,7 @@ def item(tag):
 
 def word(tag):
     return is_tag(tag, 'w')
+
+
+def entity(tag):
+    return is_tag(tag, 'entity')
