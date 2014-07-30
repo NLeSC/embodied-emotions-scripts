@@ -30,6 +30,12 @@ def moving_average(a, n=3):
     return ret[n - 1:] / n
 
 
+def add_leading_and_trailing_zeros(a, n):
+    """Return array a with n/2 leading and trailing zeros."""
+    zeros = [0] * (n/2)
+    res =  np.append(zeros, a)
+    return np.append(res, zeros)
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('file_in', help='the name of the FoLiA XML file add '
@@ -91,12 +97,10 @@ if __name__ == '__main__':
     s = 1
     window = 5 
     res_affect_smooth = moving_average(res_affect, window)
+    res_affect_smooth = add_leading_and_trailing_zeros(res_affect_smooth, window)
     for i in range(len(res_affect)):
         a = res_affect[i]
-        if i > window/2 and i < len(res_affect_smooth):
-            a_sm = res_affect_smooth[i-window/2]
-        else:
-            a_sm = 0.0
+        a_sm = res_affect_smooth[i]
 
         print '{},{},{}'.format(s, a, a_sm)
         s += 1
