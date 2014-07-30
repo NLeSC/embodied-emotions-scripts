@@ -37,14 +37,9 @@ def kaf_file_name(input_file, act_number):
 def add_word2kaf(elem, w_id, s_id, term_id, text, terms):
     w_id = elem.get('xml:id')
     w = etree.SubElement(text, 'wf', wid=w_id, sent=s_id)
-    if speaker_turn(elem):
-        w.text = unicode(elem['actor'])
-        lemma = unicode(elem['actor'])
-        pos = 'O'
-    else:
-        w.text = unicode(elem.t.string)
-        lemma = elem.lemma.get('class')
-        pos = _folia_pos2kaf_pos[elem.pos.get('head', 'SPEC')]
+    w.text = unicode(elem.t.string)
+    lemma = elem.lemma.get('class')
+    pos = _folia_pos2kaf_pos[elem.pos.get('head', 'SPEC')]
 
     t_id = 't{wid}'.format(wid=term_id)
     t = etree.SubElement(terms, 'term', tid=t_id, type='open', lemma=lemma, 
@@ -92,11 +87,6 @@ if __name__ == '__main__':
                 elif word(elem) and not note(elem.parent.parent):
                     add_word2kaf(elem, w_id, str(s_id), term_id, text, terms)
 
-                    term_id += 1
-                elif speaker_turn(elem):
-                    s_id += 1
-                    w_id = elem.get('xml:id')
-                    add_word2kaf(elem, w_id, str(s_id), term_id, text, terms)
                     term_id += 1
             
             # write kaf xml tree to file
