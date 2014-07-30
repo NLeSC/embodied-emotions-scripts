@@ -3,7 +3,7 @@ Usage: python folia2kaf.py <file in>
 """
 from lxml import etree
 from bs4 import BeautifulSoup
-from bs4_helpers import act, sentence, word, speaker_turn, note
+from emotools.bs4_helpers import act, sentence, word, speaker_turn, note
 import argparse
 import os
 
