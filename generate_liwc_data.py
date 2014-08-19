@@ -118,7 +118,7 @@ if __name__ == '__main__':
 
     res_posneg = {}
     for (character, freq) in characters:
-        res_posneg[character] = r(res_posemo[character], res_negemo[character])
+        res_posneg[character] = moving_average(r(res_posemo[character], res_negemo[character]))
     
     for i in range(len(res_posneg[character])):
         r_values = [str(res_posneg[c][i]) for c, f in characters]
