@@ -74,12 +74,10 @@ if __name__ == '__main__':
 
     speakerturns = soup.find_all(speaker_turn)
     characters = get_characters(speakerturns)
-    for char, num in characters.iteritems():
-        print char, num
+    #for char, num in characters.iteritems():
+    #    print char, num
 
-    sys.exit()
-
-    character = 'Eloiza.'
+    character = 'Eloiza'
 
     sent = 0
     speaker = 'UNKNOWN'
@@ -90,46 +88,34 @@ if __name__ == '__main__':
     res_posemo = np.array([])
     res_negemo = np.array([])
 
-    for elem in soup.descendants:
-        if speaker_turn(elem):
-            speaker = elem.get('actor').strip()
-        elif sentence(elem):
-            if speaker == character:
-                res_affect = np.append(res_affect, float(count_affect))
-                res_posemo = np.append(res_posemo, float(count_posemo))
-                res_negemo = np.append(res_negemo, float(count_negemo))
-                #print '{},{},{},{}'.format(sent,
-                #                           count_affect,
-                #                           count_posemo,
-                #                           count_negemo)
-            else: 
-                res_affect = np.append(res_affect, 0.0)
-                res_posemo = np.append(res_posemo, 0.0)
-                res_negemo = np.append(res_negemo, 0.0)
-            
-            count_affect = 0
-            count_posemo = 0
-            count_negemo = 0
-            
-            sent += 1
-        elif entity(elem) and elem.get('class').startswith('liwc-'):
-            if elem.get('class') == 'liwc-Affect':
-                count_affect += 1
-            if elem.get('class') == 'liwc-Posemo':
-                count_posemo += 1
-            if elem.get('class') == 'liwc-Negemo':
-                count_negemo += 1
+    for turn in speakerturns:
+        count_affect = 0
+        count_posemo = 0
+        count_negemo = 0
 
-    #print 'aantal zinnen:', sent, len(soup.find_all(sentence))
-    #print 'lengte res_affect array:', len(res_affect)
-    #print res_affect
+        speaker = extract_character_name(turn.get('actor'))
 
-    #print 'Sentence,{},{},{}'.format('affect', 'posemo', 'negemo')
-    print 'Sentence,{},{},{}'.format('posemo', 'negemo', 'r')
-    
-    # plot pos, neg en r
+        for elem in turn.descendants:
+            if entity(elem) and elem.get('class').startswith('liwc-'):
+                if elem.get('class') == 'liwc-Affect':
+                    count_affect += 1
+                if elem.get('class') == 'liwc-Posemo':
+                    count_posemo += 1
+                if elem.get('class') == 'liwc-Negemo':
+                    count_negemo += 1
+
+        if speaker == character:
+            res_affect = np.append(res_affect, float(count_affect))
+            res_posemo = np.append(res_posemo, float(count_posemo))
+            res_negemo = np.append(res_negemo, float(count_negemo))
+        else: 
+            res_affect = np.append(res_affect, 0.0)
+            res_posemo = np.append(res_posemo, 0.0)
+            res_negemo = np.append(res_negemo, 0.0)
+
+    print 'Turn,{}'.format(character)
+
     res_posneg = r(res_posemo, res_negemo)
-
     s = 1
 
     for i in range(len(res_posemo)):
@@ -137,5 +123,6 @@ if __name__ == '__main__':
         v2 = res_negemo[i]
         v3 = res_posneg[i]
 
-        print '{},{},{},{}'.format(s, v1, -v2, v3)
+        #print '{},{},{},{}'.format(s, v1, -v2, v3)
+        print '{},{}'.format(s, v3)
         s += 1
