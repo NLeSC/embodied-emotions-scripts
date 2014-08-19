@@ -73,56 +73,53 @@ if __name__ == '__main__':
         soup = BeautifulSoup(f, 'xml')
 
     speakerturns = soup.find_all(speaker_turn)
-    characters = get_characters(speakerturns)
+    all_characters = get_characters(speakerturns)
     #for char, num in characters.iteritems():
     #    print char, num
+    num_chars = 5
+    characters = all_characters.most_common(num_chars)
 
-    character = 'Eloiza'
-
-    sent = 0
     speaker = 'UNKNOWN'
-    count_affect = 0
-    count_posemo = 0
-    count_negemo = 0
-    res_affect = np.array([])
-    res_posemo = np.array([])
-    res_negemo = np.array([])
+
+    res_posemo = {}
+    res_negemo = {}
+    count_posemo = {}
+    count_negemo = {}
+
+    for (character, freq) in characters:
+        res_posemo[character] = np.array([])
+        res_negemo[character] = np.array([])
+
+        count_posemo[character] = 0
+        count_negemo[character] = 0
 
     for turn in speakerturns:
-        count_affect = 0
+        speaker = extract_character_name(turn.get('actor'))
+        
         count_posemo = 0
         count_negemo = 0
 
-        speaker = extract_character_name(turn.get('actor'))
-
         for elem in turn.descendants:
             if entity(elem) and elem.get('class').startswith('liwc-'):
-                if elem.get('class') == 'liwc-Affect':
-                    count_affect += 1
                 if elem.get('class') == 'liwc-Posemo':
                     count_posemo += 1
                 if elem.get('class') == 'liwc-Negemo':
                     count_negemo += 1
 
-        if speaker == character:
-            res_affect = np.append(res_affect, float(count_affect))
-            res_posemo = np.append(res_posemo, float(count_posemo))
-            res_negemo = np.append(res_negemo, float(count_negemo))
-        else: 
-            res_affect = np.append(res_affect, 0.0)
-            res_posemo = np.append(res_posemo, 0.0)
-            res_negemo = np.append(res_negemo, 0.0)
+        for (character, freq) in characters:
+            if speaker == character:
+                res_posemo[character] = np.append(res_posemo[character], float(count_posemo))
+                res_negemo[character] = np.append(res_negemo[character], float(count_negemo))
+            else: 
+                res_posemo[character] = np.append(res_posemo[character], 0.0)
+                res_negemo[character] = np.append(res_negemo[character], 0.0)
 
-    print 'Turn,{}'.format(character)
+    print 'Turn,{}'.format(','.join([c for c,f in characters]))
 
-    res_posneg = r(res_posemo, res_negemo)
-    s = 1
-
-    for i in range(len(res_posemo)):
-        v1 = res_posemo[i]
-        v2 = res_negemo[i]
-        v3 = res_posneg[i]
-
-        #print '{},{},{},{}'.format(s, v1, -v2, v3)
-        print '{},{}'.format(s, v3)
-        s += 1
+    res_posneg = {}
+    for (character, freq) in characters:
+        res_posneg[character] = r(res_posemo[character], res_negemo[character])
+    
+    for i in range(len(res_posneg[character])):
+        r_values = [str(res_posneg[c][i]) for c, f in characters]
+        print '{},{}'.format((i+1), ','.join(r_values))
