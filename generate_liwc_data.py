@@ -9,6 +9,8 @@ import codecs
 import os
 from collections import Counter
 import numpy as np
+import sys
+import re
 
 from emotools.bs4_helpers import speaker_turn, sentence, entity
 
@@ -18,9 +20,19 @@ def get_characters(speakerturns):
     for turn in speakerturns:
         # more postprocessing required for character names (character names
         # now sometimes include stage directions)
-        actor = turn['actor'].strip()
+        actor_string = turn['actor']
+        actor = extract_character_name(actor_string)
         characters[actor] += 1
     return characters
+
+
+def extract_character_name(actor_str):
+    """Returns the character name extracted from the input string."""
+    actor_str = actor_str.replace('(', '').replace(')', '')
+    actor_str = actor_str.replace('[', '').replace(']', '')
+    actor_str = actor_str.replace('van binnen', '')
+    parts = re.split('[.,]', actor_str)
+    return parts[0].strip()
 
 
 def moving_average(a, n=3):
@@ -62,8 +74,10 @@ if __name__ == '__main__':
 
     speakerturns = soup.find_all(speaker_turn)
     characters = get_characters(speakerturns)
-    #for char, num in characters.iteritems():
-    #    print char, num
+    for char, num in characters.iteritems():
+        print char, num
+
+    sys.exit()
 
     character = 'Eloiza.'
 
