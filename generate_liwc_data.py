@@ -61,6 +61,38 @@ def r(a1, a2):
     return np.array(res)
 
 
+def generate_tick_marks(speakerturns):
+    """Generate tick marks for a list of speaker turns. Returns a tuple of two
+    lists of tick marks; one for acts and one for scenes.
+    """
+    # TODO: also return labels for the tick marks
+    act_marks = []
+    scene_marks = []
+
+    current_act_id = ''
+    current_scene_id = ''
+
+    for turn in speakerturns:
+        scene_id = turn.parent.get('xml:id')
+
+        # The first scene of an act might not be marked as such in FoLiA (the
+        # parent of a speaker turn might be either an act or a scene).
+        if turn.parent.get('class') == 'scene':
+            act_id = turn.parent.parent.get('xml:id')
+        else:
+            act_id = scene_id
+
+        if not act_id == current_act_id:
+            act_marks.append((speakerturns.index(turn)+1))
+            current_act_id = act_id
+
+        if not scene_id == current_scene_id:
+            scene_marks.append((speakerturns.index(turn)+1))
+            current_scene_id = scene_id
+
+    return act_marks, scene_marks
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('file_in', help='the name of the FoLiA XML file add '
