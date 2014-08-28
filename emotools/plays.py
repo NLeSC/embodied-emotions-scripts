@@ -5,7 +5,7 @@ visualizations.
 from collections import Counter
 import numpy as np
 import re
-
+from bs4_helpers import entity
 
 def get_characters(speakerturns):
     """Return a list of characters based a list of speaker turns."""
@@ -90,3 +90,17 @@ def get_play_id(soup):
     """Return the play ID."""
     id_str = soup.find('text').get('xml:id')
     return re.sub(r'_\d\d_text', '', id_str)
+
+
+def get_entities(soup, entity_class):
+    """Return the list of entities in entity class that occur in the FoLiA XML
+    document in soup.
+    """
+    result = {}
+
+    entities_xml = soup.find_all(entity)
+    for e in entities_xml:
+        if e.get('class').startswith('{}-'.format(entity_class)):
+            result[e.get('class')] = None
+
+    return result.keys()
