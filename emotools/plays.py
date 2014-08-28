@@ -84,3 +84,9 @@ def generate_tick_marks(speakerturns):
             current_scene_id = scene_id
 
     return act_marks, scene_marks
+
+
+def get_play_id(soup):
+    """Return the play ID."""
+    id_str = soup.find('text').get('xml:id')
+    return re.sub(r'_\d\d_text', '', id_str)
