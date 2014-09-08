@@ -46,7 +46,7 @@ def r(a1, a2):
     """Calculate Jisk's r measure (not sure it makes sense."""
     res = []
     for i in range(len(a1)):
-        if not a1[i] == 0.0 or not a2[i] == 0:
+        if not (a1[i] == 0.0 and a2[i] == 0):
             res.append((a1[i]-a2[i])/(a1[i]+a2[i]))
         else:
             res.append(0.0)
