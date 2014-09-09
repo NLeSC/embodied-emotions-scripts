@@ -164,6 +164,7 @@ if __name__ == '__main__':
     print 'Match <t> and <s> in <event>s.'
     events = soup.find_all(event)
     elements_ok, msg = match_t_and_s(events)
+    continue_script(elements_ok, msg)
 
     print 'Printing all <pos>-tags.'
     pos_coll = {}
