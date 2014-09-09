@@ -9,6 +9,7 @@ from emotools.folia_helpers import parse_document
 from emotools.script import continue_script
 import argparse
 import os
+import sys
 
 
 def inspect(elements, expected, not_expected, ignored):
