@@ -6,6 +6,7 @@ from emotools.bs4_helpers import tag_or_string, scene, act, sub_act, \
      stage_direction, speaker_turn, event_without_class, head, line_feed, \
      text_content, sentence, paragraph, note, ref, list_, item, event
 from emotools.folia_helpers import parse_document
+from emotools.script import continue_script
 import argparse
 import os
 
