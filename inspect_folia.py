@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 from emotools.bs4_helpers import tag_or_string, scene, act, sub_act, \
      stage_direction, speaker_turn, event_without_class, head, line_feed, \
      text_content, sentence, paragraph, note, ref, list_, item, event
+from emotools.folia_helpers import parse_document
 import argparse
 import os
 
@@ -57,6 +58,14 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     file_name = args.file
+
+    # First check: can the FoLiA parser parse the FoLiA XML file?
+    doc, msg = parse_document(file_name)
+    if not doc:
+        sys.stderr.write(msg)
+        sys.exit(1)
+    else:
+        print msg
 
     with open(file_name) as f:
         soup = BeautifulSoup(f, 'xml')
