@@ -17,6 +17,8 @@ def inspect(elements, expected, not_expected, ignored):
     of tag, a message is printed. Not_expected contains tags that are not
     supposed to appear.
     """
+    elements_ok = True
+    error_msg = []
     for elem in elements:
         for child in elem.children:
             ok = False
@@ -32,9 +34,12 @@ def inspect(elements, expected, not_expected, ignored):
                         print '{m}: {e}'.format(m=msg, e=child.get('xml:id'))
                         ok = True
                 if not ok:
-                    print 'Other ({s}): {id_}'.format(s=tag_or_string(child),
+                    elements_ok = False
+                    msg = 'Other ({s}): {id_}'.format(s=tag_or_string(child),
                                                       id_=child.get('xml:id'))
-
+                    error_msg.append(msg)
+                    print msg 
+    return elements_ok, '\n'.join(error_msg)
 
 def match_t_and_s(elements):
     """Check whether every element in elements has matching <t> and <s> tags.
@@ -81,7 +86,7 @@ if __name__ == '__main__':
         'Sub-act': act
     }
     ignored = [note, ref]
-    inspect(acts, expected, not_expected, ignored)
+    elements_ok, msg = inspect(acts, expected, not_expected, ignored)
 
     # inspect scenes
     # expected: heads, stage directions, speaker turns, paragraphs, line feeds
@@ -97,7 +102,7 @@ if __name__ == '__main__':
         'Event without class': event_without_class
     }
     ignored = [note, ref]
-    inspect(scenes, expected, not_expected, ignored)
+    elements_ok, msg = inspect(scenes, expected, not_expected, ignored)
 
     # inspect heads
     # expected: text content, sentences, line feeds
@@ -108,7 +113,7 @@ if __name__ == '__main__':
     expected = [text_content, sentence, line_feed]
     not_expected = {}
     ignored = [note, ref]
-    inspect(heads, expected, not_expected, ignored)
+    elements_ok, msg = inspect(heads, expected, not_expected, ignored)
 
     # inspect stage directions
     # expected: text content, sentences, line feeds
@@ -119,7 +124,7 @@ if __name__ == '__main__':
     expected = [text_content, sentence, line_feed]
     not_expected = {}
     ignored = [note, ref]
-    inspect(stage_directions, expected, not_expected, ignored)
+    elements_ok, msg = inspect(stage_directions, expected, not_expected, ignored)
 
     # inspect speaker turns
     # expected: text content, sentences, stage directions, paragraphs, 
@@ -131,7 +136,7 @@ if __name__ == '__main__':
     expected = [text_content, sentence, stage_direction, paragraph, line_feed]
     not_expected = {}
     ignored = [note, ref]
-    inspect(speaker_turns, expected, not_expected, ignored)
+    elements_ok, msg = inspect(speaker_turns, expected, not_expected, ignored)
 
     # inspect events without class 
     # expected: text content, sentences, line feeds
@@ -142,7 +147,7 @@ if __name__ == '__main__':
     expected = [text_content, sentence, line_feed]
     not_expected = {}
     ignored = [note, ref]
-    inspect(events_without_class, expected, not_expected, ignored)
+    elements_ok, msg = inspect(events_without_class, expected, not_expected, ignored)
 
     print 'Match <t> and <s> in <event>s.'
     events = soup.find_all(event)
