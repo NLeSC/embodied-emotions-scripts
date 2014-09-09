@@ -1,5 +1,5 @@
 """Create a KAF file for each act in a FoLiA file
-Usage: python folia2kaf.py <file in>
+Usage: python folia2kaf.py <file in> <output dir>
 """
 from lxml import etree
 from bs4 import BeautifulSoup
@@ -28,10 +28,7 @@ _folia_pos2kaf_pos = {
 def kaf_file_name(input_file, act_number):
     head, tail = os.path.split(input_file)
     p = tail.split('.')   
-    return '{h}{s}{n}__act-0{a}.kaf'.format(a=act_number, 
-                                            n=p[0], 
-                                            h=head, 
-                                            s=os.sep)
+    return '{n}__act-0{a}.kaf'.format(a=act_number, n=p[0])
 
 
 def add_word2kaf(elem, w_id, s_id, term_id, text, terms):
@@ -52,9 +49,12 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('file', help='the name of the FoLiA XML file to ' \
                         'generate KAF files for')
+    parser.add_argument('output_dir', help='the directory where the ' \
+                        'generated KAF files should be saved')
     args = parser.parse_args()
 
     file_name = args.file
+    output_dir = args.output_dir
 
     # Load document
     #doc = folia.Document(file='medea-folia-no_events.xml')
@@ -90,7 +90,8 @@ if __name__ == '__main__':
                     term_id += 1
             
             # write kaf xml tree to file
-            kaf_file = kaf_file_name(file_name, act_number)
+            kaf_file = '{}{}{}'.format(output_dir, os.sep,
+                                       kaf_file_name(file_name, act_number))
             print kaf_file
             with open(kaf_file, 'w') as f:
                 kaf_document.write(f, xml_declaration=True, encoding='utf-8', method='xml', pretty_print=True)
