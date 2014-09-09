@@ -45,6 +45,8 @@ def inspect(elements, expected, not_expected, ignored):
 def match_t_and_s(elements):
     """Check whether every element in elements has matching <t> and <s> tags.
     """
+    elements_ok = True
+    error_msg = []
     for elem in elements:
         t_found = False
         s_found = False
@@ -54,7 +56,10 @@ def match_t_and_s(elements):
             if sentence(child):
                 s_found = True
         if not t_found and s_found:
-            print '<t> and <s> mismatch: {id_}'.format(id_=elem.get('xml:id'))
+            elements_ok = False
+            error_msg.append('<t> and <s> mismatch: {id_}' \
+                             .format(id_=elem.get('xml:id'))
+    return elements_ok, '\n'.join(error_msg)
 
 
 if __name__ == '__main__':
@@ -158,7 +163,7 @@ if __name__ == '__main__':
 
     print 'Match <t> and <s> in <event>s.'
     events = soup.find_all(event)
-    match_t_and_s(events)
+    elements_ok, msg = match_t_and_s(events)
 
     print 'Printing all <pos>-tags.'
     pos_coll = {}
