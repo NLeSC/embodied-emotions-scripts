@@ -58,7 +58,7 @@ def match_t_and_s(elements):
         if not t_found and s_found:
             elements_ok = False
             error_msg.append('<t> and <s> mismatch: {id_}' \
-                             .format(id_=elem.get('xml:id'))
+                             .format(id_=elem.get('xml:id')))
     return elements_ok, '\n'.join(error_msg)
 
 
