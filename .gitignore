@@ -3,3 +3,6 @@
 *.swp
 .exvim*
 *.exvim
+LIWC_Dutch_dictionary.dic
+historic_Dutch_LIWC.dic
+liwc_output.json
