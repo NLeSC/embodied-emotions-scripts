@@ -98,12 +98,20 @@ if __name__ == '__main__':
     # not expected: sub-acts, other tags and strings
     print '# acts:', len(acts)
     
-    expected = [head, scene, paragraph, line_feed, stage_direction, speaker_turn]
+    expected = [head, scene, paragraph, line_feed]
     not_expected = {
         'Sub-act': act,
         'Event without class': event_without_class
     }
     ignored = [note, ref]
+
+    # if there are no scenes, we expect speaker turns and stage direction in
+    # the acts
+    if len(scenes) == 0:
+        print 'play without scenes'
+        expected.append(stage_direction)
+        expected.append(speaker_turn)
+
     elements_ok, msg = inspect(acts, expected, not_expected, ignored)
 
     document_checks.append(elements_ok)
