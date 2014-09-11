@@ -71,13 +71,15 @@ if __name__ == '__main__':
 
     file_name = args.file
 
+    document_checks = []
+
     # First check: can the FoLiA parser parse the FoLiA XML file?
     doc, msg = parse_document(file_name)
     if not doc:
-        sys.stderr.write(msg)
-        sys.exit(1)
+        document_checks.append(False)
     else:
-        print msg
+        document_checks.append(True)
+    print msg
 
     with open(file_name) as f:
         soup = BeautifulSoup(f, 'xml')
@@ -88,13 +90,15 @@ if __name__ == '__main__':
     acts = soup.find_all(act)
     print '# acts:', len(acts)
     
-    expected = [head, scene, paragraph, line_feed]
+    expected = [head, scene, paragraph, line_feed, stage_direction, speaker_turn]
     not_expected = {
         'Sub-act': act
     }
     ignored = [note, ref]
     elements_ok, msg = inspect(acts, expected, not_expected, ignored)
-    continue_script(elements_ok, msg)
+
+    document_checks.append(elements_ok)
+    if msg: print msg
 
     # inspect scenes
     # expected: heads, stage directions, speaker turns, paragraphs, line feeds
@@ -111,7 +115,9 @@ if __name__ == '__main__':
     }
     ignored = [note, ref]
     elements_ok, msg = inspect(scenes, expected, not_expected, ignored)
-    continue_script(elements_ok, msg)
+    
+    document_checks.append(elements_ok)
+    if msg: print msg
 
     # inspect heads
     # expected: text content, sentences, line feeds
@@ -123,7 +129,9 @@ if __name__ == '__main__':
     not_expected = {}
     ignored = [note, ref]
     elements_ok, msg = inspect(heads, expected, not_expected, ignored)
-    continue_script(elements_ok, msg)
+   
+    document_checks.append(elements_ok)
+    if msg: print msg
 
     # inspect stage directions
     # expected: text content, sentences, line feeds
@@ -135,7 +143,9 @@ if __name__ == '__main__':
     not_expected = {}
     ignored = [note, ref]
     elements_ok, msg = inspect(stage_directions, expected, not_expected, ignored)
-    continue_script(elements_ok, msg)
+
+    document_checks.append(elements_ok)
+    if msg: print msg
 
     # inspect speaker turns
     # expected: text content, sentences, stage directions, paragraphs, 
@@ -148,7 +158,9 @@ if __name__ == '__main__':
     not_expected = {}
     ignored = [note, ref]
     elements_ok, msg = inspect(speaker_turns, expected, not_expected, ignored)
-    continue_script(elements_ok, msg)
+
+    document_checks.append(elements_ok)
+    if msg: print msg
 
     # inspect events without class 
     # expected: text content, sentences, line feeds
@@ -160,12 +172,16 @@ if __name__ == '__main__':
     not_expected = {}
     ignored = [note, ref]
     elements_ok, msg = inspect(events_without_class, expected, not_expected, ignored)
-    continue_script(elements_ok, msg)
+
+    document_checks.append(elements_ok)
+    if msg: print msg
 
     print 'Match <t> and <s> in <event>s.'
     events = soup.find_all(event)
     elements_ok, msg = match_t_and_s(events)
-    continue_script(elements_ok, msg)
+
+    document_checks.append(elements_ok)
+    if msg: print msg
 
     print 'Printing all <pos>-tags.'
     pos_coll = {}
@@ -174,3 +190,7 @@ if __name__ == '__main__':
         pos_coll[elem.get('head')] = None
 
     print '\n'.join(pos_coll.keys())
+
+    if False in document_checks:
+        print "Found errors in document."
+        sys.exit(1)
