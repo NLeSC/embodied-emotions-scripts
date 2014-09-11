@@ -84,10 +84,18 @@ if __name__ == '__main__':
     with open(file_name) as f:
         soup = BeautifulSoup(f, 'xml')
 
+    # Elements to inspect
+    acts = soup.find_all(act)
+    scenes = soup.find_all(scene)
+    heads = soup.find_all('head')
+    stage_directions = soup.find_all(stage_direction)
+    speaker_turns = soup.find_all(speaker_turn)
+    events_without_class = soup.find_all(event_without_class)
+    events = soup.find_all(event)
+
     # inspect acts
     # expected: heads, scenes, paragraphs, line feeds
     # not expected: sub-acts, other tags and strings
-    acts = soup.find_all(act)
     print '# acts:', len(acts)
     
     expected = [head, scene, paragraph, line_feed, stage_direction, speaker_turn]
@@ -106,7 +114,6 @@ if __name__ == '__main__':
     # not expected: sub-scenes, events withot class attribute, other tags and
     # strings
     # hoof002door01_01 also contains <list> and <item> tags. 
-    scenes = soup.find_all(scene)
     print '# scenes:', len(scenes)
     
     expected = [head, stage_direction, speaker_turn, paragraph, line_feed]
@@ -123,7 +130,6 @@ if __name__ == '__main__':
     # inspect heads
     # expected: text content, sentences, line feeds
     # not expected: other tags and strings
-    heads = soup.find_all('head')
     print '# heads:', len(heads)
 
     expected = [text_content, sentence, line_feed]
@@ -137,7 +143,6 @@ if __name__ == '__main__':
     # inspect stage directions
     # expected: text content, sentences, line feeds
     # not expected: other tags and strings
-    stage_directions = soup.find_all(stage_direction)
     print '# stage directions:', len(stage_directions)
 
     expected = [text_content, sentence, line_feed]
@@ -152,7 +157,6 @@ if __name__ == '__main__':
     # expected: text content, sentences, stage directions, paragraphs, 
     # line feeds
     # not expected: other tags and strings
-    speaker_turns = soup.find_all(speaker_turn)
     print '# speaker turns:', len(speaker_turns)
 
     expected = [text_content, sentence, stage_direction, paragraph, line_feed]
@@ -166,7 +170,6 @@ if __name__ == '__main__':
     # inspect events without class 
     # expected: text content, sentences, line feeds
     # not expected: other tags and strings
-    events_without_class = soup.find_all(event_without_class)
     print '# events without class:', len(events_without_class)
 
     expected = [text_content, sentence, line_feed]
@@ -178,7 +181,6 @@ if __name__ == '__main__':
     if msg: print msg
 
     print 'Match <t> and <s> in <event>s.'
-    events = soup.find_all(event)
     elements_ok, msg = match_t_and_s(events)
 
     document_checks.append(elements_ok)
