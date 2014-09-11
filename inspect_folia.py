@@ -92,7 +92,8 @@ if __name__ == '__main__':
     
     expected = [head, scene, paragraph, line_feed, stage_direction, speaker_turn]
     not_expected = {
-        'Sub-act': act
+        'Sub-act': act,
+        'Event without class': event_without_class
     }
     ignored = [note, ref]
     elements_ok, msg = inspect(acts, expected, not_expected, ignored)
