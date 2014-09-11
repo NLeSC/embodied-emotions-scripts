@@ -31,16 +31,16 @@ def inspect(elements, expected, not_expected, ignored):
                 if condition(child):
                     ok = True
             if not ok:
+                elements_ok = False
                 for msg, condition in not_expected.iteritems():
                     if condition(child):
-                        print '{m}: {e}'.format(m=msg, e=child.get('xml:id'))
+                        error_msg.append('{m}: {e}' \
+                            .format(m=msg, e=child.get('xml:id')))
                         ok = True
                 if not ok:
-                    elements_ok = False
                     msg = 'Other ({s}): {id_}'.format(s=tag_or_string(child),
                                                       id_=child.get('xml:id'))
                     error_msg.append(msg)
-                    print msg 
     return elements_ok, '\n'.join(error_msg)
 
 def match_t_and_s(elements):
