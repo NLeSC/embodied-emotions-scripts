@@ -28,9 +28,7 @@ for folia in $(find $1 -maxdepth 1 -type f); do
    
     # check folia file
     echo "Checking FoLiA XML..."
-    # inspect_folia.py writes to stderr
-    # 2>&1 redirects stderr to stdout 
-    err_report=$(python inspect_folia.py $folia 2>&1)
+    python inspect_folia.py $folia > /tmp/folia2kaf
     folia_ok=$?
     
     if [ $folia_ok -eq 0 ];then
@@ -56,9 +54,11 @@ for folia in $(find $1 -maxdepth 1 -type f); do
         
         # write error report to text file
         error_report_file="${error_dir}/${play_id}.txt"
-        echo $err_report > $error_report_file
+        cat /tmp/folia2kaf > $error_report_file
     fi
     echo ''
 done
+
+rm /tmp/folia2kaf
 
 echo "Total: ${total} Valid: ${valid} Invalid: ${invalid}"
