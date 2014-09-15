@@ -38,8 +38,11 @@ def inspect(elements, expected, not_expected, ignored):
                             .format(m=msg, e=child.get('xml:id')))
                         ok = True
                 if not ok:
-                    msg = 'Other ({s}): {id_}'.format(s=tag_or_string(child),
-                                                      id_=child.get('xml:id'))
+                    class_ = child.get('class', 'NO CLASS')
+                    msg = 'Other: {} class={}: {}'.format(
+                          tag_or_string(child),
+                          class_,
+                          child.get('xml:id'))
                     error_msg.append(msg)
     return elements_ok, '\n'.join(error_msg)
 
