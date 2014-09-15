@@ -40,6 +40,10 @@ for folia in $(find $1 -maxdepth 1 -type f); do
         [[ -d "$play_dir" ]] || mkdir "$play_dir"
 
         python folia2kaf.py $folia $play_dir > /dev/null
+
+        # download pdf file
+        echo "Downloading pdf file..."
+        wget "http://dbnl.nl/tekst/${play_id}_01/${play_id}_01.pdf" -O "${play_dir}/${play_id}.pdf"
     else
         invalid=$((invalid+1))
         echo "Invalid FoLiA file."
