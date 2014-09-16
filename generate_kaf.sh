@@ -1,6 +1,7 @@
 #!/bin/bash
 # Batch generate kaf-files from folia files
 # Usage: ./generate_kaf.sh <dir with folia-files> <dir to save kaf-files in>
+# Disabled checking of folia files
 # 2014-09-10 j.vanderzwaan@esciencecenter.nl
 
 echo ''
@@ -15,6 +16,9 @@ total=0
 invalid=0
 valid=0
 
+# create temp file to store error reports
+touch /tmp/folia2kaf
+
 shopt -s nullglob
 for folia in $(find $1 -maxdepth 1 -type f); do
     total=$((total+1))
@@ -27,10 +31,11 @@ for folia in $(find $1 -maxdepth 1 -type f); do
     play_id=${folia:(-20):13}
    
     # check folia file
-    echo "Checking FoLiA XML..."
-    python inspect_folia.py $folia > /tmp/folia2kaf
-    folia_ok=$?
-    
+    #echo "Checking FoLiA XML..."
+    #python inspect_folia.py $folia > /tmp/folia2kaf
+    #folia_ok=$?
+    folia_ok=0
+
     if [ $folia_ok -eq 0 ];then
         valid=$((valid+1))
         echo "Generating kaf-files..."
