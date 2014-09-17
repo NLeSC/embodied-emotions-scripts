@@ -45,6 +45,34 @@ def add_word2kaf(elem, w_id, s_id, term_id, text, terms):
     target = etree.SubElement(s, 'target', id=w_id)
 
 
+def act2kaf(act_xml, sentence_id):
+    """Convert act to kaf xml. Returns an XML tree that can be written to file.
+    """
+    print 'act:', act_xml.get('xml:id')
+
+    kaf_document = None
+    subacts = act_xml.find_all(act)
+    if not subacts:
+        term_id = 1
+
+        # create output kaf xml tree for act
+        root = etree.Element('KAF')
+        kaf_document = etree.ElementTree(root)
+        text = etree.SubElement(root, 'text')
+        terms = etree.SubElement(root, 'terms')
+
+        for elem in act_xml.descendants:
+            if sentence(elem) and not note(elem.parent):
+                sentence_id += 1
+            elif word(elem) and not note(elem.parent.parent):
+                add_word2kaf(elem, w_id, str(sentence_id), term_id, text,
+                             terms)
+
+                term_id += 1
+
+    return kaf_document, sentence_id
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('file', help='the name of the FoLiA XML file to ' \
@@ -69,26 +97,10 @@ if __name__ == '__main__':
     w_id = None
 
     for a in acts:
-        print 'act:', a.get('xml:id')
-        subacts = a.find_all(act)
-        if not subacts:
+        kaf_document, s_id = act2kaf(a, s_id)
+
+        if kaf_document:
             act_number += 1
-            term_id = 1
-
-            # create output kaf xml tree for act
-            root = etree.Element('KAF')
-            kaf_document = etree.ElementTree(root)
-            text = etree.SubElement(root, 'text')
-            terms = etree.SubElement(root, 'terms')
-
-            for elem in a.descendants:
-                if sentence(elem) and not note(elem.parent):
-                    s_id += 1
-                elif word(elem) and not note(elem.parent.parent):
-                    add_word2kaf(elem, w_id, str(s_id), term_id, text, terms)
-
-                    term_id += 1
-            
             # write kaf xml tree to file
             kaf_file = '{}{}{}'.format(output_dir, os.sep,
                                        kaf_file_name(file_name, act_number))
