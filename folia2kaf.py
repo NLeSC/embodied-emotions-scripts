@@ -48,11 +48,14 @@ def add_word2kaf(elem, w_id, s_id, term_id, text, terms):
 def act2kaf(act_xml, sentence_id):
     """Convert act to kaf xml. Returns an XML tree that can be written to file.
     """
-    print 'act:', act_xml.get('xml:id')
+    print 'act:', act_xml.find('div', 'act').attrs.get('xml:id')
 
     kaf_document = None
     subacts = act_xml.find_all(act)
-    if not subacts:
+
+    # act_xml should contain exactly one act; if it contains more acts, these
+    # acts are sub acts, that will be processed later
+    if len(subacts) == 1:
         term_id = 1
 
         # create output kaf xml tree for act
@@ -84,26 +87,33 @@ if __name__ == '__main__':
     file_name = args.file
     output_dir = args.output_dir
 
-    # Load document
-    #doc = folia.Document(file='medea-folia-no_events.xml')
-    with open(file_name, 'r') as f:
-        soup = BeautifulSoup(f, 'xml')
+    act_tag = '{http://ilk.uvt.nl/folia}div'
 
-    acts = soup.find_all(act)
+    # Load document
+    context = etree.iterparse(file_name, events=('end',), tag=act_tag)
 
     act_number = 0
-    
+
     s_id = 0  # in KAF, sentence numbers must be integers
     w_id = None
 
-    for a in acts:
-        kaf_document, s_id = act2kaf(a, s_id)
+    for event, elem in context:
+        if elem.tag == act_tag and elem.get('class') == 'act':
+            # load act into memory
+            act_xml = BeautifulSoup(etree.tostring(elem), 'xml')
+            kaf_document, s_id = act2kaf(act_xml, s_id)
 
-        if kaf_document:
-            act_number += 1
-            # write kaf xml tree to file
-            kaf_file = '{}{}{}'.format(output_dir, os.sep,
-                                       kaf_file_name(file_name, act_number))
-            print kaf_file
-            with open(kaf_file, 'w') as f:
-                kaf_document.write(f, xml_declaration=True, encoding='utf-8', method='xml', pretty_print=True)
+            if kaf_document:
+                act_number += 1
+
+                # write kaf xml tree to file
+                kaf_file = '{}{}{}'.format(output_dir, os.sep,
+                                           kaf_file_name(file_name,
+                                                         act_number))
+                print kaf_file
+                with open(kaf_file, 'w') as f:
+                    kaf_document.write(f,
+                                       xml_declaration=True,
+                                       encoding='utf-8',
+                                       method='xml',
+                                       pretty_print=True)
