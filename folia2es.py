@@ -3,6 +3,7 @@
 """Script to put a folia xml file in ElasticSearch.
 """
 import sys
+import os
 import argparse
 from elasticsearch import Elasticsearch
 from lxml import etree
@@ -89,11 +90,11 @@ def event2es(event_xml, event_order, es, index_name, type_name):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('file', help='the name of the FoLiA XML file to put '
-                        'in ElasticSearch')
+    parser.add_argument('dir', help='the name of the directory containing the '
+                        'FoLiA XML files that should be processed')
     args = parser.parse_args()
 
-    file_name = args.file
+    input_dir = args.dir
 
     # TODO: ES host + port as script arguments
     es = Elasticsearch()
@@ -103,13 +104,30 @@ if __name__ == '__main__':
     type_name = 'event'
     create_index(es, index_name, type_name)
 
-    # load document
     event_tag = '{http://ilk.uvt.nl/folia}event'
 
-    context = etree.iterparse(file_name, events=('end',), tag=event_tag)
+    os.chdir(input_dir)
+    for file_name in os.listdir(input_dir):
+        print file_name
 
-    order = 0
-    for event, elem in context:
-        order += 1
-        event_xml = BeautifulSoup(etree.tostring(elem), 'xml')
-        event2es(event_xml, order, es, index_name, type_name)
+        # load document
+        context = etree.iterparse(file_name,
+                                  events=('start', 'end'),
+                                  tag=event_tag)
+
+        order = 0
+        delete = True
+        for event, elem in context:
+            if event == 'start':
+                delete = False
+            if event == 'end':
+                order += 1
+                event_xml = BeautifulSoup(etree.tostring(elem), 'xml')
+                event2es(event_xml, order, es, index_name, type_name)
+                delete = True
+
+            if delete:
+                elem.clear()
+                while elem.getprevious() is not None:
+                    del elem.getparent()[0]
+        del context
