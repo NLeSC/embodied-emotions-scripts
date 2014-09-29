@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 """Script to put a folia xml file in ElasticSearch.
 """
-import sys
 import os
 import argparse
 from elasticsearch import Elasticsearch
@@ -57,13 +56,10 @@ def create_index(es, index_name, type_name):
 def event2es(event_xml, event_order, es, index_name, type_name):
 
     events = event_xml.find_all('event')
-    if len(events) > 1:
-        print 'subevents!'
-        print events[0].attrs.get('xml:id')
-        sys.exit(1)
-    elif len(events) == 1:
-        event = events[0]
-        event_id = event.attrs.get('xml:id')
+    event = events[0]
+    event_id = event.attrs.get('xml:id')
+
+    if not es.exists(index=index_name, doc_type=type_name, id=event_id):
         play_id = xml_id2play_id(event_id)
 
         cls = event.attrs.get('class')
