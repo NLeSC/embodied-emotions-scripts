@@ -121,10 +121,12 @@ if __name__ == '__main__':
             if event == 'start':
                 delete = False
             if event == 'end':
-                order += 1
-                event_xml = BeautifulSoup(etree.tostring(elem), 'xml')
-                event2es(event_xml, order, es, index_name, type_name)
-                delete = True
+                # ignore subevents
+                if not elem.getparent().tag == event_tag:
+                    order += 1
+                    event_xml = BeautifulSoup(etree.tostring(elem), 'xml')
+                    event2es(event_xml, order, es, index_name, type_name)
+                    delete = True
 
             if delete:
                 elem.clear()
