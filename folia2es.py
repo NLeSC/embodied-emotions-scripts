@@ -5,11 +5,12 @@
 import os
 import argparse
 import time
+from datetime import datetime
 from elasticsearch import Elasticsearch
 from lxml import etree
 from bs4 import BeautifulSoup
 from emotools.plays import extract_character_name, xml_id2play_id
-from emotools.bs4_helpers import sentence, note
+from emotools.bs4_helpers import sentence, note, entity
 
 
 def create_index(es, index_name, type_name):
@@ -87,6 +88,33 @@ def event2es(event_xml, event_order, es, index_name, type_name):
         es.index(index_name, type_name, doc)
 
 
+def entities2es(event_xml, entity_class, timestamp, es, index_name, doc_type):
+    events = event_xml.find_all('event')
+    event = events[0]
+    event_id = event.attrs.get('xml:id')
+
+    entities = {}
+    for elem in event.descendants:
+        if entity(elem) and not note(elem.parent.parent.parent):
+            ent_class = '{}-'.format(entity_class)
+            if elem.get('class').startswith(ent_class):
+                entity_name = elem.get('class').replace(ent_class, '')
+                if not entities.get(entity_name):
+                    entities[entity_name] = []
+                entities[entity_name].append(elem.wref.get('t'))
+    doc = {
+        '{}-entities'.format(entity_class): {
+            'data': entities,
+            'timestamp': timestamp
+        }
+    }
+
+    es.update(index=index_name,
+              doc_type=type_name,
+              id=event_id,
+              body={'doc': doc})
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('dir', help='the name of the directory containing the '
@@ -104,6 +132,7 @@ if __name__ == '__main__':
     create_index(es, index_name, type_name)
 
     event_tag = '{http://ilk.uvt.nl/folia}event'
+    timestamp = datetime.now().isoformat()
 
     os.chdir(input_dir)
     for file_name in os.listdir(input_dir):
@@ -126,6 +155,8 @@ if __name__ == '__main__':
                     order += 1
                     event_xml = BeautifulSoup(etree.tostring(elem), 'xml')
                     event2es(event_xml, order, es, index_name, type_name)
+                    entities2es(event_xml, 'liwc', timestamp, es, index_name,
+                                type_name)
                     delete = True
 
             if delete:
