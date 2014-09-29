@@ -21,6 +21,8 @@ def get_characters(speakerturns):
 
 def extract_character_name(actor_str):
     """Returns the character name extracted from the input string."""
+    if not actor_str:
+        return 'UNKNOWN'
     actor_str = actor_str.replace('(', '').replace(')', '')
     actor_str = actor_str.replace('[', '').replace(']', '')
     actor_str = actor_str.replace('van binnen', '')
