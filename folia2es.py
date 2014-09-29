@@ -112,7 +112,8 @@ if __name__ == '__main__':
         # load document
         context = etree.iterparse(file_name,
                                   events=('start', 'end'),
-                                  tag=event_tag)
+                                  tag=event_tag,
+                                  huge_tree=True)
 
         order = 0
         delete = True
