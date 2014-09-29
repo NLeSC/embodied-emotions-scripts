@@ -4,6 +4,7 @@
 """
 import os
 import argparse
+import time
 from elasticsearch import Elasticsearch
 from lxml import etree
 from bs4 import BeautifulSoup
@@ -51,6 +52,8 @@ def create_index(es, index_name, type_name):
         }
     }
     es.indices.create(index=index_name, body=config, ignore=400)
+    # sleep to prevent error message when checking whether document exists
+    time.sleep(2)
 
 
 def event2es(event_xml, event_order, es, index_name, type_name):
