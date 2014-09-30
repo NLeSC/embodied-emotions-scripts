@@ -23,12 +23,10 @@ def create_index(es, index_name, type_name):
             'properties': {
                 'event_id': {
                     'type': 'string',
-                    'include_in_all': 'false',
                     'index': 'not_analyzed'
                 },
                 'text_id': {
                     'type': 'string',
-                    'include_in_all': 'false',
                     'index': 'not_analyzed'
                 },
                 'event_class': {
@@ -46,7 +44,6 @@ def create_index(es, index_name, type_name):
                 },
                 'text': {
                     'type': 'string',
-                    'include_in_all': 'false',
                     'index': 'analyzed'
                 },
                 'year': {
