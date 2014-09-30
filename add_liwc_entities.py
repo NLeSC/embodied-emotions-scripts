@@ -1,46 +1,52 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """Add LIWC words as entities in FoLiA XML file.
-Usage: python add_liwc_entities.py <file in>
+Usage: python add_liwc_entities.py <file in> <dir out>
 """
-from bs4 import BeautifulSoup
+from lxml import etree
 from datetime import datetime
 import argparse
 import codecs
 import os
 
 
-def add_entity(soup, sentence, cls, words):
-    if sentence.find('entities'):
-        entities = sentence.entities
+def add_entity(sentence, cls, words, text_content_tag):
+    entity_tag = '{http://ilk.uvt.nl/folia}entities'
+    if sentence.find(entity_tag) is not None:
+        entities = sentence.find(entity_tag)
     else:
-        entities = soup.new_tag('entities')
-        sentence.append(entities)
+        entities = etree.SubElement(sentence, 'entities')
 
-    entity = soup.new_tag('entity')
-    entity['class'] = cls
+    entity = etree.SubElement(entities, 'entity', {'class': cls})
     for w in words:
-        entity.append(soup.new_tag('wref', id=w['xml:id'], t=w.t.string))
+        wref_attrs = {
+            'id': w.attrib.get('{http://www.w3.org/XML/1998/namespace}id'),
+            't': w.find(text_content_tag).text
+        }
+        etree.SubElement(entity, 'wref', wref_attrs)
 
-    entities.append(entity)
 
-
-def write_folia_file(soup, folia_in, ext):
-    output_xml = soup.prettify()
+def write_folia_file(context, folia_in, dir_out, ext):
     head, tail = os.path.split(folia_in)
-    p = tail.split('.')   
-    file_out = '{h}{s}{n}-{e}.xml'.format(n=p[0], h=head, s=os.sep, e=ext)
-    with codecs.open(file_out, 'wb', 'utf8') as f:
-        f.write(output_xml)
-
+    p = tail.split('.')
+    file_out = '{d}{s}{n}-{e}.xml'.format(n=p[0], d=dir_out, s=os.sep, e=ext)
+    print file_out
+    with open(file_out, 'w') as f:
+        f.write(etree.tostring(context.root,
+                               encoding='utf8',
+                               xml_declaration=True,
+                               pretty_print=True))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('file_in', help='the name of the FoLiA XML file add '
                         'LIWC entities to')
+    parser.add_argument('dir_out', help='the name of the directory to save '
+                        'the output file to')
     args = parser.parse_args()
 
     file_name = args.file_in
+    dir_out = args.dir_out
 
     # Load liwc dict
     with codecs.open('historic_Dutch_LIWC.dic', 'rb', 'utf8') as f:
@@ -64,24 +70,32 @@ if __name__ == '__main__':
             liwc_dict[term] = categories
 
     # Load document
-    # doc = folia.Document(file='medea-folia-no_events.xml')
-    with open(file_name, 'r') as f:
-        soup = BeautifulSoup(f, 'xml')
+    context = etree.iterparse(file_name,
+                              events=('end',),
+                              remove_blank_text=True)
+    annotations_tag = '{http://ilk.uvt.nl/folia}annotations'
+    sentence_tag = '{http://ilk.uvt.nl/folia}s'
+    word_tag = '{http://ilk.uvt.nl/folia}w'
+    text_content_tag = '{http://ilk.uvt.nl/folia}t'
 
-    words = soup.find_all('w')
-    for word in words:
-        w = word.t.string
-        if w in liwc_dict.keys():
-            for cat in liwc_dict[w]:
-                cat_label = 'liwc-{}'.format(liwc_categories[cat])
-                add_entity(soup, word.parent, cat_label, [word])
+    for event, elem in context:
+        if elem.tag == annotations_tag:
+            # add entity-annotation for liwc
+            annotation_attrs = {
+                'annotator': 'liwc',
+                'annotatortype': 'auto',
+                'datetime': datetime.now().isoformat(),
+                'set': 'liwc-set'
+            }
+            etree.SubElement(elem, 'entity-annotation', annotation_attrs)
 
-    annotation_tag = soup.new_tag('entity-annotation')
-    annotation_tag['annotator'] = 'liwc'
-    annotation_tag['annotatortype'] = 'auto'
-    annotation_tag['datetime'] = datetime.now()
-    annotation_tag['set'] = 'liwc-set'
+        if elem.tag == sentence_tag:
+            words = elem.findall(word_tag)
+            for word in words:
+                w = word.find(text_content_tag).text
+                if w in liwc_dict.keys():
+                    for cat in liwc_dict[w]:
+                        cat_label = 'liwc-{}'.format(liwc_categories[cat])
+                        add_entity(elem, cat_label, [word], text_content_tag)
 
-    soup.annotations.append(annotation_tag)
-
-    write_folia_file(soup, file_name, 'liwc')
+    write_folia_file(context, file_name, dir_out, 'liwc')
