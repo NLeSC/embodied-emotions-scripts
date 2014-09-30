@@ -21,6 +21,8 @@ def get_characters(speakerturns):
 
 def extract_character_name(actor_str):
     """Returns the character name extracted from the input string."""
+    if not actor_str:
+        return 'UNKNOWN'
     actor_str = actor_str.replace('(', '').replace(')', '')
     actor_str = actor_str.replace('[', '').replace(']', '')
     actor_str = actor_str.replace('van binnen', '')
@@ -90,6 +92,12 @@ def get_play_id(soup):
     """Return the play ID."""
     id_str = soup.find('text').get('xml:id')
     return re.sub(r'_\d\d_text', '', id_str)
+
+
+def xml_id2play_id(xml_id):
+    """Return the play id given an xml id from the FoLiA file.
+    """
+    return xml_id[0:13]
 
 
 def get_entities(soup, entity_class):
