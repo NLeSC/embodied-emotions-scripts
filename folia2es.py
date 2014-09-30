@@ -49,6 +49,9 @@ def create_index(es, index_name, type_name):
                     'include_in_all': 'false',
                     'index': 'analyzed'
                 },
+                'year': {
+                    'type': 'integer',
+                },
             }
         }
     }
