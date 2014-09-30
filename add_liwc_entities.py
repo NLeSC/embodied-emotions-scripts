@@ -4,7 +4,6 @@
 Usage: python add_liwc_entities.py <file in>
 """
 from lxml import etree
-from lxml.etree import Element
 from datetime import datetime
 import argparse
 import codecs
@@ -82,8 +81,7 @@ if __name__ == '__main__':
                 'datetime': datetime.now().isoformat(),
                 'set': 'liwc-set'
             }
-            annotation_elem = Element('entity-annotation', annotation_attrs)
-            elem.append(annotation_elem)
+            etree.SubElement(elem, 'entity-annotation', annotation_attrs)
 
         if elem.tag == sentence_tag:
             words = elem.findall(word_tag)
