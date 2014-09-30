@@ -26,10 +26,11 @@ def add_entity(sentence, cls, words, text_content_tag):
         etree.SubElement(entity, 'wref', wref_attrs)
 
 
-def write_folia_file(context, folia_in, ext):
+def write_folia_file(context, folia_in, dir_out, ext):
     head, tail = os.path.split(folia_in)
     p = tail.split('.')
-    file_out = '{h}{s}{n}-{e}.xml'.format(n=p[0], h=head, s=os.sep, e=ext)
+    file_out = '{d}{s}{n}-{e}.xml'.format(n=p[0], d=dir_out, s=os.sep, e=ext)
+    print file_out
     with open(file_out, 'w') as f:
         f.write(etree.tostring(context.root,
                                encoding='utf8',
@@ -40,9 +41,12 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('file_in', help='the name of the FoLiA XML file add '
                         'LIWC entities to')
+    parser.add_argument('dir_out', help='the name of the directory to save '
+                        'the output file to')
     args = parser.parse_args()
 
     file_name = args.file_in
+    dir_out = args.dir_out
 
     # Load liwc dict
     with codecs.open('historic_Dutch_LIWC.dic', 'rb', 'utf8') as f:
@@ -94,4 +98,4 @@ if __name__ == '__main__':
                         cat_label = 'liwc-{}'.format(liwc_categories[cat])
                         add_entity(elem, cat_label, [word], text_content_tag)
 
-    write_folia_file(context, file_name, 'liwc')
+    write_folia_file(context, file_name, dir_out, 'liwc')
