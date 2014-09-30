@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """Add LIWC words as entities in FoLiA XML file.
-Usage: python add_liwc_entities.py <file in>
+Usage: python add_liwc_entities.py <file in> <dir out>
 """
 from lxml import etree
 from datetime import datetime
