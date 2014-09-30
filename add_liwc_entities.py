@@ -68,9 +68,19 @@ if __name__ == '__main__':
 
     # Load document
     context = etree.iterparse(file_name, events=('end',))
+    annotations_tag = '{http://ilk.uvt.nl/folia}annotations'
 
     for event, elem in context:
-        pass
+        if elem.tag == annotations_tag:
+            # add entity-annotation for liwc
+            annotation_attrs = {
+                'annotator': 'liwc',
+                'annotatortype': 'auto',
+                'datetime': datetime.now().isoformat(),
+                'set': 'liwc-set'
+            }
+            annotation_elem = Element('entity-annotation', annotation_attrs)
+            elem.append(annotation_elem)
 
     #words = soup.find_all('w')
     #for word in words:
