@@ -135,8 +135,10 @@ if __name__ == '__main__':
     timestamp = datetime.now().isoformat()
 
     os.chdir(input_dir)
+    counter = 0
     for file_name in os.listdir(input_dir):
-        print file_name
+        counter += 1
+        print '({}) {}'.format(counter, file_name)
 
         # load document
         context = etree.iterparse(file_name,
