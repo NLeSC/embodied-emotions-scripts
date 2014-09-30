@@ -36,7 +36,7 @@ def create_index(es, index_name, type_name):
                     'include_in_all': 'false',
                     'index': 'not_analyzed'
                 },
-                'speaker': {
+                'actor': {
                     'type': 'string',
                     'include_in_all': 'false',
                     'index': 'not_analyzed'
