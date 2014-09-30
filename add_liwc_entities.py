@@ -66,7 +66,9 @@ if __name__ == '__main__':
             liwc_dict[term] = categories
 
     # Load document
-    context = etree.iterparse(file_name, events=('end',))
+    context = etree.iterparse(file_name,
+                              events=('end',),
+                              remove_blank_text=True)
     annotations_tag = '{http://ilk.uvt.nl/folia}annotations'
     sentence_tag = '{http://ilk.uvt.nl/folia}s'
     word_tag = '{http://ilk.uvt.nl/folia}w'
