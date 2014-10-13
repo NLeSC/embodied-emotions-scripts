@@ -49,6 +49,14 @@ def create_index(es, index_name, type_name):
                 'year': {
                     'type': 'integer',
                 },
+                'genre': {
+                    'type': 'string',
+                    'index': 'not_analyzed'
+                },
+                'subgenre': {
+                    'type': 'string',
+                    'index': 'not_analyzed'
+                },
             }
         }
     }
