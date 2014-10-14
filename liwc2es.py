@@ -3,14 +3,7 @@
 """Script to put a folia xml file in ElasticSearch.
 """
 import codecs
-import os
-import time
-from datetime import datetime
-from elasticsearch import Elasticsearch, client
-from lxml import etree
-from bs4 import BeautifulSoup
-from emotools.plays import extract_character_name, xml_id2play_id
-from emotools.bs4_helpers import sentence, note, entity
+from elasticsearch import Elasticsearch
 
 
 if __name__ == '__main__':
