@@ -44,8 +44,10 @@ def create_index(es, index_name, type_name):
                 },
                 'text': {
                     'type': 'string',
-                    'index': 'analyzed'
+                    'term_vector': 'with_positions_offsets_payloads',
                 },
+                'num_words': {
+                    },
                 'year': {
                     'type': 'integer',
                 },
