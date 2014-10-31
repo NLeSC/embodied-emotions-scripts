@@ -5,6 +5,7 @@
 import os
 import argparse
 import codecs
+import sys
 from lxml import etree
 from bs4 import BeautifulSoup
 from emotools.bs4_helpers import act, sentence, note
@@ -23,7 +24,6 @@ def act2text(act_xml):
     # act_xml should contain exactly one act; if it contains more acts, these
     # acts are sub acts, that will be processed later
     if len(subacts) == 1:
-
         for elem in act_xml.descendants:
             if sentence(elem) and not note(elem.parent):
                 # some t elements appear to be empty (this is not allowed, but
@@ -60,7 +60,7 @@ if __name__ == '__main__':
 
         # load document
         context = etree.iterparse(file_name,
-                                  events=('start', 'end'),
+                                  events=('end',),
                                   tag=act_tag,
                                   huge_tree=True)
 
