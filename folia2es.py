@@ -47,7 +47,8 @@ def create_index(es, index_name, type_name):
                     'term_vector': 'with_positions_offsets_payloads',
                 },
                 'num_words': {
-                    },
+                    'type': 'integer'
+                },
                 'year': {
                     'type': 'integer',
                 },
@@ -85,12 +86,22 @@ def event2es(event_xml, event_order, es, index_name, type_name):
             if sentence(elem) and not note(elem.parent):
                 text.append(elem.t.string)
 
+        num_words = 0
+        text_ascii = ' '.join(text).encode('ascii', 'ignore')
+        # prevent empty string to be send to the analyzer
+        if text_ascii and not text_ascii.isspace():
+            ws = es.indices.analyze(index=index_name,
+                                    body=text_ascii,
+                                    analyzer='standard').get('tokens')
+            num_words = len(ws)
+
         doc = {
             'event_id': event_id,
             'text_id': play_id,
             'event_class': cls,
             'order': event_order,
-            'text': ' '.join(text)
+            'text': ' '.join(text),
+            'num_words': num_words
         }
         if cls == 'speakerturn':
             doc['actor'] = actor
