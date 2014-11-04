@@ -37,45 +37,36 @@ def act2text(act_xml):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('input_dir', help='the name of the directory '
+    parser.add_argument('input_file', help='the name of the directory '
                         'containing the FoLiA XML files that should be '
                         'processed')
     parser.add_argument('output_dir', help='the directory where the '
                         'generated text files should be saved')
     args = parser.parse_args()
 
-    input_dir = args.input_dir
+    in_file = args.input_file
     output_dir = args.output_dir
-
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
 
     act_tag = '{http://ilk.uvt.nl/folia}div'
 
-    os.chdir(input_dir)
-    counter = 0
-    for file_name in os.listdir(input_dir):
-        counter += 1
-        print '({}) {}'.format(counter, file_name)
+    # load document
+    context = etree.iterparse(in_file,
+                              events=('end',),
+                              tag=act_tag,
+                              huge_tree=True)
 
-        # load document
-        context = etree.iterparse(file_name,
-                                  events=('end',),
-                                  tag=act_tag,
-                                  huge_tree=True)
+    text = []
+    for event, elem in context:
+        if elem.tag == act_tag and elem.get('class') == 'act':
+            # load act into memory
+            act_xml = BeautifulSoup(etree.tostring(elem), 'xml')
+            text += act2text(act_xml)
 
-        text = []
-        for event, elem in context:
-            if elem.tag == act_tag and elem.get('class') == 'act':
-                # load act into memory
-                act_xml = BeautifulSoup(etree.tostring(elem), 'xml')
-                text += act2text(act_xml)
+    del context
 
-        del context
-
-        # write text to file
-        out_file = os.path.join(output_dir, '{}.txt'.format(file_name[0:13]))
-        print 'Writing file: {}'.format(out_file)
-        with codecs.open(out_file, 'wb', encoding='utf-8') as f:
-            f.write('\n'.join(text))
-        print ''
+    # write text to file
+    out_file = os.path.join(output_dir, '{}.txt'.format(in_file[-20:-4]))
+    print 'Writing file: {}'.format(out_file)
+    with codecs.open(out_file, 'wb', encoding='utf-8') as f:
+        f.write('\n'.join(text))
+    print ''
