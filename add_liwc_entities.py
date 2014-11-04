@@ -7,35 +7,9 @@ from lxml import etree
 from datetime import datetime
 import argparse
 import codecs
-import os
 
+from emotools.folia_helpers import add_entity, write_folia_file
 
-def add_entity(sentence, cls, words, text_content_tag):
-    entity_tag = '{http://ilk.uvt.nl/folia}entities'
-    if sentence.find(entity_tag) is not None:
-        entities = sentence.find(entity_tag)
-    else:
-        entities = etree.SubElement(sentence, 'entities')
-
-    entity = etree.SubElement(entities, 'entity', {'class': cls})
-    for w in words:
-        wref_attrs = {
-            'id': w.attrib.get('{http://www.w3.org/XML/1998/namespace}id'),
-            't': w.find(text_content_tag).text
-        }
-        etree.SubElement(entity, 'wref', wref_attrs)
-
-
-def write_folia_file(context, folia_in, dir_out, ext):
-    head, tail = os.path.split(folia_in)
-    p = tail.split('.')
-    file_out = '{d}{s}{n}-{e}.xml'.format(n=p[0], d=dir_out, s=os.sep, e=ext)
-    print file_out
-    with open(file_out, 'w') as f:
-        f.write(etree.tostring(context.root,
-                               encoding='utf8',
-                               xml_declaration=True,
-                               pretty_print=True))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
