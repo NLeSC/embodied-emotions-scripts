@@ -13,7 +13,7 @@ def parse_document(file_name):
     return doc, 'Successfully parsed FoLiA XML file.'
 
 
-def add_entity(sentence, cls, words, text_content_tag):
+def add_entity(sentence, cls, words, text_content_tag, annotation=None):
     entity_tag = '{http://ilk.uvt.nl/folia}entities'
     if sentence.find(entity_tag) is not None:
         entities = sentence.find(entity_tag)
@@ -21,12 +21,20 @@ def add_entity(sentence, cls, words, text_content_tag):
         entities = etree.SubElement(sentence, 'entities')
 
     entity = etree.SubElement(entities, 'entity', {'class': cls})
-    for w in words:
-        wref_attrs = {
-            'id': w.attrib.get('{http://www.w3.org/XML/1998/namespace}id'),
-            't': w.find(text_content_tag).text
-        }
-        etree.SubElement(entity, 'wref', wref_attrs)
+    if not annotation:
+        for w in words:
+            wref_attrs = {
+                'id': w.attrib.get('{http://www.w3.org/XML/1998/namespace}id'),
+                't': w.find(text_content_tag).text
+            }
+    else:
+        print 'annotation!'
+        for w_id in annotation.word_ids:
+            wref_attrs = {
+                'id': w_id,
+                #'t': w.find(text_content_tag).text
+            }
+    etree.SubElement(entity, 'wref', wref_attrs)
 
 
 def write_folia_file(context, folia_in, dir_out, ext):
