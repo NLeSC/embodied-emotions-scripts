@@ -28,7 +28,6 @@ def add_entity(sentence, cls, words, text_content_tag, annotation=None):
                 't': w.find(text_content_tag).text
             }
     else:
-        print 'annotation!'
         for w_id in annotation.word_ids:
             wref_attrs = {
                 'id': w_id,

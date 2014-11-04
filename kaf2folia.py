@@ -5,6 +5,9 @@ The folia file is the FoLiA XML file used to generate the KAF input files.
 
 import argparse
 import codecs
+from lxml import etree
+from datetime import datetime
+from emotools.folia_helpers import add_entity
 
 class Annotation:
     def __init__(self, level, label, annotation_id, word_id):
@@ -20,18 +23,18 @@ class Annotation:
 
     def folia_entity_class(self):
         tag_levels = {
-            1: 'ee:emotionLabel1',
-            2: 'ee:emotionLabel2',
-            3: 'ee:category',
-            4: 'ee:sensation',
-            5: 'ee:sentation_modifier',
-            6: 'ee:relation'
+            1: 'Category',
+            2: 'EmotionLabel',
+            3: 'EmotionLabel',
+            4: 'HumorModifier',
+            5: 'Intensity',
+            6: 'Relation'
         }
 
-        return '{}-{}'.format(tag_levels[self.level], self.label)
+        return '{}:{}'.format(tag_levels[self.level], self.label)
 
 
-def add_entity(entity_layer, annotation, annotation_class):
+def add_entity2(entity_layer, annotation, annotation_class):
     return 'Adding {} ({}; {})'.format(annotation.entity_id(annotation_class),
                                       annotation.folia_entity_class(),
                                       ' - '.join(annotation.word_ids))
@@ -60,7 +63,7 @@ if __name__ == '__main__':
     # fields[3]: pos tag
     # fields[4]: empty
     # fields[5]: tag level 1 label
-    # fields[6]: tag id (level 1)
+    # fields[6]: tag id (level 1) = annotation id(?)
     # fields[7]: tag level 2 label
     # fields[8]: tag id (level 2)
     # fields[9]: tag level 3 label
@@ -111,9 +114,49 @@ if __name__ == '__main__':
     order = annotations.keys()
     order.sort()
 
+    word_id2annotations = {}
     for a in order:
-        print add_entity(None, annotations[a], 'embodied_emotions')
+        ann = annotations[a]
+        w_id = ann.word_ids[0]
+        if w_id not in word_id2annotations.keys():
+            word_id2annotations[ann.word_ids[0]] = []
+        word_id2annotations[ann.word_ids[0]].append(ann)
+        #print add_entity2(None, annotations[a], 'embodied_emotions')
 
-    # Load FoLiA file
-    #with open(folia_file, 'r') as f:
-    #    soup = BeautifulSoup(f, 'xml')
+    # Load document
+    context = etree.iterparse(folia_file,
+                              events=('end',),
+                              remove_blank_text=True)
+    annotations_tag = '{http://ilk.uvt.nl/folia}annotations'
+    sentence_tag = '{http://ilk.uvt.nl/folia}s'
+    word_tag = '{http://ilk.uvt.nl/folia}w'
+    text_content_tag = '{http://ilk.uvt.nl/folia}t'
+    id_tag = '{http://www.w3.org/XML/1998/namespace}id'
+
+    for event, elem in context:
+        if elem.tag == annotations_tag:
+            # add entity-annotation for embodied emotions
+            annotation_attrs = {
+                'annotator': 'EmbodiedEmotions',
+                'annotatortype': 'manual',
+                'datetime': datetime.now().isoformat(),
+                'set': 'EmbodiedEmotions-set'
+            }
+            etree.SubElement(elem, 'entity-annotation', annotation_attrs)
+
+        if elem.tag == sentence_tag:
+            words = elem.findall(word_tag)
+            for word in words:
+                w_id = word.attrib.get(id_tag)
+                if w_id in word_id2annotations.keys():
+                    print w_id
+                    for annotation in word_id2annotations[w_id]:
+                        cat_label = 'EmbodiedEmotions-{}'. \
+                            format(annotation.folia_entity_class())
+                        add_entity(elem, cat_label, None, None, annotation)
+
+    with open(folia_file, 'w') as f:
+        f.write(etree.tostring(context.root,
+                               encoding='utf8',
+                               xml_declaration=True,
+                               pretty_print=True))
