@@ -65,7 +65,7 @@ if __name__ == '__main__':
     del context
 
     # write text to file
-    out_file = os.path.join(output_dir, '{}.txt'.format(in_file[-20:-4]))
+    out_file = os.path.join(output_dir, '{}.txt'.format(in_file[-20:-7]))
     print 'Writing file: {}'.format(out_file)
     with codecs.open(out_file, 'wb', encoding='utf-8') as f:
         f.write('\n'.join(text))
