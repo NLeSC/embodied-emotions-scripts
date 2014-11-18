@@ -148,7 +148,7 @@ if __name__ == '__main__':
     es = Elasticsearch()
 
     # TODO: index name as script argument
-    index_name = 'embodied_emotions'
+    index_name = 'embodied_emotions_college'
     type_name = 'event'
     create_index(es, index_name, type_name)
 

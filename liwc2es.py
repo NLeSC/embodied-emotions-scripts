@@ -41,7 +41,7 @@ if __name__ == '__main__':
     es = Elasticsearch()
 
     # TODO: index name as script argument
-    index_name = 'embodied_emotions'
+    index_name = 'embem'
     type_name = 'entitycategory'
 
     mapping = {
