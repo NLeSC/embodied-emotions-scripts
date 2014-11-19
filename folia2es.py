@@ -60,7 +60,29 @@ def create_index(es, index_name, type_name):
                     'type': 'string',
                     'index': 'not_analyzed'
                 },
-            }
+            },
+            'dynamic_templates': [
+                {
+                    "entities": {
+                        "path_match": "*-entities*data*",
+                        "match_mapping_type": "string",
+                        "mapping": {
+                            "type": "string",
+                            "index": "not_analyzed"
+                        }
+                    }
+                },
+                {
+                    "pairs": {
+                        "path_match": "pairs*data",
+                        "match_mapping_type": "string",
+                        "mapping": {
+                            "type": "string",
+                            "index": "not_analyzed"
+                        }
+                    }
+                }
+            ]
         }
     }
     es.indices.create(index=index_name, body=config, ignore=400)
@@ -140,15 +162,16 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('dir', help='the name of the directory containing the '
                         'FoLiA XML files that should be processed')
+    parser.add_argument('index_name', help='the name of the ES index that '
+                        'should be created')
     args = parser.parse_args()
 
     input_dir = args.dir
+    index_name = args.index_name
 
     # TODO: ES host + port as script arguments
     es = Elasticsearch()
 
-    # TODO: index name as script argument
-    index_name = 'embodied_emotions_college'
     type_name = 'event'
     create_index(es, index_name, type_name)
 
