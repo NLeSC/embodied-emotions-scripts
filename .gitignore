@@ -7,3 +7,4 @@ LIWC_Dutch_dictionary.dic
 historic_Dutch_LIWC.dic
 *.dic
 liwc_output.json
+*.csv
