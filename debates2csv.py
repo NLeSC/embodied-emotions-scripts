@@ -9,7 +9,6 @@ Usage: debates2csv.py <xml-file or directory containing xml files>
 import argparse
 import xml.etree.ElementTree as ET
 import re
-from nltk.tokenize import RegexpTokenizer
 from collections import Counter
 import os
 
@@ -70,8 +69,6 @@ if __name__ == '__main__':
                   'violat.*', 'violent.*', 'war', 'warfare.*', 'warred',
                   'warring', 'wars', 'weapon.*', 'wicked.*']
 
-    tokenizer = RegexpTokenizer(r'\w+')
-
     num_words = 0
     all_words = Counter()
     wf_words = Counter()
@@ -93,7 +90,7 @@ if __name__ == '__main__':
             text = text.lower()
 
             # extract a list of words
-            words = tokenizer.tokenize(text)
+            words = re.findall('\w+', text)
 
             # count words
             num_words += len(words)
