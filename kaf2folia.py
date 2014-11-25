@@ -23,12 +23,12 @@ class Annotation:
 
     def folia_entity_class(self):
         tag_levels = {
-            1: 'Category',
-            2: 'EmotionLabel',
+            1: 'Level1',
+            2: 'Level2',
             3: 'EmotionLabel',
-            4: 'HumorModifier',
-            5: 'Intensity',
-            6: 'Relation'
+            4: 'EmotionLabel',
+            5: 'HumorModifier',
+            6: 'Intensifier'
         }
 
         return '{}:{}'.format(tag_levels[self.level], self.label)
