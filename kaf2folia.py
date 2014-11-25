@@ -119,8 +119,8 @@ if __name__ == '__main__':
         ann = annotations[a]
         w_id = ann.word_ids[0]
         if w_id not in word_id2annotations.keys():
-            word_id2annotations[ann.word_ids[0]] = []
-        word_id2annotations[ann.word_ids[0]].append(ann)
+            word_id2annotations[w_id] = []
+        word_id2annotations[w_id].append(ann)
         #print add_entity2(None, annotations[a], 'embodied_emotions')
 
     # Load document
