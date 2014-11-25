@@ -27,13 +27,14 @@ def add_entity(sentence, cls, words, text_content_tag, annotation=None):
                 'id': w.attrib.get('{http://www.w3.org/XML/1998/namespace}id'),
                 't': w.find(text_content_tag).text
             }
+            etree.SubElement(entity, 'wref', wref_attrs)
     else:
         for w_id in annotation.word_ids:
             wref_attrs = {
                 'id': w_id,
                 #'t': w.find(text_content_tag).text
             }
-    etree.SubElement(entity, 'wref', wref_attrs)
+            etree.SubElement(entity, 'wref', wref_attrs)
 
 
 def write_folia_file(context, folia_in, dir_out, ext):
