@@ -1,6 +1,6 @@
-"""Insert KAF annotations into a FoLiA file.
+"""Insert KAF annotations into a FoLiA files.
+To be used in shell script batch_add_tags.sh!
 Usage: python kaf2folia.py <kaf tags file> <folia file>
-The folia file is the FoLiA XML file used to generate the KAF input files.
 """
 
 import argparse
