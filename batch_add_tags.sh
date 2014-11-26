@@ -17,23 +17,26 @@ echo ''
 total=0
 
 shopt -s nullglob
-for folia in $(find $1 -maxdepth 1 -type f); do
+for dir in $(find $2 -mindepth 1 -maxdepth 1 -type d); do
     total=$((total+1))
-    
-    echo "(${total}) ${folia}"
 
-    text_id=${folia:(-20):(-7)}
-    xml_name=${folia:(-20)}
+    text_id=${dir:(-13)}
+    echo "(${total}) ${text_id}"
 
-    echo "$text_id $xml_name"
-    
+    xml_name="${text_id}_01.xml"
+    folia_old="$1/$xml_name"
+    folia_new="$3/$xml_name"
+
     # copy xml file to destination, because if there are multple tag files for
     # a folia file, the output is written to file for every tag file (to avoid
     # flooding the memory)
-    cp $folia $3/$xml_name
+    cp $folia_old $folia_new
 
     for tag in $(find $2/$text_id -maxdepth 1 -type f); do
-        echo " $tag"
-        python kaf2folia.py $tag $folia 
+        if [[ $tag == *.tag ]]; then
+            echo " $tag"
+            python kaf2folia.py $tag $folia_new 
+        fi
     done
+
 done
