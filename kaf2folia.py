@@ -52,6 +52,9 @@ if __name__ == '__main__':
     tag_file = args.tag
     folia_file = args.folia
 
+    annotator_name = 'EmbodiedEmotions'
+    annotator_set = '{}-set'.format(annotator_name)
+
     # Load KAF tags file
     with codecs.open(tag_file,'r','utf-8',errors='ignore') as f:
         lines = f.readlines()
@@ -131,6 +134,7 @@ if __name__ == '__main__':
                               events=('end',),
                               remove_blank_text=True)
     annotations_tag = '{http://ilk.uvt.nl/folia}annotations'
+    entity_annotations_tag = '{http://ilk.uvt.nl/folia}entity-annotation'
     sentence_tag = '{http://ilk.uvt.nl/folia}s'
     word_tag = '{http://ilk.uvt.nl/folia}w'
     text_content_tag = '{http://ilk.uvt.nl/folia}t'
@@ -138,14 +142,21 @@ if __name__ == '__main__':
 
     for event, elem in context:
         if elem.tag == annotations_tag:
+            add_annotation_tag = True
+            entity_annotations = elem.findall(entity_annotations_tag)
+            for element in entity_annotations:
+                if element.attrib.get('annotator') == annotator_name:
+                    add_annotation_tag = False
+
             # add entity-annotation for embodied emotions
-            annotation_attrs = {
-                'annotator': 'EmbodiedEmotions',
-                'annotatortype': 'manual',
-                'datetime': datetime.now().isoformat(),
-                'set': 'EmbodiedEmotions-set'
-            }
-            etree.SubElement(elem, 'entity-annotation', annotation_attrs)
+            if add_annotation_tag:
+                annotation_attrs = {
+                    'annotator': annotator_name,
+                    'annotatortype': 'manual',
+                    'datetime': datetime.now().isoformat(),
+                    'set': annotator_set
+                }
+                etree.SubElement(elem, 'entity-annotation', annotation_attrs)
 
         if elem.tag == sentence_tag:
             words = elem.findall(word_tag)
