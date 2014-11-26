@@ -32,7 +32,7 @@ def add_entity(sentence, cls, words, text_content_tag, annotation=None):
         for w_id in annotation.word_ids:
             wref_attrs = {
                 'id': w_id,
-                #'t': w.find(text_content_tag).text
+                't': annotation.words.get(w_id)
             }
             etree.SubElement(entity, 'wref', wref_attrs)
 

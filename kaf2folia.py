@@ -10,11 +10,12 @@ from datetime import datetime
 from emotools.folia_helpers import add_entity
 
 class Annotation:
-    def __init__(self, level, label, annotation_id, word_id):
+    def __init__(self, level, label, annotation_id, word_id, word):
         self.level = level
         self.label = label
         self.annotation_id = annotation_id
         self.word_ids = [word_id]
+        self.words = {word_id: word}
 
 
     def entity_id(self, annotation_class):
@@ -106,10 +107,12 @@ if __name__ == '__main__':
                     annotations[annotation_id] = Annotation(level[2],
                                                             annotation_label,
                                                             annotation_id,
-                                                            word_id)
+                                                            word_id,
+                                                            fields[1])
                 else:
                     # known annotation: append word_id
                     annotations[annotation_id].word_ids.append(word_id)
+                    annotations[annotation_id].words[word_id] = fields[1]
 
     order = annotations.keys()
     order.sort()
