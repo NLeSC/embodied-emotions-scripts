@@ -1,7 +1,7 @@
 #!/bin/bash
 # Batch add annotations in tag files to FoLiA files
 # Usage: ./batch_add_tags.sh <dir with folia-files> <dir with tag-files dirs>
-# <dir to save kaf-files in>
+# <dir to save new folia-files in>
 # Tag files for a folia file should be in a directory named text_id. 
 # 2014-11-04 j.vanderzwaan@esciencecenter.nl
 

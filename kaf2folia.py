@@ -163,7 +163,7 @@ if __name__ == '__main__':
             for word in words:
                 w_id = word.attrib.get(id_tag)
                 if w_id in word_id2annotations.keys():
-                    print w_id
+                    #print w_id
                     for annotation in word_id2annotations[w_id]:
                         cat_label = 'EmbodiedEmotions-{}'. \
                             format(annotation.folia_entity_class())
