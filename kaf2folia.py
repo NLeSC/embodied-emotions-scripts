@@ -119,6 +119,7 @@ if __name__ == '__main__':
 
     order = annotations.keys()
     order.sort()
+    print ' Found {} annotations'.format(len(order))
 
     word_id2annotations = {}
     for a in order:
@@ -139,6 +140,8 @@ if __name__ == '__main__':
     word_tag = '{http://ilk.uvt.nl/folia}w'
     text_content_tag = '{http://ilk.uvt.nl/folia}t'
     id_tag = '{http://www.w3.org/XML/1998/namespace}id'
+
+    num_annotations_added = 0
 
     for event, elem in context:
         if elem.tag == annotations_tag:
@@ -168,6 +171,9 @@ if __name__ == '__main__':
                         cat_label = 'EmbodiedEmotions-{}'. \
                             format(annotation.folia_entity_class())
                         add_entity(elem, cat_label, None, None, annotation)
+                        num_annotations_added += 1
+
+    print ' Added {} entities'.format(num_annotations_added)
 
     with open(folia_file, 'w') as f:
         f.write(etree.tostring(context.root,
