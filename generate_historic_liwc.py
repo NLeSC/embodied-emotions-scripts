@@ -62,12 +62,12 @@ if __name__ == '__main__':
             entry = line.split()
             term = entry[0]
             categories = entry[1:]
-            sleep(1)
+            sleep(0.3)
             words = get_spelling_variants(term, categories, 1600, 1830)
             words.append(term)
             words = list(set(words))
 
-            spelling_vars[term] = set(words)
+            spelling_vars[term] = words
 
             print term, words
             for word in words:
