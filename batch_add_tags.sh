@@ -27,16 +27,25 @@ for dir in $(find $2 -mindepth 1 -maxdepth 1 -type d); do
     folia_old="$1/$xml_name"
     folia_new="$3/$xml_name"
 
-    # copy xml file to destination, because if there are multple tag files for
-    # a folia file, the output is written to file for every tag file (to avoid
-    # flooding the memory)
-    cp $folia_old $folia_new
+    # Does the folia file exist?
+    # The text id (and thus the folia file name) comes from the directory
+    # containing the tag files. Sometimes this directory has been renamed.
+    if [ -e "$folia_old" ]; then
+        # copy xml file to destination, because if there are multple tag files for
+        # a folia file, the output is written to file for every tag file (to avoid
+        # flooding the memory)
+        cp $folia_old $folia_new
 
-    for tag in $(find $2/$text_id -maxdepth 1 -type f); do
-        if [[ $tag == *.tag ]]; then
-            echo " $tag"
-            python kaf2folia.py $tag $folia_new 
-        fi
-    done
+        for tag in $(find $2/$text_id -maxdepth 1 -type f); do
+            if [[ $tag == *.tag ]]; then
+                echo " $tag"
+                python kaf2folia.py $tag $folia_new 
+            fi
+        done
+
+    else
+        echo "$folia_old does not exist. Please rename $dir to the "
+        echo "correct text id."
+    fi
 
 done
