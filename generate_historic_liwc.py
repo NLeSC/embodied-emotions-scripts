@@ -36,7 +36,7 @@ def get_spelling_variants(term, categories, y_from, y_to):
         r.encoding = 'utf-8'
         #print r.text
         soup = BeautifulSoup(r.text, 'xml')
-        words = soup.find_all('wordform')
+        words = soup.find_all('found_wordforms')
         result = []
         for word in words:
             result.append(word.text)
@@ -51,6 +51,7 @@ if __name__ == '__main__':
         lines = f.readlines()
 
     liwc_category_output = []
+    spelling_vars = {}
     liwc_output = {}
     for line in lines:
         # legend
@@ -64,6 +65,10 @@ if __name__ == '__main__':
             sleep(1)
             words = get_spelling_variants(term, categories, 1600, 1830)
             words.append(term)
+            words = list(set(words))
+
+            spelling_vars[term] = set(words)
+
             print term, words
             for word in words:
                 if liwc_output.get(word) and not categories == liwc_output[word]:
@@ -72,20 +77,23 @@ if __name__ == '__main__':
                     liwc_output[word] = new_c
                 else:
                     liwc_output[word] = categories
-
-    with codecs.open('liwc_output.json', 'w', 'utf8') as f:
-        json.dump(liwc_output, f, sort_keys=True, ensure_ascii=False, indent=2)
+    #with codecs.open('liwc_output.json', 'w', 'utf8') as f:
+    #    json.dump(liwc_output, f, sort_keys=True, ensure_ascii=False, indent=2)
     
     #with codecs.open('liwc_output.json', 'rb', 'utf8') as f:
     #    liwc_output = json.load(f, encoding='utf-8')
+    
+    # write spelling variants to file
+    with codecs.open('liwc_spelling_variants.json', 'w', 'utf8') as f:
+        json.dump(spelling_vars, f, sort_keys=True, ensure_ascii=False, indent=2)
 
-    with codecs.open('historic_Dutch_LIWC.dic', 'wb', 'utf8') as f:
-        f.write('\n'.join(liwc_category_output))
+    #with codecs.open('historic_Dutch_LIWC.dic', 'wb', 'utf8') as f:
+    #    f.write('\n'.join(liwc_category_output))
         
-        entries = liwc_output.keys()
-        entries.sort()
-        for entry in entries:
-            f.write(entry)
-            f.write('\t\t')
-            f.write('\t'.join(liwc_output[entry]))
-            f.write('\n')
+    #    entries = liwc_output.keys()
+    #    entries.sort()
+    #    for entry in entries:
+    #        f.write(entry)
+    #        f.write('\t\t')
+    #        f.write('\t'.join(liwc_output[entry]))
+    #        f.write('\n')
