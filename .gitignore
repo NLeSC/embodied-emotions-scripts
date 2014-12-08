@@ -8,3 +8,4 @@ historic_Dutch_LIWC.dic
 *.dic
 liwc_output.json
 *.csv
+*.json
