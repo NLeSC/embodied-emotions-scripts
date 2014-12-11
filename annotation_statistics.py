@@ -31,9 +31,10 @@ if __name__ == '__main__':
     num_emotional = 0
     stats = Counter()
 
+    print 'Files'
     for file_name in os.listdir(dir_name):
         folia_counter += 1
-        print '({}) {}'.format(folia_counter, file_name)
+        print '{}'.format(file_name)
 
         sents = set()
         # load document
@@ -77,6 +78,7 @@ if __name__ == '__main__':
                 delete = True
 
             # clear memory
+            # results in segmentation fault (for some reason)
             #if delete:
             #    elem.clear()
             #    while elem.getprevious() is not None:
@@ -84,7 +86,10 @@ if __name__ == '__main__':
             #        del context
 
     # print stats
+    print '\nBasic stats'
     print '{} sentences in {} files'.format(num_sent, folia_counter)
     print '{} emotional sentences'.format(num_emotional)
+
+    print '\nLabel\tFrequency'
     for tag, freq in stats.most_common():
         print '{}\t{}'.format(tag, freq)
