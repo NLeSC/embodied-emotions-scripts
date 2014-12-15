@@ -8,10 +8,11 @@ Or: ./batch_do_python.sh folia2dataset_emo_sentences.py <dir in> <output dir>
 """
 from lxml import etree
 from bs4 import BeautifulSoup
-from emotools.bs4_helpers import sentence, note
+from emotools.bs4_helpers import sentence, note, word
 import argparse
 import codecs
 import os
+import string
 
 
 if __name__ == '__main__':
@@ -47,12 +48,9 @@ if __name__ == '__main__':
                 s = None
                 for sent in sentences:
                     if not note(sent.parent):
-                        # some t elements appear to be empty (this is not allowed,
-                        # but it happens). So, check whether there is a string to
-                        # add before adding it.
-                        if sent.t:
-                            if sent.t.string:
-                                s = sent.t.string
+                        # use folia tokenization
+                        sent_words = [w.t.string for w in sent.find_all(word)]
+                        s = ' '.join(sent_words)
 
                         # remove duplicate sentences (mainly single word
                         # sentences indicating the speaker of a speaker turn,
