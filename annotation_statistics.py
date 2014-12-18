@@ -10,7 +10,8 @@ from emotools.bs4_helpers import sentence, note
 import argparse
 import os
 from collections import Counter
-
+import json
+import codecs
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -24,12 +25,14 @@ if __name__ == '__main__':
 
     act_tag = '{http://ilk.uvt.nl/folia}div'
 
+    cur_dir = os.getcwd()
     os.chdir(dir_name)
 
     folia_counter = 0
     num_sent = 0
     num_emotional = 0
     stats = Counter()
+    entity_words = {}
 
     print 'Files'
     for file_name in os.listdir(dir_name):
@@ -42,10 +45,7 @@ if __name__ == '__main__':
                                   events=('start', 'end'),
                                   tag=act_tag,
                                   huge_tree=True)
-        delete = True
         for event, elem in context:
-            if event == 'start' and elem.get('class') == 'act':
-                delete = False
             if event == 'end' and elem.get('class') == 'act':
                 # load act into memory
                 act_xml = BeautifulSoup(etree.tostring(elem), 'xml')
@@ -72,11 +72,17 @@ if __name__ == '__main__':
                                 if e.startswith(entity_class):
                                     emotional = True
                                     stats[e] += 1
+
+                                    if e not in entity_words.keys():
+                                        entity_words[e] = Counter()
+                                    words = [en.attrs.get('t')
+                                             for en in entity.find_all('wref')]
+                                    entity_words[e][' '.join(words)] += 1
+
                             if emotional:
                                 num_emotional += 1
 
-                delete = True
-
+        del context
             # clear memory
             # results in segmentation fault (for some reason)
             #if delete:
@@ -85,11 +91,24 @@ if __name__ == '__main__':
             #        del elem.getparent()[0]
             #        del context
 
+    # save data
+    out_file = os.path.join(cur_dir, 'annotation_statistics.json')
+    with codecs.open(out_file, 'wb', 'utf8') as f:
+        json.dump(entity_words, f, sort_keys=True, ensure_ascii=False,
+                  indent=2)
+
     # print stats
     print '\nBasic stats'
     print '{} sentences in {} files'.format(num_sent, folia_counter)
-    print '{} emotional sentences'.format(num_emotional)
+    perc = float(num_emotional)/float(num_sent)*100.0
+    print '{} emotional sentences ({:.2f}%)'.format(num_emotional, perc)
 
     print '\nLabel\tFrequency'
     for tag, freq in stats.most_common():
         print '{}\t{}'.format(tag, freq)
+
+    for tag, _freq in stats.most_common():
+        print '\n{}'.format(tag)
+        print 'Words\tFrequency'
+        for words, freq in entity_words[tag].most_common():
+            print '{}\t{}'.format(words.encode('utf-8'), freq)
