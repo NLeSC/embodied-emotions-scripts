@@ -2,8 +2,8 @@
 The data set consists of:
 <sentence id>\t<label>\t<tagged words>
 
-Usage: python folia2visualizaton.py <file in> <output dir>
-Or: ./batch_do_python.sh folia2visualizaton.py <dir in> <output dir>
+Usage: python folia2visualization.py <file in> <output dir>
+Or: ./batch_do_python.sh folia2visualization.py <dir in> <output dir>
 (for a directory containing folia files)
 """
 from lxml import etree
