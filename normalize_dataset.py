@@ -15,6 +15,7 @@ import os
 from collections import Counter
 import json
 import unicodedata
+import string
 
 
 if __name__ == '__main__':
@@ -41,6 +42,10 @@ if __name__ == '__main__':
             hist2modern[w] = c.most_common()[0][0]
     print '#words in dict: {}'.format(len(hist2modern))
 
+    replacements = Counter()
+    num_words = 0
+    num_replaced = 0
+
     text_files = [fi for fi in os.listdir(input_dir) if fi.endswith('.txt')]
     for text_file in text_files:
         print text_file
@@ -57,9 +62,14 @@ if __name__ == '__main__':
 
                 new_words = []
                 for w in words:
+                    if w not in string.punctuation:
+                        num_words += 1
+
                     wo = w.lower()
                     if wo in hist2modern.keys():
                         new_words.append(hist2modern[wo])
+                        num_replaced += 1
+                        replacements[wo] += 1
                     else:
                         new_words.append(w)
 
@@ -67,3 +77,10 @@ if __name__ == '__main__':
                 s = unicodedata.normalize('NFKD', ' '.join(new_words)) \
                                .encode('ascii', 'ignore')
                 f.write(u'{}\t{}\t{}'.format(parts[0], s, parts[2]))
+
+    # print number of replacements
+    print 'total words\t{}\ntotal replaced\t{}'.format(num_words, num_replaced)
+    for replaced, freq in replacements.most_common():
+        print '{}\t{}\t{}'.format(replaced.encode('utf-8'),
+                                  hist2modern[replaced].encode('utf-8'),
+                                  freq)
