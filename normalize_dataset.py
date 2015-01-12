@@ -14,6 +14,7 @@ import codecs
 import os
 from collections import Counter
 import json
+import unicodedata
 
 
 if __name__ == '__main__':
@@ -62,6 +63,7 @@ if __name__ == '__main__':
                     else:
                         new_words.append(w)
 
-                f.write(u'{}\t{}\t{}'.format(parts[0],
-                                             ' '.join(new_words),
-                                             parts[2]))
+                # replace accented characters by unaccented ones
+                s = unicodedata.normalize('NFKD', ' '.join(new_words)) \
+                               .encode('ascii', 'ignore')
+                f.write(u'{}\t{}\t{}'.format(parts[0], s, parts[2]))
