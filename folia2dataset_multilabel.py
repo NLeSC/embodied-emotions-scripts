@@ -74,6 +74,10 @@ if __name__ == '__main__':
 
                             if len(classes) > 0:
                                 num_emotional += 1
+                                # make labels uniform (for easy counting of
+                                # label combinations)
+                                classes = list(set(classes))
+                                classes.sort()
                             else:
                                 classes.append('None')
 
