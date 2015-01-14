@@ -33,11 +33,15 @@ if __name__ == '__main__':
     num_emotional = 0
     stats = Counter()
     entity_words = {}
+    text_stats = {}
 
     print 'Files'
     for file_name in os.listdir(dir_name):
         folia_counter += 1
         print '{}'.format(file_name)
+
+        text_id = file_name[0:13]
+        text_stats[text_id] = Counter()
 
         sents = set()
         # load document
@@ -72,6 +76,7 @@ if __name__ == '__main__':
                                 if e.startswith(entity_class):
                                     emotional = True
                                     stats[e] += 1
+                                    text_stats[text_id][e] += 1
 
                                     if e not in entity_words.keys():
                                         entity_words[e] = Counter()
@@ -102,6 +107,17 @@ if __name__ == '__main__':
     print '{} sentences in {} files'.format(num_sent, folia_counter)
     perc = float(num_emotional)/float(num_sent)*100.0
     print '{} emotional sentences ({:.2f}%)'.format(num_emotional, perc)
+
+    print '\n# of tags per text'
+    tags = stats.keys()
+    tags.sort()
+    tags_print = [t.split(':')[1] for t in tags]
+
+    print 'Text\tTotal\t{}'.format('\t'.join(tags_print))
+    for text, freqs in text_stats.iteritems():
+        total = sum(freqs.values())
+        freq_text = ['{}'.format(freqs[t]) for t in tags]
+        print '{}\t{}\t{}'.format(text, total, '\t'.join(freq_text))
 
     print '\nLabel\tFrequency'
     for tag, freq in stats.most_common():
