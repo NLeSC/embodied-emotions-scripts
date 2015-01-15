@@ -141,7 +141,16 @@ def entities2es(event_xml, entity_class, timestamp, es, index_name, doc_type):
         if entity(elem) and not note(elem.parent.parent.parent):
             ent_class = '{}-'.format(entity_class)
             if elem.get('class').startswith(ent_class):
+                # remove the entity class from the label name (to improve
+                # readability)
                 entity_name = elem.get('class').replace(ent_class, '')
+
+                # remove "Level1:" (etc.) from tag names like
+                # Level1:Lichaamswerking
+                parts = entity_name.split(':')
+                if len(parts) > 1:
+                    entity_name = parts[1]
+
                 if not entities.get(entity_name):
                     entities[entity_name] = []
                 entities[entity_name].append(elem.wref.get('t'))
@@ -203,6 +212,8 @@ if __name__ == '__main__':
                     event2es(event_xml, order, es, index_name, type_name)
                     entities2es(event_xml, 'liwc', timestamp, es, index_name,
                                 type_name)
+                    entities2es(event_xml, 'EmbodiedEmotions', timestamp, es,
+                                index_name, type_name)
                     delete = True
 
             if delete:
