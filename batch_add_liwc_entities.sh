@@ -1,7 +1,7 @@
 #!/bin/bash
 # Batch add LIWC entities to FoLiA files
 # Usage: ./batch_add_liwc_entities.sh <dir with folia-files> <dir to save
-# kaf-files in>
+# folia-files in>
 # 2014-09-30 j.vanderzwaan@esciencecenter.nl
 
 echo ''
