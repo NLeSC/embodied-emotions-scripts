@@ -68,7 +68,7 @@ def create_index(es, index_name, type_name):
                         "match_mapping_type": "string",
                         "mapping": {
                             "type": "string",
-                            "index": "not_analyzed"
+                            "index": "analyzed"
                         }
                     }
                 },
