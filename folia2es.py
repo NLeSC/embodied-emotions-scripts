@@ -128,7 +128,8 @@ def event2es(event_xml, event_order, es, index_name, type_name):
         if cls == 'speakerturn':
             doc['actor'] = actor
 
-        es.index(index_name, type_name, doc)
+        # create document if it does not yet exist
+        es.create(index_name, type_name, doc)
 
 
 def entities2es(event_xml, entity_class, timestamp, es, index_name, doc_type):
@@ -158,17 +159,20 @@ def entities2es(event_xml, entity_class, timestamp, es, index_name, doc_type):
                 # entity
                 words = [w.get('t') for w in elem.find_all('wref')]
                 entities[entity_name].append(' '.join(words).lower())
-    doc = {
-        '{}-entities'.format(entity_class): {
-            'data': entities,
-            'timestamp': timestamp
-        }
-    }
 
-    es.update(index=index_name,
-              doc_type=type_name,
-              id=event_id,
-              body={'doc': doc})
+    # only add entities if there are entities to be added
+    if entities:
+        doc = {
+            '{}-entities'.format(entity_class): {
+                'data': entities,
+                'timestamp': timestamp
+            }
+        }
+
+        es.update(index=index_name,
+                  doc_type=type_name,
+                  id=event_id,
+                  body={'doc': doc})
 
 
 if __name__ == '__main__':
