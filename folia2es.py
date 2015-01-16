@@ -153,7 +153,11 @@ def entities2es(event_xml, entity_class, timestamp, es, index_name, doc_type):
 
                 if not entities.get(entity_name):
                     entities[entity_name] = []
-                entities[entity_name].append(elem.wref.get('t'))
+
+                # get the text content of all the words that make up this
+                # entity
+                words = [w.get('t') for w in elem.find_all('wref')]
+                entities[entity_name].append(' '.join(words).lower())
     doc = {
         '{}-entities'.format(entity_class): {
             'data': entities,
