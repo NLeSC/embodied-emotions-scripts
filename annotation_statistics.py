@@ -82,7 +82,8 @@ if __name__ == '__main__':
                                         entity_words[e] = Counter()
                                     words = [en.attrs.get('t')
                                              for en in entity.find_all('wref')]
-                                    entity_words[e][' '.join(words)] += 1
+                                    words_str = ' '.join(words).lower()
+                                    entity_words[e][words_str] += 1
 
                             if emotional:
                                 num_emotional += 1
