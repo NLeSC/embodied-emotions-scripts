@@ -50,36 +50,34 @@ if __name__ == '__main__':
     for text_file in text_files:
         print text_file
 
-        if os.path.isfile(os.path.join(output_dir, text_file)):
-            in_file = os.path.join(input_dir, text_file)
-            out_file = os.path.join(output_dir, text_file)
-            with codecs.open(in_file, 'rb', 'utf-8') as f:
-                lines = f.readlines()
+        in_file = os.path.join(input_dir, text_file)
+        out_file = os.path.join(output_dir, text_file)
+        with codecs.open(in_file, 'rb', 'utf-8') as f:
+            lines = f.readlines()
 
-            with codecs.open(out_file, 'wb', 'utf-8') as f:
-                for line in lines:
-                    parts = line.split('\t')
-                    words = parts[1].split(' ')
+        with codecs.open(out_file, 'wb', 'utf-8') as f:
+            for line in lines:
+                parts = line.split('\t')
+                words = parts[1].split(' ')
 
-                    new_words = []
-                    for w in words:
-                        if w not in string.punctuation:
-                            num_words += 1
+                new_words = []
+                for w in words:
+                    if w not in string.punctuation:
+                        num_words += 1
 
-                        wo = w.lower()
-                        if wo in hist2modern.keys():
-                            new_words.append(hist2modern[wo])
-                            num_replaced += 1
-                            replacements[wo] += 1
-                        else:
-                            new_words.append(w)
+                    wo = w.lower()
+                    if wo in hist2modern.keys():
+                        new_words.append(hist2modern[wo])
+                        num_replaced += 1
+                        replacements[wo] += 1
+                    else:
+                        new_words.append(w)
 
-                    # replace accented characters by unaccented ones
-                    s = unicodedata.normalize('NFKD', ' '.join(new_words)) \
-                                   .encode('ascii', 'ignore')
-                    f.write(u'{}\t{}\t{}'.format(parts[0], s, parts[2]))
-        else:
-            print 'Output already exists, skipping file...'
+                # replace accented characters by unaccented ones
+                s = unicodedata.normalize('NFKD', ' '.join(new_words)) \
+                               .encode('ascii', 'ignore')
+                f.write(u'{}\t{}\t{}'.format(parts[0], s, parts[2]))
+
     # print number of replacements
     print 'total words\t{}\ntotal replaced\t{}'.format(num_words, num_replaced)
     for replaced, freq in replacements.most_common():
