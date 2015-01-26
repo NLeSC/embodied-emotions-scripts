@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""Script to put a folia xml file in ElasticSearch.
+"""Script to put liwc entity categories in elasticsearch.
 """
 import codecs
 from elasticsearch import Elasticsearch
@@ -54,6 +54,10 @@ if __name__ == '__main__':
                     'type': 'string',
                     'index': 'not_analyzed'
                 },
+                'es_name': {
+                    'type': 'string',
+                    'index': 'not_analyzed'
+                },
                 'words': {
                     'type': 'string',
                     'index': 'not_analyzed'
@@ -67,6 +71,7 @@ if __name__ == '__main__':
         print cat
         doc = {
             'name': cat,
+            'es_name': 'liwc-entities.data.{}'.format(cat),
             'words': words
         }
         es.index(index=index_name, doc_type=type_name, body=doc)
