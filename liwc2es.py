@@ -2,31 +2,11 @@
 # -*- coding: utf-8 -*-
 """Script to put liwc entity categories in elasticsearch.
 """
-import codecs
 from elasticsearch import Elasticsearch
-
+from emotools.liwc_helpers import load_liwc
 
 if __name__ == '__main__':
-    # Load liwc dict
-    with codecs.open('historic_Dutch_LIWC.dic', 'rb', 'utf8') as f:
-        lines = f.readlines()
-
-    liwc_categories = {}
-    liwc_dict = {}
-
-    for line in lines:
-        # LIWC category
-        if line[0].isdigit():
-            entry = line.split()
-            # remove 0 from strings like 01
-            c = str(int(entry[0]))
-            liwc_categories[c] = entry[1]
-        # word
-        elif line[0].isalpha():
-            entry = line.split()
-            term = entry[0]
-            categories = entry[1:]
-            liwc_dict[term] = categories
+    liwc_dict, liwc_categories = load_liwc('historic_Dutch_LIWC.dic', 'utf8')
 
     # Make dictionary of the form {liwc category: [word, word, word, ...]}
     liwc = {}
