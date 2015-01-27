@@ -1,6 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """Script to put a folia xml file in ElasticSearch.
+
+The script adds a document for each event in the folia file.
+
+LIWC entities and EmbodiedEmotions entities are also added when present in the
+input.
+
+The script can also be used to update an existing ES index containing event
+data, e.g. to add only EmbodiedEmotions entities.
+
+Usage: python folia2es.py <dir with folia files> <name of the ES index that
+should be created/updated>
 """
 import os
 import argparse

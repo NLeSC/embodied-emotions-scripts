@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 """Add LIWC words as entities in FoLiA XML file.
 Usage: python add_liwc_entities.py <file in> <dir out>
+Or: ./batch_add_liwc_entities.sh <dir with folia-files> <dir to save
+folia-files in>
 
 Requires the historic Dutch LIWC dictionary to be present.
 """
