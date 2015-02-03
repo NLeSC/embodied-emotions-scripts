@@ -19,7 +19,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # Load liwc dict
-    with codecs.open(args.dict_file, 'rb', 'latin1') as f:
+    with codecs.open(args.dict_file, 'rb', 'utf8') as f:
         lines = f.readlines()
 
     liwc_categories = {}
@@ -48,7 +48,7 @@ if __name__ == '__main__':
                 liwc[cat] = []
             liwc[cat].append(term)
 
-    cat = args.liwc_cat.lower()
+    cat = args.liwc_cat
     if liwc.get(cat):
         print 'LIWC words for {} ({} words)'.format(cat, len(liwc[cat]))
         print ' - '.join(liwc[cat])
