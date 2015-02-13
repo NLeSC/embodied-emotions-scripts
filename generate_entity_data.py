@@ -2,12 +2,13 @@
 # -*- coding: utf-8 -*-
 """Script to generate text files containing LIWC and EmbEm entities.
 
-Ouptut format: <word id>\t<word>\t<entity category>
-
 The script writes 3 files:
 1. embem entities: embem_data.csv
 2. historic liwc: liwc_hist_data.csv
 3. modern liwc: liwc_modern_data.csv
+
+Ouptut format 2 and 3: <word id>\t<word>\t<entity category>
+Ouptut format 1: <word id>\t<word>\t<entity category>\t<span id>
 
 Output is appended to these three files (with the batch script).
 
@@ -19,6 +20,7 @@ from lxml import etree
 import argparse
 import string
 import codecs
+import os
 
 from emotools.bs4_helpers import note, word, sentence
 from emotools.liwc_helpers import load_liwc
@@ -47,7 +49,6 @@ if __name__ == '__main__':
     liwc_dict_h, liwc_cats = load_liwc('historic_Dutch_LIWC.dic', 'utf8')
 
     relevant_cats = ['Posemo', 'Negemo', 'Body', 'Physcal', 'Anger', 'Sad']
-    #relevant_cats = ['Body', 'Physcal', 'Anger', 'Sad']
 
     # We are interested in labels/classes of the following three entity types:
     entity_classes = [u'EmbodiedEmotions-Level1', u'EmbodiedEmotions-Level2',
@@ -56,6 +57,10 @@ if __name__ == '__main__':
     liwc_data_m = []
     liwc_data_h = []
     embem_data = []
+
+    head, tail = os.path.split(args.file_name)
+    text_id = tail[0:13]
+    ent_count = 0
 
     # Only words inside events are counted (this means title (i.e. words inside
     # heading tags) are not countes). This is also what is stored in
@@ -89,10 +94,12 @@ if __name__ == '__main__':
                             if e.startswith(cl):
                                 label = e.split(':')[1]
                                 wrefs = entity.find_all('wref')
+                                ent_count += 1
+                                entity_id = '{}_{}'.format(text_id, ent_count)
                                 for wref in wrefs:
                                     w_id = wref.get('id')
                                     w = wref.get('t').lower()
-                                    line = u'{}\t{}\t{}\n'.format(w_id, w, label)
+                                    line = u'{}\t{}\t{}\t{}\n'.format(w_id, w, label, entity_id)
                                     embem_data.append(line)
 
                 elif word(element) and not note(element.parent.parent):
