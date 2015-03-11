@@ -20,13 +20,19 @@ def get_time_period(year):
         return None
 
 
-def print_results_line(genre, results):
+def print_results_line_period(genre, results):
     return '{}\t{}\t{}\t{}\t{}'. \
            format(genre,
                   results.get('renaissance').get(genre, 0),
                   results.get('classisism').get(genre, 0),
                   results.get('enlightenment').get(genre, 0),
                   results.get(None, {}).get(genre, 0))
+
+
+def print_results_line_year(genre, sorted_years, years):
+    line = [str(years.get(y, {}).get(genre, 0)) for y in sorted_years]
+    return '{}\t{}'.format(genre, '\t'.join(line))
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -39,6 +45,7 @@ if __name__ == '__main__':
     text_id = file_name[-20:-7]
 
     result = {}
+    years = {}
     period_none_ids = []
     genre_other_ids = []
 
@@ -53,16 +60,31 @@ if __name__ == '__main__':
                 result[period] = Counter()
             result[period][genre] += 1
 
+            year = parts[1]
+            if year not in years.keys():
+                years[year] = Counter()
+            years[year][genre] += 1
+
             if not period:
                 period_none_ids.append(parts[0])
             if genre == 'Anders':
                 genre_other_ids.append(parts[0])
 
+    sorted_years = sorted(years.keys())
+    print 'Genre\t{}'.format('\t'.join(sorted_years))
+    print print_results_line_year('tragedie/treurspel', sorted_years, years)
+    print print_results_line_year('blijspel / komedie', sorted_years, years)
+    print print_results_line_year('klucht', sorted_years, years)
+    print print_results_line_year('Anders', sorted_years, years)
+
+    print
+    print
+
     print 'Genre\tRenaissance\tClassisim\tEnlightenment\tNone'
-    print print_results_line('tragedie/treurspel', result)
-    print print_results_line('blijspel / komedie', result)
-    print print_results_line('klucht', result)
-    print print_results_line('Anders', result)
+    print print_results_line_period('tragedie/treurspel', result)
+    print print_results_line_period('blijspel / komedie', result)
+    print print_results_line_period('klucht', result)
+    print print_results_line_period('Anders', result)
 
     print
     print
