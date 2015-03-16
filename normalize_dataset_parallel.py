@@ -84,6 +84,7 @@ if __name__ == '__main__':
 
     text_files = [fi for fi in os.listdir(input_dir) if fi.endswith('.txt')]
     for text_file in text_files:
+        print text_file
         result = pool.apply_async(process_text, args=(text_file, input_dir, output_dir, hist2modern,))
         results.append(result)
     pool.close()
