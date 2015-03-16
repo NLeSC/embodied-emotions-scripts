@@ -21,12 +21,12 @@ def get_time_period(year):
 
 
 def print_results_line_period(genre, results):
-    return '{}\t{}\t{}\t{}\t{}'. \
-           format(genre,
-                  results.get('renaissance').get(genre, 0),
-                  results.get('classisism').get(genre, 0),
-                  results.get('enlightenment').get(genre, 0),
-                  results.get(None, {}).get(genre, 0))
+    r = results.get('renaissance', {}).get(genre, 0)
+    c = results.get('classisism', {}).get(genre, 0)
+    e = results.get('enlightenment', {}).get(genre, 0)
+    n = results.get(None, {}).get(genre, 0)
+    return '{}\t{}\t{}\t{}\t{}\t{}'. \
+           format(genre, r, c, e, n, sum([r, c, e, n]))
 
 
 def print_results_line_year(genre, sorted_years, years):
