@@ -10,12 +10,119 @@ Or: ./batch_do_python.sh folia2dataset_multiclass.py <dir in> <output dir>
 """
 from lxml import etree
 from bs4 import BeautifulSoup
-from emotools.bs4_helpers import sentence, note, word
 import argparse
 import codecs
 import os
 import errno
+from emotools.heem_utils import heem_concept_type_labels, heem_emotion_labels
+from folia2kaf import _folia_pos2kaf_pos
+import sys
 
+time_period = '1600-1830'
+
+
+def get_word_details(sentence_xml, word_id):
+    words = sentence_xml.find_all('w')
+    for word in words:
+        w = word.get('xml:id')
+        if w == word_id:
+            lemma = word.find('lemma').attrs.get('class')
+            pos = _folia_pos2kaf_pos.get(word.find('pos').attrs.get('head'))
+
+            return pos.lower(), lemma
+    return None, None
+
+
+def lexical_entry(pos_tag, written_form, lemma, heem_tag):
+    soup = BeautifulSoup(u'<LexicalEntry id="{}-{}-1" partOfSpeech="{}"'.
+                         format(lemma, pos_tag, pos_tag), 'xml')
+    le = soup.LexicalEntry
+    lm = soup.new_tag('Lemma', writtenForm=lemma)
+    le.append(lm)
+    wfs = soup.new_tag('WordForms')
+    le.append(wfs)
+    wf = soup.new_tag('WordForm', writtenForm=written_form,
+                      tense='', timePeriod=time_period)
+    wfs.append(wf)
+    sense = soup.new_tag('Sense', senseId=lemma, definition='')
+    le.append(sense)
+    sem = soup.new_tag('Semantics')
+    sense.append(sem)
+
+    add_concept_type_or_emotion_label(sem, heem_tag, soup)
+
+    #print le.prettify()
+    return le
+
+
+def add_concept_type_or_emotion_label(xml, heem_tag, soup):
+    if heem_tag in heem_concept_type_labels:
+        concept_type_or_emotion_label = 'ConceptType'
+    else:
+        concept_type_or_emotion_label = 'EmotionLabel'
+
+    lb = xml.find(concept_type_or_emotion_label, value=heem_tag)
+    if not lb:
+        print 'adding entry'
+        tag_name = '{}s'.format(concept_type_or_emotion_label)
+        lbs = xml.find('{}s'.format(concept_type_or_emotion_label))
+        if not lbs:
+            print 'adding parent layer'
+            lbs = soup.new_tag(tag_name)
+            xml.append(lbs)
+        lb = soup.new_tag(concept_type_or_emotion_label, value=heem_tag,
+                          internalSystem='HEEM')
+        lbs.append(lb)
+        #print lbs.prettify()
+
+
+def add_written_form(wfs, written_form, soup):
+    wf = wfs.find('WordForm', writtenForm=written_form)
+    if not wf:
+        print 'Adding new written form', written_form
+        wf = soup.new_tag('WordForm', writtenForm=written_form,
+                          tense='', timePeriod=time_period)
+        wfs.append(wf)
+
+
+def add_or_update_lexical_entry(soup, pos_tag, written_form, lemma, heem_tag):
+    print lemma
+    # does lexical entry already existi?
+    # lexical entry already exist if there is an entry with matching lemma and
+    # pos tag.
+    lem = soup.find('Lemma', writtenForm=lemma)
+    if lem and lem.parent.attrs.get('partOfSpeech') == pos_tag:
+        print 'Update instead of new!'
+        add_written_form(lem.parent.WordForms, written_form, soup)
+        add_concept_type_or_emotion_label(lem.parent.Sense.Semantics, heem_tag,
+                                          soup)
+    else:
+        print 'New LexicalEntry'
+        le = lexical_entry(pos_tag, written_form, lemma, l[1])
+        soup.LexicalResource.Lexicon.append(le)
+
+
+def update_lexical_entry(entry_bs, pos_tag, written_form, lemma, heem_tag):
+    """Add relevant information to existing lexical entry"""
+
+    # wordform
+    wf = entry_bs.find('WordForm', writtenForm=written_form)
+    if not wf:
+        wf.WordForms.new_tag('WordForm', writtenForm=written_form, tense='',
+                             timePeriod='1600-1830')
+
+    # concept type
+    ct = entry_bs.find('ConceptType', value=heem_tag)
+    if not ct:
+        cts = entry_bs.find('ConceptTypes')
+        if not cts:
+            entry_bs.Sense.Semantics.new_tag('ConceptTypes')
+        cts = entry_bs.find('ConceptTypes')
+        etree.SubElement(cts, 'ConceptType', {'value': heem_tag,
+                                              'internalSystem': 'HEEM'})
+        
+        
+    # emotion label
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -40,9 +147,8 @@ if __name__ == '__main__':
 
         root = etree.Element('LexicalResource')
         lexicon_xml = etree.ElementTree(root)
-        lr = etree.SubElement(root, 'LexicalResource')
         heem_label = "Historic Embodied Emotions Model (HEEM) Lexicon"
-        gi = etree.SubElement(lr, 'GlobalInformation', {'label': heem_label})
+        gi = etree.SubElement(root, 'GlobalInformation', {'label': heem_label})
         le = etree.SubElement(gi, 'Lexicon',
                               {
                                   'languageCoding': "ISO 639-2",
@@ -57,66 +163,50 @@ if __name__ == '__main__':
                               method='xml',
                               pretty_print=True)
 
-    lexicon_xml = BeautifulSoup(lexicon_file)
+    # read lexicon
+    with codecs.open(lexicon_file, 'rb', 'utf-8') as f:
+        lexicon_xml = BeautifulSoup(f, 'xml')
+
     print lexicon_xml.prettify()
-"""
+    
     # We are interested in labels/classes of the following three entity types:
     entity_classes = [u'EmbodiedEmotions-Level1', u'EmbodiedEmotions-Level2',
                       u'EmbodiedEmotions-EmotionLabel']
 
-    act_tag = '{http://ilk.uvt.nl/folia}div'
+    xml_files = [xml for xml in os.listdir(input_dir) if xml.endswith('.xml')]
+    for xml in xml_files:
+        in_file = os.path.join(input_dir, xml)
 
-    # Load document
-    context = etree.iterparse(file_name, events=('end',), tag=act_tag)
+        sentence_tag = '{http://ilk.uvt.nl/folia}s'
 
-    num_sent = 0
-    num_emotional = 0
-    sents = set()
+        # Load document
+        xml_doc = os.path.join(input_dir, xml)
+        context = etree.iterparse(xml_doc, events=('end',), tag=sentence_tag)
 
-    out_file = os.path.join(output_dir, '{}.txt'.format(file_name[-20:-7]))
-    print 'Writing file: {}'.format(out_file)
-    with codecs.open(out_file, 'wb', encoding='utf-8') as f:
         for event, elem in context:
-            if elem.get('class') == 'act':
-                # load act into memory
-                act_xml = BeautifulSoup(etree.tostring(elem), 'xml')
-                sentences = act_xml.find_all(sentence)
-                s = None
-                for sent in sentences:
-                    if not note(sent.parent):
-                        sent_id = sent.attrs.get('xml:id')
-                        # use folia tokenization
-                        sent_words = [w.t.string for w in sent.find_all(word)]
-                        s = ' '.join(sent_words)
+            # load act into memory
+            sentence = BeautifulSoup(etree.tostring(elem), 'xml')
 
-                        # remove duplicate sentences (mainly single word
-                        # sentences indicating the speaker of a speaker turn,
-                        # e.g., Medea.)
-                        if s and s not in sents:
-                            sents.add(s)
-                            num_sent += 1
-
-                            entities = sent.find_all('entity')
-                            classes = []
-                            for entity in entities:
-                                e = entity.attrs.get('class')
-                                for cl in entity_classes:
-                                    if e.startswith(cl):
-                                        l = e.split(':')
-                                        classes.append(l[1])
-
-                            if len(classes) > 0:
-                                num_emotional += 1
-                                # make labels uniform (for easy counting of
-                                # label combinations)
-                                classes = list(set(classes))
-                                classes.sort()
-                            else:
-                                classes.append('None')
-
-                            f.write(u'{}\t{}\t{}\n'.format(sent_id,
-                                                           s,
-                                                           '_'.join(classes)))
-
-    print '{} sentences, {} emotional\n'.format(num_sent, num_emotional)
-    """
+            entities = sentence.find_all('entity')
+            for entity in entities:
+                e = entity.attrs.get('class')
+                for cl in entity_classes:
+                    if e.startswith(cl):
+                        l = e.split(':')
+                        wrefs = entity.find_all('wref')
+                        if len(wrefs) == 1:
+                            # Single word entry for lexicon
+                            w_id = wrefs[0].attrs.get('id')
+                            pos_tag, lemma = get_word_details(sentence, w_id)
+                            written_form = wrefs[0].attrs.get('t')
+                            add_or_update_lexical_entry(lexicon_xml, pos_tag,
+                                                        written_form, lemma,
+                                                        l[1])
+                        else:
+                            # multiple word entry for lexicon
+                            print 'Ignoring multi-word annotation for now'
+        print lexicon_xml.prettify()
+        del context
+        with codecs.open(lexicon_file, 'wb', 'utf-8') as f:
+            f.write(lexicon_xml.prettify())
+        sys.exit()
