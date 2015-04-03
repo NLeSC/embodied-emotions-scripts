@@ -102,12 +102,18 @@ def add_written_form(wfs, written_form, soup):
 
 
 def add_or_update_lexical_entry(soup, pos_tag, written_form, lemma, heem_tag):
-    print lemma
+    print lemma, pos_tag, written_form
     # does lexical entry already existi?
     # lexical entry already exist if there is an entry with matching lemma and
     # pos tag.
-    lem = soup.find('Lemma', writtenForm=lemma)
-    if lem and lem.parent.attrs.get('partOfSpeech') == pos_tag:
+    lemmas = soup.find_all('Lemma', writtenForm=lemma)
+    lem = None
+    for lm in lemmas:
+        lemma_pos_tag = lm.parent.attrs.get('partOfSpeech')
+        if pos_tag == lemma_pos_tag:
+            lem = lm
+
+    if lem:
         print 'Update instead of new!'
         add_written_form(lem.parent.WordForms, written_form, soup)
         add_concept_type_or_emotion_label(lem.parent.Sense.Semantics, heem_tag,
@@ -163,7 +169,7 @@ if __name__ == '__main__':
     with codecs.open(lexicon_file, 'rb', 'utf-8') as f:
         lexicon_xml = BeautifulSoup(f, 'xml')
 
-    print lexicon_xml.prettify()
+    #print lexicon_xml.prettify()
 
     # We are interested in labels/classes of the following three entity types:
     entity_classes = [u'EmbodiedEmotions-Level1', u'EmbodiedEmotions-Level2',
@@ -201,7 +207,7 @@ if __name__ == '__main__':
                         else:
                             # multiple word entry for lexicon
                             print 'Ignoring multi-word annotation for now'
-        print lexicon_xml.prettify()
+        #print lexicon_xml.prettify()
         del context
         with codecs.open(lexicon_file, 'wb', 'utf-8') as f:
             f.write(lexicon_xml.prettify())
