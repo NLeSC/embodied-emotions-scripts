@@ -53,6 +53,23 @@ def add_lexical_entry(soup, pos_tag, written_form, lemma, heem_tag):
     soup.LexicalResource.GlobalInformation.Lexicon.append(le)
 
 
+def add_lexical_entry_mwe(soup, word_list, heem_tag):
+    mwe_id = u'_'.join(word_list)
+    written_form = unicode(' '.join(word_list))
+    le = soup.new_tag('LexicalEntry', id=u'{}-mwe'.format(mwe_id))
+    mwe = soup.new_tag('MultiWordExpression', writtenForm=written_form)
+    le.append(mwe)
+
+    sense = soup.new_tag('Sense', senseId=mwe_id, definition='')
+    le.append(sense)
+    sem = soup.new_tag('Semantics')
+    sense.append(sem)
+
+    add_concept_type_or_emotion_label(sem, heem_tag, soup)
+    add_heem_classification(soup, heem_tag)
+    soup.LexicalResource.GlobalInformation.Lexicon.append(le)
+
+
 def get_label_type(heem_tag):
     if heem_tag in heem_concept_type_labels:
         concept_type_or_emotion_label = 'ConceptType'
@@ -121,7 +138,24 @@ def add_or_update_lexical_entry(soup, pos_tag, written_form, lemma, heem_tag):
         add_heem_classification(soup, heem_tag)
     else:
         print 'New LexicalEntry'
-        add_lexical_entry(soup, pos_tag, written_form, lemma, l[1])
+        add_lexical_entry(soup, pos_tag, written_form, lemma, heem_tag)
+        add_heem_classification(soup, heem_tag)
+
+
+def add_or_update_lexical_entry_mwe(soup, word_list, heem_tag):
+    print ' '.join(word_list)
+    # does lexical entry already exists?
+    # lexical entry already exist if there is an entry with matching lemma and
+    # pos tag.
+    mwe_id = u'_'.join(word_list).encode('utf8')
+    le = soup.find('LexicalEntry', id='{}-mwe'.format(mwe_id))
+    if le:
+        print 'Update mwe instead of new!'
+        add_concept_type_or_emotion_label(le.Sense.Semantics, heem_tag, soup)
+        add_heem_classification(soup, heem_tag)
+    else:
+        print 'New LexicalEntry for mwe'
+        add_lexical_entry_mwe(soup, word_list, heem_tag)
         add_heem_classification(soup, heem_tag)
 
 
@@ -204,9 +238,11 @@ if __name__ == '__main__':
                             add_or_update_lexical_entry(lexicon_xml, pos_tag,
                                                         written_form, lemma,
                                                         l[1])
-                        else:
+                        elif len(wrefs) > 1:
                             # multiple word entry for lexicon
-                            print 'Ignoring multi-word annotation for now'
+                            words = [w.attrs.get('t') for w in wrefs]
+                            add_or_update_lexical_entry_mwe(lexicon_xml, words,
+                                                            l[1])
         #print lexicon_xml.prettify()
         del context
         with codecs.open(lexicon_file, 'wb', 'utf-8') as f:
