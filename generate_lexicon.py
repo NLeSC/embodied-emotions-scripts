@@ -50,11 +50,13 @@ def add_lexical_entry(soup, pos_tag, written_form, lemma, heem_tag):
 
     add_concept_type_or_emotion_label(sem, heem_tag, soup)
     add_heem_classification(soup, heem_tag)
-    soup.LexicalResource.GlobalInformation.Lexicon.append(le)
+    # single word lexical entries go at the beginning (to separate them from
+    # multi word expressions
+    soup.LexicalResource.GlobalInformation.Lexicon.insert(0, le)
 
 
 def add_lexical_entry_mwe(soup, word_list, heem_tag):
-    mwe_id = u'_'.join(word_list)
+    mwe_id = u'_'.join(word_list).lower()
     written_form = unicode(' '.join(word_list))
     le = soup.new_tag('LexicalEntry', id=u'{}-mwe'.format(mwe_id))
     mwe = soup.new_tag('MultiWordExpression', writtenForm=written_form)
@@ -147,7 +149,7 @@ def add_or_update_lexical_entry_mwe(soup, word_list, heem_tag):
     # does lexical entry already exists?
     # lexical entry already exist if there is an entry with matching lemma and
     # pos tag.
-    mwe_id = u'_'.join(word_list).encode('utf8')
+    mwe_id = u'_'.join(word_list).lower().encode('utf8')
     le = soup.find('LexicalEntry', id='{}-mwe'.format(mwe_id))
     if le:
         print 'Update mwe instead of new!'
