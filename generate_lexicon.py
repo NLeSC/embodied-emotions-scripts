@@ -14,7 +14,7 @@ import argparse
 import codecs
 import os
 import errno
-from emotools.heem_utils import heem_concept_type_labels, heem_emotion_labels
+from emotools.heem_utils import heem_concept_type_labels, heem_labels_en
 from folia2kaf import _folia_pos2kaf_pos
 import sys
 
@@ -33,10 +33,9 @@ def get_word_details(sentence_xml, word_id):
     return None, None
 
 
-def lexical_entry(pos_tag, written_form, lemma, heem_tag):
-    soup = BeautifulSoup(u'<LexicalEntry id="{}-{}-1" partOfSpeech="{}"'.
-                         format(lemma, pos_tag, pos_tag), 'xml')
-    le = soup.LexicalEntry
+def add_lexical_entry(soup, pos_tag, written_form, lemma, heem_tag):
+    le = soup.new_tag('LexicalEntry', id=u'{}-{}'.format(lemma, pos_tag),
+                      partOfSpeech=pos_tag)
     lm = soup.new_tag('Lemma', writtenForm=lemma)
     le.append(lm)
     wfs = soup.new_tag('WordForms')
@@ -50,17 +49,20 @@ def lexical_entry(pos_tag, written_form, lemma, heem_tag):
     sense.append(sem)
 
     add_concept_type_or_emotion_label(sem, heem_tag, soup)
+    add_heem_classification(soup, heem_tag)
+    soup.LexicalResource.GlobalInformation.Lexicon.append(le)
 
-    #print le.prettify()
-    return le
 
-
-def add_concept_type_or_emotion_label(xml, heem_tag, soup):
+def get_label_type(heem_tag):
     if heem_tag in heem_concept_type_labels:
         concept_type_or_emotion_label = 'ConceptType'
     else:
         concept_type_or_emotion_label = 'EmotionLabel'
+    return concept_type_or_emotion_label
 
+
+def add_concept_type_or_emotion_label(xml, heem_tag, soup):
+    concept_type_or_emotion_label = get_label_type(heem_tag)
     lb = xml.find(concept_type_or_emotion_label, value=heem_tag)
     if not lb:
         print 'adding entry'
@@ -74,6 +76,20 @@ def add_concept_type_or_emotion_label(xml, heem_tag, soup):
                           internalSystem='HEEM')
         lbs.append(lb)
         #print lbs.prettify()
+        return lb
+
+
+def add_heem_classification(soup, heem_tag, internalSystem='HEEM'):
+    label_type = get_label_type(heem_tag)
+    label_en = heem_labels_en.get(heem_tag)
+    print label_type
+    cl = soup.LexicalResource.GlobalInformation.HeemClassification. \
+        find(label_type, id=label_en)
+    if not cl:
+        heem_label = soup.new_tag(label_type, id=label_en)
+        heem_label.append(soup.new_tag('Class', value=heem_tag,
+                                       internalSystem=internalSystem))
+        soup.LexicalResource.GlobalInformation.HeemClassification.append(heem_label)
 
 
 def add_written_form(wfs, written_form, soup):
@@ -96,33 +112,12 @@ def add_or_update_lexical_entry(soup, pos_tag, written_form, lemma, heem_tag):
         add_written_form(lem.parent.WordForms, written_form, soup)
         add_concept_type_or_emotion_label(lem.parent.Sense.Semantics, heem_tag,
                                           soup)
+        add_heem_classification(soup, heem_tag)
     else:
         print 'New LexicalEntry'
-        le = lexical_entry(pos_tag, written_form, lemma, l[1])
-        soup.LexicalResource.Lexicon.append(le)
+        add_lexical_entry(soup, pos_tag, written_form, lemma, l[1])
+        add_heem_classification(soup, heem_tag)
 
-
-def update_lexical_entry(entry_bs, pos_tag, written_form, lemma, heem_tag):
-    """Add relevant information to existing lexical entry"""
-
-    # wordform
-    wf = entry_bs.find('WordForm', writtenForm=written_form)
-    if not wf:
-        wf.WordForms.new_tag('WordForm', writtenForm=written_form, tense='',
-                             timePeriod='1600-1830')
-
-    # concept type
-    ct = entry_bs.find('ConceptType', value=heem_tag)
-    if not ct:
-        cts = entry_bs.find('ConceptTypes')
-        if not cts:
-            entry_bs.Sense.Semantics.new_tag('ConceptTypes')
-        cts = entry_bs.find('ConceptTypes')
-        etree.SubElement(cts, 'ConceptType', {'value': heem_tag,
-                                              'internalSystem': 'HEEM'})
-        
-        
-    # emotion label
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -156,6 +151,7 @@ if __name__ == '__main__':
                                   'language': "nl",
                                   'owner': "HEEM consortium"
                               })
+        hc = etree.SubElement(gi, 'HeemClassification')
         with codecs.open(lexicon_file, 'wb', 'utf-8') as f:
             lexicon_xml.write(f,
                               xml_declaration=True,
@@ -168,7 +164,7 @@ if __name__ == '__main__':
         lexicon_xml = BeautifulSoup(f, 'xml')
 
     print lexicon_xml.prettify()
-    
+
     # We are interested in labels/classes of the following three entity types:
     entity_classes = [u'EmbodiedEmotions-Level1', u'EmbodiedEmotions-Level2',
                       u'EmbodiedEmotions-EmotionLabel']
