@@ -1,12 +1,11 @@
-"""Create multilabel data set to train embodied emotions classifiers
-The data set consists of:
-<sentence id>\t<sentence>\tEmotie_Liefde (embodied emotions labels separated by
-_)
-<sentence id>\t<sentence>\tNone ('None' if no words were tagged)
+#!/usr/bin/env python
+"""Generate LMF lexicon from FoLiA XML files containing embem annotations
 
-Usage: python folia2dataset_multiclass.py <file in> <output dir>
-Or: ./batch_do_python.sh folia2dataset_multiclass.py <dir in> <output dir>
-(for a directory containing folia files)
+Usage: python generate_lexicon.py <dir containing folia xml files>
+<lexicon file (output)>
+
+If the lexicon file does not exist, it is created. If it does exist, non-
+existing lexical entries are added.
 """
 from lxml import etree
 from bs4 import BeautifulSoup
@@ -16,7 +15,6 @@ import os
 import errno
 from emotools.heem_utils import heem_concept_type_labels, heem_labels_en
 from folia2kaf import _folia_pos2kaf_pos
-import sys
 
 time_period = '1600-1830'
 
@@ -27,6 +25,7 @@ def get_word_details(sentence_xml, word_id):
         w = word.get('xml:id')
         if w == word_id:
             lemma = word.find('lemma').attrs.get('class')
+            lemma = lemma.lower()
             pos = _folia_pos2kaf_pos.get(word.find('pos').attrs.get('head'))
 
             return pos.lower(), lemma
@@ -34,7 +33,8 @@ def get_word_details(sentence_xml, word_id):
 
 
 def add_lexical_entry(soup, pos_tag, written_form, lemma, heem_tag):
-    le = soup.new_tag('LexicalEntry', id=u'{}-{}'.format(lemma, pos_tag),
+    le = soup.new_tag('LexicalEntry', id=u'{}-{}'.format(lemma,
+                                                         pos_tag),
                       partOfSpeech=pos_tag)
     lm = soup.new_tag('Lemma', writtenForm=lemma)
     le.append(lm)
@@ -84,11 +84,11 @@ def add_concept_type_or_emotion_label(xml, heem_tag, soup):
     concept_type_or_emotion_label = get_label_type(heem_tag)
     lb = xml.find(concept_type_or_emotion_label, value=heem_tag)
     if not lb:
-        print 'adding entry'
+        #print 'adding entry'
         tag_name = '{}s'.format(concept_type_or_emotion_label)
         lbs = xml.find('{}s'.format(concept_type_or_emotion_label))
         if not lbs:
-            print 'adding parent layer'
+            #print 'adding parent layer'
             lbs = soup.new_tag(tag_name)
             xml.append(lbs)
         lb = soup.new_tag(concept_type_or_emotion_label, value=heem_tag,
@@ -101,27 +101,28 @@ def add_concept_type_or_emotion_label(xml, heem_tag, soup):
 def add_heem_classification(soup, heem_tag, internalSystem='HEEM'):
     label_type = get_label_type(heem_tag)
     label_en = heem_labels_en.get(heem_tag)
-    print label_type
-    cl = soup.LexicalResource.GlobalInformation.HeemClassification. \
-        find(label_type, id=label_en)
+    #print label_type
+    cl = soup.LexicalResource.GlobalInformation.HeemClassification \
+             .find(label_type, id=label_en)
     if not cl:
         heem_label = soup.new_tag(label_type, id=label_en)
         heem_label.append(soup.new_tag('Class', value=heem_tag,
                                        internalSystem=internalSystem))
-        soup.LexicalResource.GlobalInformation.HeemClassification.append(heem_label)
+        soup.LexicalResource.GlobalInformation.HeemClassification \
+            .append(heem_label)
 
 
 def add_written_form(wfs, written_form, soup):
     wf = wfs.find('WordForm', writtenForm=written_form)
     if not wf:
-        print 'Adding new written form', written_form
+        #print 'Adding new written form', written_form
         wf = soup.new_tag('WordForm', writtenForm=written_form,
                           tense='', timePeriod=time_period)
         wfs.append(wf)
 
 
 def add_or_update_lexical_entry(soup, pos_tag, written_form, lemma, heem_tag):
-    print lemma, pos_tag, written_form
+    #print lemma, pos_tag, written_form
     # does lexical entry already existi?
     # lexical entry already exist if there is an entry with matching lemma and
     # pos tag.
@@ -133,40 +134,39 @@ def add_or_update_lexical_entry(soup, pos_tag, written_form, lemma, heem_tag):
             lem = lm
 
     if lem:
-        print 'Update instead of new!'
+        #print 'Update instead of new!'
         add_written_form(lem.parent.WordForms, written_form, soup)
         add_concept_type_or_emotion_label(lem.parent.Sense.Semantics, heem_tag,
                                           soup)
         add_heem_classification(soup, heem_tag)
     else:
-        print 'New LexicalEntry'
+        #print 'New LexicalEntry'
         add_lexical_entry(soup, pos_tag, written_form, lemma, heem_tag)
         add_heem_classification(soup, heem_tag)
 
 
 def add_or_update_lexical_entry_mwe(soup, word_list, heem_tag):
-    print ' '.join(word_list)
+    #print ' '.join(word_list)
     # does lexical entry already exists?
     # lexical entry already exist if there is an entry with matching lemma and
     # pos tag.
     mwe_id = u'_'.join(word_list).lower().encode('utf8')
     le = soup.find('LexicalEntry', id='{}-mwe'.format(mwe_id))
     if le:
-        print 'Update mwe instead of new!'
+        #print 'Update mwe instead of new!'
         add_concept_type_or_emotion_label(le.Sense.Semantics, heem_tag, soup)
         add_heem_classification(soup, heem_tag)
     else:
-        print 'New LexicalEntry for mwe'
+        #print 'New LexicalEntry for mwe'
         add_lexical_entry_mwe(soup, word_list, heem_tag)
         add_heem_classification(soup, heem_tag)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('dir', help='the name of the FoLiA XML file that '
-                        'should be processed.')
-    parser.add_argument('lexicon', help='the directory where the '
-                        'generated text files should be saved')
+    parser.add_argument('dir', help='directory containing FoLiA XML files that '
+                        'should be processed')
+    parser.add_argument('lexicon', help='lexicon file name')
     args = parser.parse_args()
 
     input_dir = args.dir
@@ -210,12 +210,13 @@ if __name__ == '__main__':
     # We are interested in labels/classes of the following three entity types:
     entity_classes = [u'EmbodiedEmotions-Level1', u'EmbodiedEmotions-Level2',
                       u'EmbodiedEmotions-EmotionLabel']
+    sentence_tag = '{http://ilk.uvt.nl/folia}s'
 
     xml_files = [xml for xml in os.listdir(input_dir) if xml.endswith('.xml')]
-    for xml in xml_files:
+    for i, xml in enumerate(xml_files):
         in_file = os.path.join(input_dir, xml)
 
-        sentence_tag = '{http://ilk.uvt.nl/folia}s'
+        print '({} of {}) {}'.format((i+1), len(xml_files), in_file)
 
         # Load document
         xml_doc = os.path.join(input_dir, xml)
@@ -237,6 +238,7 @@ if __name__ == '__main__':
                             w_id = wrefs[0].attrs.get('id')
                             pos_tag, lemma = get_word_details(sentence, w_id)
                             written_form = wrefs[0].attrs.get('t')
+                            written_form = written_form.lower()
                             add_or_update_lexical_entry(lexicon_xml, pos_tag,
                                                         written_form, lemma,
                                                         l[1])
@@ -247,6 +249,6 @@ if __name__ == '__main__':
                                                             l[1])
         #print lexicon_xml.prettify()
         del context
-        with codecs.open(lexicon_file, 'wb', 'utf-8') as f:
-            f.write(lexicon_xml.prettify())
-        sys.exit()
+
+    with codecs.open(lexicon_file, 'wb', 'utf-8') as f:
+        f.write(lexicon_xml.prettify())
