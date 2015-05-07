@@ -14,3 +14,4 @@ BWNT05_v003.txt
 *.html
 Ceneton*
 *.xlsx
+.ipynb_checkpoints
