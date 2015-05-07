@@ -10,9 +10,9 @@ from collections import Counter
 
 def get_time_period(year):
     year = int(year)
-    if year >= 1600 and year < 1660:
+    if year >= 1600 and year < 1670:
         return 'renaissance'
-    elif year >= 1660 and year < 1750:
+    elif year >= 1670 and year < 1750:
         return 'classisism'
     elif year >= 1750 and year <= 1830:
         return 'enlightenment'
