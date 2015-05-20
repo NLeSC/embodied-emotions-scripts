@@ -14,6 +14,7 @@ from emotools.bs4_helpers import sentence, note, word
 import argparse
 import codecs
 import os
+import gzip
 
 
 if __name__ == '__main__':
@@ -32,19 +33,29 @@ if __name__ == '__main__':
                       u'EmbodiedEmotions-EmotionLabel']
 
     act_tag = '{http://ilk.uvt.nl/folia}div'
+    sentence_tag = '{http://ilk.uvt.nl/folia}s'
 
     # Load document
-    context = etree.iterparse(file_name, events=('end',), tag=act_tag)
+    if file_name.endswith('.gz'):
+        fi = gzip.open(file_name)
+    else:
+        fi = file_name
+    context = etree.iterparse(fi, events=('end',), tag=sentence_tag)
 
     num_sent = 0
     num_emotional = 0
     sents = set()
 
-    out_file = os.path.join(output_dir, '{}.txt'.format(file_name[-20:-7]))
+    if os.path.basename(file_name).startswith('F'):
+        file_name = os.path.basename(file_name).replace('.xml.gz', '')
+        file_name = os.path.basename(file_name).replace('.xml', '')
+        out_file = os.path.join(output_dir, '{}.txt'.format(file_name))
+    else:
+        out_file = os.path.join(output_dir, '{}.txt'.format(file_name[-20:-7]))
     print 'Writing file: {}'.format(out_file)
     with codecs.open(out_file, 'wb', encoding='utf-8') as f:
         for event, elem in context:
-            # load div into memory
+            # load sentence into memory
             div_xml = BeautifulSoup(etree.tostring(elem), 'xml')
             sentences = div_xml.find_all(sentence)
             s = None
@@ -62,26 +73,8 @@ if __name__ == '__main__':
                         sents.add(s)
                         num_sent += 1
 
-                        entities = sent.find_all('entity')
-                        classes = []
-                        for entity in entities:
-                            e = entity.attrs.get('class')
-                            for cl in entity_classes:
-                                if e.startswith(cl):
-                                    l = e.split(':')
-                                    classes.append(l[1])
-
-                        if len(classes) > 0:
-                            num_emotional += 1
-                            # make labels uniform (for easy counting of
-                            # label combinations)
-                            classes = list(set(classes))
-                            classes.sort()
-                        else:
-                            classes.append('None')
-
                         f.write(u'{}\t{}\t{}\n'.format(sent_id,
                                                        s,
-                                                       '_'.join(classes)))
+                                                       'None'))
 
     print '{} sentences, {} emotional\n'.format(num_sent, num_emotional)
