@@ -26,15 +26,30 @@ if __name__ == '__main__':
         print text_file
         text = ''
         fname = os.path.join(args.dir_in, text_file)
-        with codecs.open(fname, 'rb', 'utf8') as f:
-            text = f.read()
+
+        try:
+            with codecs.open(fname, 'rb', 'utf8') as f:
+                text = f.read()
+        except:
+            with codecs.open(fname, 'rb', 'latin-1') as f:
+                text = f.read()
+
+        # clean up text (remove strange html entities)
         text = text.replace('\n', ' ')
+        text = text.replace(u"\u0092", "'")
+        text = text.replace(u"\u0093", '"')
+        text = text.replace(u"\u0097", "'")
+
         sentences = tokenizer.tokenize(text)
 
+        sents = {}
         fname = os.path.join(args.dir_out, text_file)
         with codecs.open(fname, 'wb', 'utf8') as f:
             for i, s in enumerate(sentences):
-                words = word_tokenize(s)
-                words_str = unicode(' '.join(words))
-                s_id = '{}_s_{}'.format(text_file.replace('.txt', ''), i)
-                f.write(u'{}\t{}\tNone\n'.format(s_id, words_str))
+                # remove duplicate sentences
+                if s not in sents:
+                    words = word_tokenize(s)
+                    words_str = unicode(' '.join(words))
+                    s_id = '{}_s_{}'.format(text_file.replace('.txt', ''), i)
+                    f.write(u'{}\t{}\tNone\n'.format(s_id, words_str))
+                    sents[s] = None
