@@ -14,8 +14,8 @@ import os
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('dir_in', help='the name of the list containing the '
-                        'selected ceneton titles (xlsx)')
+    parser.add_argument('dir_in', help='directory containing the input text '
+                        'files')
     parser.add_argument('dir_out', help='the name of the output directory')
     args = parser.parse_args()
 
