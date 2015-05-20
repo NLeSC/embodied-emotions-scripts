@@ -29,6 +29,9 @@ if __name__ == '__main__':
     input_dir = args.input_dir
     output_dir = args.output_dir
 
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
     # load hist2modern dictionary
     with codecs.open('hist2modern_bwnt.json', 'rb', 'utf-8') as f:
         full_dict = json.load(f, 'utf-8')
