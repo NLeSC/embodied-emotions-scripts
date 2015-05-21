@@ -6,15 +6,13 @@ Usage: python classify_body_parts.py <json file with body part mapping> <dir
 with input texts> <dir for output texts>
 """
 import os
-import codecs
 import argparse
-import json
-import copy
 from collections import Counter
 from count_labels import load_data
 from emotools.heem_utils import heem_body_part_labels, heem_emotion_labels
 from count_labels import corpus_metadata
-from genre2period import print_results_line_period
+import pandas as pd
+
 
 def get_emotion_body_part_pairs(file_name):
     # load data set
@@ -41,13 +39,15 @@ def get_emotion_body_part_pairs(file_name):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('file', help='csv file containing corpus metadata')
+    parser.add_argument('in_file', help='csv file containing corpus metadata')
     parser.add_argument('input_dir', help='the directory where the input text '
                         'files can be found.')
+    parser.add_argument('out_file', help='csv file containing corpus metadata')
     args = parser.parse_args()
 
-    f_name = args.file
+    f_name = args.in_file
     input_dir = args.input_dir
+    out_file = args.out_file
 
     text2period, text2year, text2genre, period2text, genre2text = \
         corpus_metadata(f_name)
@@ -70,22 +70,25 @@ if __name__ == '__main__':
         global_emotions.update(emotions)
 
         for em, body_counter in emotions2body.iteritems():
+            if not emotion_body_pairs.get(em):
+                emotion_body_pairs[em] = Counter()
+            emotion_body_pairs[em].update(body_counter)
             if not period_counters.get(em):
                 period_counters[em] = {}
             if not period_counters.get(em).get(period):
                 period_counters[em][period] = Counter()
             period_counters[em][period].update(body_counter)
 
-    for em, freq in global_emotions.most_common():
-        print '{}\t{}'.format(em, freq)
-        print 'Body part\tRenaissance\tClassisim\tEnlightenment\tNone\tTotal'
+    data = {}
+    index = []
 
-        merged_body_parts = Counter()
-        for c in period_counters.get(em):
-            merged_body_parts.update(period_counters.get(em).get(c))
-
-        for label, freq in merged_body_parts.most_common():
-            print print_results_line_period(label, period_counters.get(em))
-
-        print
-        print
+    for em, body_counter in emotion_body_pairs.iteritems():
+        index.append(em)
+        for b in heem_body_part_labels:
+            if not data.get(b):
+                data[b] = []
+            data[b].append(body_counter[b])
+        #print em
+        #print body_counter
+    df = pd.DataFrame(data=data, index=index)
+    df.to_csv(out_file)
