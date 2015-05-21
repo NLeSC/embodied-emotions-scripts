@@ -9,15 +9,15 @@ from collections import Counter
 
 
 def get_time_period(year):
-    year = int(year)
-    if year >= 1600 and year < 1670:
-        return 'renaissance'
-    elif year >= 1670 and year < 1750:
-        return 'classisism'
-    elif year >= 1750 and year <= 1830:
-        return 'enlightenment'
-    else:
-        return None
+    if not year == 'unknown':
+        year = int(year)
+        if year >= 1600 and year < 1670:
+            return 'renaissance'
+        elif year >= 1670 and year < 1750:
+            return 'classisism'
+        elif year >= 1750 and year <= 1830:
+            return 'enlightenment'
+    return None
 
 
 def print_results_line_period(genre, results):
@@ -76,6 +76,7 @@ if __name__ == '__main__':
     print print_results_line_year('blijspel / komedie', sorted_years, years)
     print print_results_line_year('klucht', sorted_years, years)
     print print_results_line_year('Anders', sorted_years, years)
+    print print_results_line_year('unknown', sorted_years, years)
 
     print
     print
@@ -85,6 +86,7 @@ if __name__ == '__main__':
     print print_results_line_period('blijspel / komedie', result)
     print print_results_line_period('klucht', result)
     print print_results_line_period('Anders', result)
+    print print_results_line_period('unknown', result)
 
     print
     print
