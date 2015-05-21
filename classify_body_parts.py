@@ -10,6 +10,7 @@ import codecs
 import argparse
 import json
 from count_labels import load_data
+import pandas as pd
 
 
 def extend_body_part(text_id, file_name, out_file, word2cat):
@@ -38,7 +39,7 @@ def extend_body_part(text_id, file_name, out_file, word2cat):
             ls = sorted(list(set(ls)))
             f.write(u'{}\t{}\n'.format(X_data[i].decode('utf-8'),
                                        '_'.join(ls)))
-    print '{}\t{}\t{}'.format(text_id, num_body_parts, num_added)
+    return text_id, num_body_parts, num_added
 
 
 if __name__ == '__main__':
@@ -49,11 +50,14 @@ if __name__ == '__main__':
                         'files can be found.')
     parser.add_argument('output_dir', help='the directory where the output '
                         'files should be written.')
+    parser.add_argument('output_file', help='file to store the statistics '
+                        'on body part expansions')
     args = parser.parse_args()
 
     file_name = args.file
     input_dir = args.input_dir
     output_dir = args.output_dir
+    output_file = args.output_file
 
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
@@ -73,8 +77,8 @@ if __name__ == '__main__':
             else:
                 print 'ignored: {} ({})'.format(word, la)
 
-    print 'Text\t#Body parts\t#replaced'
-
+    data = {'#body_parts': [], '#replaced': []}
+    index = {'text_id': []}
     # process texts
     text_files = [t for t in os.listdir(input_dir) if t.endswith('.txt')]
     for text_file in text_files:
@@ -82,5 +86,14 @@ if __name__ == '__main__':
         in_file = os.path.join(input_dir, text_file)
         out_file = os.path.join(output_dir, text_file)
 
-        extend_body_part(text_id, in_file, out_file, word2cat)
+        text_id, num_body_parts, num_added = extend_body_part(text_id,
+                                                              in_file,
+                                                              out_file,
+                                                              word2cat)
+        index['text_id'].append(text_id)
+        data['#body_parts'].append(num_body_parts)
+        data['#replaced'].append(num_added)
 
+    # save statistics
+    df = pd.DataFrame(data=data, index=index['text_id'])
+    df.to_csv(output_file)
