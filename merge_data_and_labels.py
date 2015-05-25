@@ -1,4 +1,6 @@
-"""Count HEEM labels in data set.
+"""Merge sentences from one file to HEEM labels in another.
+This script is used to combine predicted labels and unnormalized sentences to
+make it easier to inspect/interpret label predictions for individual sentences.
 
 Usage: python count_labels.py <dir with train and test files>
 """
@@ -9,7 +11,7 @@ import json
 from count_labels import load_data
 
 
-def merge_data_and_labels(labels_file, data_filei, out_file):
+def merge_data_and_labels(labels_file, data_file, out_file):
     # load data set
     X_labels, Y_labels = load_data(labels_file)
     X_data, Y_data = load_data(data_file)
@@ -21,17 +23,17 @@ def merge_data_and_labels(labels_file, data_filei, out_file):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('file', help='json file containing the body part '
-                        'words mapping.')
-    parser.add_argument('input_dir_labels', help='the directory where the '
-                        'files with the correct labels.')
-    parser.add_argument('input_dir_data', help='the directory where the '
-                        'files with the correct sentences can be found.')
+    #parser.add_argument('file', help='json file containing the body part '
+    #                    'words mapping.')
+    parser.add_argument('input_dir_labels', help='the directory containing the'
+                        ' files with the correct labels.')
+    parser.add_argument('input_dir_data', help='the directory containing the'
+                        ' files with the correct sentences can be found.')
     parser.add_argument('output_dir', help='the directory where the output '
                         'files should be written.')
     args = parser.parse_args()
 
-    file_name = args.file
+    #file_name = args.file
     input_dir_labels = args.input_dir_labels
     input_dir_data = args.input_dir_data
     output_dir = args.output_dir
@@ -42,17 +44,17 @@ if __name__ == '__main__':
     mapping = {}
 
     # read body part mapping
-    with codecs.open(file_name, 'rb', 'utf8') as f:
-        mapping = json.load(f, encoding='utf8')
+    #with codecs.open(file_name, 'rb', 'utf8') as f:
+    #    mapping = json.load(f, encoding='utf8')
 
     # reverse body part mapping
-    word2cat = {}
-    for la, ws in mapping.iteritems():
-        for word in ws:
-            if not word2cat.get(word):
-                word2cat[word] = la
-            else:
-                print 'ignored: {} ({})'.format(word, la)
+    #word2cat = {}
+    #for la, ws in mapping.iteritems():
+    #    for word in ws:
+    #        if not word2cat.get(word):
+    #            word2cat[word] = la
+    #        else:
+    #            print 'ignored: {} ({})'.format(word, la)
 
     # process texts
     text_files = [t for t in os.listdir(input_dir_data) if t.endswith('.txt')]
