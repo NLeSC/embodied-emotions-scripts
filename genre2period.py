@@ -14,7 +14,7 @@ def get_time_period(year):
         if year >= 1600 and year < 1670:
             return 'renaissance'
         elif year >= 1670 and year < 1750:
-            return 'classisism'
+            return 'classicism'
         elif year >= 1750 and year <= 1830:
             return 'enlightenment'
     return None
