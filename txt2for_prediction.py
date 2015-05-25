@@ -11,6 +11,8 @@ import nltk.data
 from nltk.tokenize import word_tokenize
 import codecs
 import os
+from folia2dataset_for_prediction import write_sentence
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -23,7 +25,7 @@ if __name__ == '__main__':
 
     text_files = [t for t in os.listdir(args.dir_in) if t.endswith('.txt')]
     for text_file in text_files:
-        print text_file
+        print text_file,
         text = ''
         fname = os.path.join(args.dir_in, text_file)
 
@@ -42,14 +44,12 @@ if __name__ == '__main__':
 
         sentences = tokenizer.tokenize(text)
 
-        sents = {}
+        sents = set()
+        num_sent = 0
         fname = os.path.join(args.dir_out, text_file)
         with codecs.open(fname, 'wb', 'utf8') as f:
             for i, s in enumerate(sentences):
-                # remove duplicate sentences
-                if s not in sents:
-                    words = word_tokenize(s)
-                    words_str = unicode(' '.join(words))
-                    s_id = '{}_s_{}'.format(text_file.replace('.txt', ''), i)
-                    f.write(u'{}\t{}\tNone\n'.format(s_id, words_str))
-                    sents[s] = None
+                words = word_tokenize(s)
+                s_id = '{}_s_{}'.format(text_file.replace('.txt', ''), i)
+                num_sent = write_sentence(s_id, words, sents, f, num_sent)
+        print '{} sentences'.format(num_sent)
