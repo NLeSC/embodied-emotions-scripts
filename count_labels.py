@@ -1,13 +1,16 @@
-"""Count HEEM labels in data set.
+"""Script to write csv file with label counts for each text.
 
-Usage: python count_labels.py <dir with train and test files>
+Usage: python count_labels.py <dir containing predicted labels> <out_file>
 """
-import os
-import codecs
 import argparse
+import glob
+import os
+from emotools.heem_utils import heem_concept_type_labels, \
+    heem_emotion_labels, heem_body_part_labels
+import pandas as pd
 from collections import Counter
+import codecs
 from genre2period import get_time_period
-from emotools.heem_utils import heem_concept_type_labels, heem_emotion_labels
 
 
 def load_data(data_file):
@@ -72,52 +75,23 @@ def corpus_metadata(file_name):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('file', help='the name of the FoLiA XML file that '
-                        'should be processed.')
     parser.add_argument('input_dir', help='the directory where the input text '
                         'files can be found.')
+    parser.add_argument('out_file', help='name of the output file')
     args = parser.parse_args()
 
-    file_name = args.file
+    files = glob.glob('{}*.txt'.format(args.input_dir))
 
-    text2period, text2year, text2genre, period2text, genre2text = \
-        corpus_metadata(file_name)
+    labels = heem_concept_type_labels + heem_emotion_labels + \
+        heem_body_part_labels
+    index = [os.path.basename(f).replace('.txt', '') for f in files]
 
-    text2labels = {}
-    text2lines = {}
+    df = pd.DataFrame(columns=labels, index=index)
 
-    # process texts
-    input_dir = args.input_dir
-    text_files = [t for t in os.listdir(input_dir) if t.endswith('.txt')]
-    for text_file in text_files:
-        in_file = os.path.join(input_dir, text_file)
-        text_id = text_file.replace('.txt', '')
-        text2labels[text_id] = count_labels(in_file)
-        text2lines[text_id] = count_lines(in_file)
-
-    # to normalize results
-    r_l = [text2lines[t_id] for t_id in period2text.get('renaissance', [])]
-    c_l = [text2lines[t_id] for t_id in period2text.get('classisism', [])]
-    e_l = [text2lines[t_id] for t_id in period2text.get('enlightenment', [])]
-    n_l = [text2lines[t_id] for t_id in period2text.get(None, [])]
-
-    print '\tRenaissance\tClassisism\tEnlightenment\tNone'
-    print '# texts\t{}\t{}\t{}\t{}'.format(len(period2text.get('renaissance', [])),
-                                           len(period2text.get('classisism', [])),
-                                           len(period2text.get('enlightenment', [])),
-                                           len(period2text.get(None, [])))
-    print '# lines\t{}\t{}\t{}\t{}'.format(sum(r_l), sum(c_l), sum(e_l), sum(n_l))
-
-    print
-    print
-
-    # print labels per period
-    labels = heem_concept_type_labels + heem_emotion_labels
-    print 'Label\tRenaissance\tClassisism\tEnlightenment\tNone'
-    for label in labels:
-        r = [text2labels[t_id][label] for t_id in period2text.get('renaissance', [])]
-        c = [text2labels[t_id][label] for t_id in period2text.get('classisism', [])]
-        e = [text2labels[t_id][label] for t_id in period2text.get('enlightenment', [])]
-        n = [text2labels[t_id][label] for t_id in period2text.get(None, [])]
-        print '{}\t{}\t{}\t{}\t{}'.format(label, sum(r), sum(c), sum(e), sum(n))
-
+    for f in files:
+        text_id = os.path.basename(f).replace('.txt', '')
+        #print text_id
+        label_counts = count_labels(f)
+        df.loc[text_id] = pd.Series(label_counts)
+    df = df.fillna(0)
+    df.to_csv(args.out_file)
