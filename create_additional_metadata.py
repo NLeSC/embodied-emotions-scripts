@@ -2,6 +2,8 @@
 
 Metadata added:
 - # lines per text
+- # of lines for which at least one heem label is predicted
+- avg # of labels per sentence
 - period (renaissance, classicism, enlightenment)
 
 Input: corpus csv, directory containing text files
@@ -12,9 +14,10 @@ Usage: python count_lines.py <corpus csv> <dir in> <file out>
 import argparse
 import glob
 import os
-import codecs
 import pandas as pd
 from genre2period import get_time_period
+from count_labels import load_data, count_lines, num_emotional_sentences, \
+    average_number_of_labels
 
 
 def get_tp(row):
@@ -33,16 +36,18 @@ if __name__ == '__main__':
     in_dir = args.in_dir
     out_file = args.out_file
 
-    data = {'#lines': []}
+    data = {'#lines': [], '#emotional': [], 'avg_labels': []}
     index = []
 
     # get # of lines`
     text_files = glob.glob('{}/*.txt'.format(in_dir))
     for t in text_files:
         text_id = os.path.basename(t).replace('.txt', '')
-        with codecs.open(t, 'rb', 'utf8') as f:
-            data['#lines'].append(len(f.readlines()))
-            index.append(text_id)
+        index.append(text_id)
+        X_data, Y_data = load_data(t)
+        data['#lines'].append(count_lines(t))
+        data['#emotional'].append(num_emotional_sentences(Y_data))
+        data['avg_labels'].append(average_number_of_labels(Y_data))
     df = pd.DataFrame(data=data, index=index)
 
     # get time period
