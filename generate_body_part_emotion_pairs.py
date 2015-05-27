@@ -56,6 +56,7 @@ if __name__ == '__main__':
     global_emotions = Counter()
     emotion_body_pairs = Counter()
     period_counters = {}
+    periods = set()
 
     # process texts
     text_files = [t for t in os.listdir(input_dir) if t.endswith('.txt')]
@@ -64,6 +65,7 @@ if __name__ == '__main__':
         in_file = os.path.join(input_dir, text_file)
 
         period = text2period.get(text_id)
+        periods.add(period)
 
         emotions, emotions2body = get_emotion_body_part_pairs(in_file)
 
@@ -79,16 +81,31 @@ if __name__ == '__main__':
                 period_counters[em][period] = Counter()
             period_counters[em][period].update(body_counter)
 
-    data = {}
-    index = []
-
+    df = pd.DataFrame(columns=heem_body_part_labels, index=heem_emotion_labels)
     for em, body_counter in emotion_body_pairs.iteritems():
-        index.append(em)
-        for b in heem_body_part_labels:
-            if not data.get(b):
-                data[b] = []
-            data[b].append(body_counter[b])
+        df.loc[em] = pd.Series(body_counter)
         #print em
         #print body_counter
-    df = pd.DataFrame(data=data, index=index)
+    df = df.fillna(0)
     df.to_csv(out_file)
+
+    # dataframes for the periods
+    dfs = {}
+    for p in periods:
+        #print p
+        dfs[p] = pd.DataFrame(columns=heem_body_part_labels,
+                              index=heem_emotion_labels)
+    for em, ps in period_counters.iteritems():
+        for p in ps:
+            dfs[p].loc[em] = pd.Series(period_counters[em][p])
+
+    path, bn = os.path.split(out_file)
+    name = bn.replace('.csv', '')
+    period_file_name_template = name+'_{}.csv'
+
+    for p, dfp in dfs.iteritems():
+        #print dfp
+        dfp.fillna(0).to_csv(os.path.join(path,
+                                          period_file_name_template.format(p)))
+    #print period_counters['Liefde']
+    #print dfs['enlightenment']
