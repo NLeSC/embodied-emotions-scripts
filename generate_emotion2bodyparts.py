@@ -1,9 +1,10 @@
-"""Find known body parts in sentences with predicted label 'Lichaamsdeel'.
+"""Create csv files with emotions in the first column and a column for every
+expanded body part.
 
-Extended body parts are saved to new text files.
+Usage: python generate_emotion2bodyparts.py <corpus metadata> <dir
+with input texts> <output file (.csv)>
 
-Usage: python classify_body_parts.py <json file with body part mapping> <dir
-with input texts> <dir for output texts>
+In addition to the output.csv, also files for each time period are written.
 """
 import os
 import argparse
