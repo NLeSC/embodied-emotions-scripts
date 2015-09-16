@@ -1,18 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """Add LIWC words as entities in FoLiA XML file.
-Usage: python add_liwc_entities.py <file in> <dir out>
+Usage: python add_liwc_entities.py <file in> <dir out> <liwc dict>
 Or: ./batch_add_liwc_entities.sh <dir with folia-files> <dir to save
-folia-files in>
+folia-files in> <liwc dict>
 
-Requires the historic Dutch LIWC dictionary to be present.
 """
 from lxml import etree
 from datetime import datetime
 import argparse
 
-from emotools.folia_helpers import add_entity, write_folia_file
-from emotools.liwc_helpers import load_liwc
+from embem.emotools.folia_helpers import add_entity, write_folia_file
+from embem.emotools.liwc_helpers import load_liwc
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -20,12 +19,15 @@ if __name__ == '__main__':
                         'LIWC entities to')
     parser.add_argument('dir_out', help='the name of the directory to save '
                         'the output file to')
+    parser.add_argument('dic', help='json file containing liwc dictionary '
+                        '(e.g., <embem_data_dir>/dict/historic_'
+                        'Dutch_LIWC.dic)')
     args = parser.parse_args()
 
     file_name = args.file_in
     dir_out = args.dir_out
 
-    liwc_dict, liwc_categories = load_liwc('historic_Dutch_LIWC.dic', 'utf8')
+    liwc_dict, liwc_categories = load_liwc(args.dic, 'utf8')
 
     # Load document
     context = etree.iterparse(file_name,

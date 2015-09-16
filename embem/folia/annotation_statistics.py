@@ -2,11 +2,11 @@
 corpus that was manually annotated.
 
 Usage: python annotation_statistics.py <dir containing the folia files with
-EmbodiedEmotions annotations>
+EmbodiedEmotions annotations> <json file out>
 """
 from lxml import etree
 from bs4 import BeautifulSoup
-from emotools.bs4_helpers import sentence, note
+from embem.emotools.bs4_helpers import sentence, note
 import argparse
 import os
 from collections import Counter
@@ -17,6 +17,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('dir_name', help='the name of the dir containing the '
                         'FoLiA XML files that should be processed.')
+    parser.add_argument('file_out', help='name of the json file where the '
+                        'statistics should be stored.')
     args = parser.parse_args()
 
     dir_name = args.dir_name
@@ -25,7 +27,6 @@ if __name__ == '__main__':
 
     act_tag = '{http://ilk.uvt.nl/folia}div'
 
-    cur_dir = os.getcwd()
     os.chdir(dir_name)
 
     folia_counter = 0
@@ -98,8 +99,7 @@ if __name__ == '__main__':
             #        del context
 
     # save data
-    out_file = os.path.join(cur_dir, 'annotation_statistics.json')
-    with codecs.open(out_file, 'wb', 'utf8') as f:
+    with codecs.open(args.file_out, 'wb', 'utf8') as f:
         json.dump(entity_words, f, sort_keys=True, ensure_ascii=False,
                   indent=2)
 

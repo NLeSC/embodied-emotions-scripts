@@ -3,7 +3,7 @@ Usage: python folia2kaf.py <file in> <output dir>
 """
 from lxml import etree
 from bs4 import BeautifulSoup
-from emotools.bs4_helpers import act, sentence, word, speaker_turn, note
+from embem.emotools.bs4_helpers import act, sentence, word, speaker_turn, note
 import argparse
 import os
 
@@ -27,7 +27,7 @@ _folia_pos2kaf_pos = {
 
 def kaf_file_name(input_file, act_number):
     head, tail = os.path.split(input_file)
-    p = tail.split('.')   
+    p = tail.split('.')
     return '{n}__act-0{a}.kaf'.format(a=act_number, n=p[0])
 
 
@@ -39,7 +39,7 @@ def add_word2kaf(elem, w_id, s_id, term_id, text, terms):
     pos = _folia_pos2kaf_pos[elem.pos.get('head', 'SPEC')]
 
     t_id = 't{wid}'.format(wid=term_id)
-    t = etree.SubElement(terms, 'term', tid=t_id, type='open', lemma=lemma, 
+    t = etree.SubElement(terms, 'term', tid=t_id, type='open', lemma=lemma,
                          pos=pos)
     s = etree.SubElement(t, 'span')
     target = etree.SubElement(s, 'target', id=w_id)
@@ -78,9 +78,9 @@ def act2kaf(act_xml, sentence_id):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('file', help='the name of the FoLiA XML file to ' \
+    parser.add_argument('file', help='the name of the FoLiA XML file to '
                         'generate KAF files for')
-    parser.add_argument('output_dir', help='the directory where the ' \
+    parser.add_argument('output_dir', help='the directory where the ''
                         'generated KAF files should be saved')
     args = parser.parse_args()
 

@@ -2,18 +2,18 @@
 Usage: inspect_folia.py <FoLiA XML file>"""
 
 from bs4 import BeautifulSoup
-from emotools.bs4_helpers import tag_or_string, scene, act, sub_act, \
-     stage_direction, speaker_turn, event_without_class, head, line_feed, \
-     text_content, sentence, paragraph, note, ref, list_, item, event
-from emotools.folia_helpers import parse_document
-from emotools.script import continue_script
+from embem.emotools.bs4_helpers import tag_or_string, scene, act, sub_act, \
+    stage_direction, speaker_turn, event_without_class, head, line_feed, \
+    text_content, sentence, paragraph, note, ref, list_, item, event
+from embem.emotools.folia_helpers import parse_document
+from embem.emotools.script import continue_script
 import argparse
 import os
 import sys
 
 
 def inspect(elements, expected, not_expected, ignored):
-    """Loop over elements, for each element inspect its (direct) children. If 
+    """Loop over elements, for each element inspect its (direct) children. If
     a child (can be a tag or a string contained in tags) is in expected,
     nothing happens. The same if the tag is in ignored. If it is another kind
     of tag, a message is printed. Not_expected contains tags that are not
@@ -100,7 +100,7 @@ if __name__ == '__main__':
     # expected: heads, scenes, paragraphs, line feeds
     # not expected: sub-acts, other tags and strings
     print '# acts:', len(acts)
-    
+
     expected = [head, scene, paragraph, line_feed]
     not_expected = {
         'Sub-act': act,
@@ -124,9 +124,9 @@ if __name__ == '__main__':
     # expected: heads, stage directions, speaker turns, paragraphs, line feeds
     # not expected: sub-scenes, events withot class attribute, other tags and
     # strings
-    # hoof002door01_01 also contains <list> and <item> tags. 
+    # hoof002door01_01 also contains <list> and <item> tags.
     print '# scenes:', len(scenes)
-    
+
     expected = [head, stage_direction, speaker_turn, paragraph, line_feed]
     not_expected = {
         'Sub-scene': scene,
@@ -134,7 +134,7 @@ if __name__ == '__main__':
     }
     ignored = [note, ref]
     elements_ok, msg = inspect(scenes, expected, not_expected, ignored)
-    
+
     document_checks.append(elements_ok)
     if msg: print msg
 
@@ -147,7 +147,7 @@ if __name__ == '__main__':
     not_expected = {}
     ignored = [note, ref]
     elements_ok, msg = inspect(heads, expected, not_expected, ignored)
-   
+
     document_checks.append(elements_ok)
     if msg: print msg
 
@@ -165,7 +165,7 @@ if __name__ == '__main__':
     if msg: print msg
 
     # inspect speaker turns
-    # expected: text content, sentences, stage directions, paragraphs, 
+    # expected: text content, sentences, stage directions, paragraphs,
     # line feeds
     # not expected: other tags and strings
     print '# speaker turns:', len(speaker_turns)
@@ -178,7 +178,7 @@ if __name__ == '__main__':
     document_checks.append(elements_ok)
     if msg: print msg
 
-    # inspect events without class 
+    # inspect events without class
     # expected: text content, sentences, line feeds
     # not expected: other tags and strings
     print '# events without class:', len(events_without_class)

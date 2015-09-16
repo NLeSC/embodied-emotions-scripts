@@ -29,15 +29,24 @@ Scripts used during the guest lecture at the VU on December 1, 2014.
 
 ### Elasticsearch
 
+Scripts to do things with Elasticsearch.
+
 `embem-tags2es.py` -> Script to put embodied emotions entity categories in elasticsearch  
 `folia2es.py` -> Script to put a folia xml file in ElasticSearch  
 `liwc2es.py` -> Script to put liwc entity categories in elasticsearch  
 `liwcpairs2es.py` -> Script to put Body/Posemo pairs in elasticsearch (does not work, because there are no folia files that contain liwc entities in the data dir. _The script also seems unfinished, because it only creates pairs for Posemo words._)
 
-### 
+### Emotools
+
+Helpers for the other scripts.
     
 ### Folia
 
 Scripts to do things with folia files.
 
-* 
+`add_liwc_entities.py` -> Add LIWC words as entities in FoLiA XML files
+`batch_add_liwc_entities.sh` -> Batch add LIWC entities to FoLiA files (run from project directory)
+`annotation_statistics.py` -> Count the numbers of annotated entities and emotional sentences in the corpus that was manually annotated. Prints tab separated data to std out.  
+`folia2txt.py` -> Script to extract text from a folia xml file (use with batch_do_python.sh)  
+`inspect_folia.py` -> Inspect FoLiA XML file to determine whether it matches our expectations (old, not used for project, because none of the files matched our expectations)
+

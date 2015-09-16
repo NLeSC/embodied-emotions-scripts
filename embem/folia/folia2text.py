@@ -8,7 +8,7 @@ import codecs
 import sys
 from lxml import etree
 from bs4 import BeautifulSoup
-from emotools.bs4_helpers import act, sentence, note
+from embem.emotools.bs4_helpers import act, sentence, note
 
 
 def act2text(act_xml):
