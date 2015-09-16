@@ -9,15 +9,15 @@ Metadata added:
 Input: corpus csv, directory containing text files
 Output: csv containing <text_id>, <# lines>
 
-Usage: python count_lines.py <corpus csv> <dir in> <file out>
+Usage: python create_additional_metadata.py <corpus csv> <dir in> <file out>
 """
 import argparse
 import glob
 import os
 import pandas as pd
 from genre2period import get_time_period
-from count_labels import load_data, count_lines, num_emotional_sentences, \
-    average_number_of_labels
+from embem.machinelearningdata.count_labels import load_data, count_lines, \
+    num_emotional_sentences, average_number_of_labels
 
 
 def get_tp(row):

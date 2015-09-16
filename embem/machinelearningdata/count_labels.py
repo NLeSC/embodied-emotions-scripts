@@ -5,7 +5,7 @@ Usage: python count_labels.py <dir containing predicted labels> <out_file>
 import argparse
 import glob
 import os
-from emotools.heem_utils import heem_concept_type_labels, \
+from embem.emotools.heem_utils import heem_concept_type_labels, \
     heem_emotion_labels, heem_body_part_labels
 import pandas as pd
 from collections import Counter

@@ -1,4 +1,4 @@
-"""Script to collect ceneton texts from the cebeton website.
+"""Script to collect ceneton texts from the ceneton website.
 
 Usage: python ceneton2txt.py <ceneton list xml file> <output dir>
 """
@@ -13,13 +13,17 @@ import re
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('file_in', help='the name of the list containing the '
-                        'selected ceneton titles (xlsx)')
+    parser.add_argument('file_in', help='the name of the xlsx file with the '
+                        'selected ceneton titles '
+                        '(<embem_data_dir>/corpus/ceneton.xlsx)')
     parser.add_argument('dir_out', help='the name of the output directory')
     args = parser.parse_args()
 
     file_name = args.file_in
     out_dir = args.dir_out
+
+    if not os.path.exists(out_dir):
+        os.makedirs(out_dir)
 
     titles = pd.read_excel(file_name)
     urls = titles['url'].str.startswith('http://')
@@ -35,7 +39,7 @@ if __name__ == '__main__':
             out_text = os.path.join(out_dir, '{}.txt'.format(fname))
 
             with codecs.open(out_text, 'wb', 'utf8') as f:
-                f.write(url+'\n')
+                f.write(url + '\n')
 
                 result = requests.get(url)
                 if result.status_code != 200:

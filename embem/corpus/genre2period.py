@@ -36,8 +36,8 @@ def print_results_line_year(genre, sorted_years, years):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('file', help='the name of the FoLiA XML file that '
-                        'should be processed.')
+    parser.add_argument('file', help='corpus csv file '
+                        '(<embem_data_dir>/corpus/<corpus_name>.csv)')
     args = parser.parse_args()
 
     file_name = args.file
