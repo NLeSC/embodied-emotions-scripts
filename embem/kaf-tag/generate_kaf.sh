@@ -9,7 +9,7 @@ echo 'Generating kaf-files for FoLiA XML files in' $1
 echo 'Saving kaf-files in' $2
 echo ''
 
-# Create output directory if it doesn't exist  
+# Create output directory if it doesn't exist
 [[ -d "$2" ]] || mkdir "$2"
 
 total=0
@@ -22,14 +22,14 @@ touch /tmp/folia2kaf
 shopt -s nullglob
 for folia in $(find $1 -maxdepth 1 -type f); do
     total=$((total+1))
-    
+
     echo "(${total}) ${folia}"
-    
+
     # extract play id
     # example file name: /home/jvdzwaan/data/test_embem/feit007patr01_01.xml
     # extract 13 characters 20 characters from the end of the string
     play_id=${folia:(-20):13}
-   
+
     # check folia file
     #echo "Checking FoLiA XML..."
     #python inspect_folia.py $folia > /tmp/folia2kaf
@@ -39,12 +39,12 @@ for folia in $(find $1 -maxdepth 1 -type f); do
     if [ $folia_ok -eq 0 ];then
         valid=$((valid+1))
         echo "Generating kaf-files..."
-        
+
         # create directory for play
         play_dir="${2}/${play_id}"
         [[ -d "$play_dir" ]] || mkdir "$play_dir"
 
-        python folia2kaf.py $folia $play_dir > /dev/null
+        python embem/kaf-tag/folia2kaf.py $folia $play_dir > /dev/null
 
         # download pdf file
         echo "Downloading pdf file..."
@@ -52,7 +52,7 @@ for folia in $(find $1 -maxdepth 1 -type f); do
     else
         invalid=$((invalid+1))
         echo "Invalid FoLiA file."
-        
+
         # write id to text file
         error_dir="${2}/invalid"
         [[ -d "$error_dir" ]] || mkdir "$error_dir"
@@ -60,7 +60,7 @@ for folia in $(find $1 -maxdepth 1 -type f); do
         error_ids_file="${error_dir}/ids.txt"
         touch $error_ids_file
         echo $play_id >> $error_ids_file
-        
+
         # write error report to text file
         error_report_file="${error_dir}/${play_id}.txt"
         cat /tmp/folia2kaf > $error_report_file

@@ -10,7 +10,7 @@ Or use in bash script:
 import codecs
 from lxml import etree
 from bs4 import BeautifulSoup
-from emotools.bs4_helpers import word
+from embem.emotools.bs4_helpers import word
 import argparse
 import os
 import re

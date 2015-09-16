@@ -1,5 +1,6 @@
 """Create a KAF file for each act in a FoLiA file
 Usage: python folia2kaf.py <file in> <output dir>
+Or: ./generate_kaf.sh <dir in> <dir out>
 """
 from lxml import etree
 from bs4 import BeautifulSoup
@@ -80,7 +81,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('file', help='the name of the FoLiA XML file to '
                         'generate KAF files for')
-    parser.add_argument('output_dir', help='the directory where the ''
+    parser.add_argument('output_dir', help='the directory where the '
                         'generated KAF files should be saved')
     args = parser.parse_args()
 

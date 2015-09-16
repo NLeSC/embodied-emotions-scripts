@@ -1,14 +1,14 @@
 #!/bin/bash
 # Batch fix word ids in the tag-files
-# 'Translates' lg-added ids into proper folia word ids using the fix_tags 
+# 'Translates' lg-added ids into proper folia word ids using the fix_tags
 # python script.
 #
 # Usage: ./batch_fix_tags.sh <dir with folia-files> <dir with tag-files dirs>
 # <dir to save new tag-files in>
 #
-# Tag files for a folia file should be in a directory named text_id. 
+# Tag files for a folia file should be in a directory named text_id.
 #
-# 20141209 j.vanderzwaan@esciencecenter.nl 
+# 20141209 j.vanderzwaan@esciencecenter.nl
 
 echo ''
 echo 'Fix tag files'
@@ -17,7 +17,7 @@ echo 'Reading tag files from' $2
 echo 'Saving new tag files in' $3
 echo ''
 
-# Create output directory if it doesn't exist  
+# Create output directory if it doesn't exist
 [[ -d "$3" ]] || mkdir "$3"
 
 total=0
@@ -44,7 +44,7 @@ for dir in $(find $2 -mindepth 1 -maxdepth 1 -type d); do
         for tag in $(find $2/$text_id -maxdepth 1 -type f); do
             if [[ $tag == *.tag ]]; then
                 echo " $tag"
-                python fix_tags.py $folia $tag "$output_dir" 
+                python embem/kaf-tag/fix_tags.py $folia $tag "$output_dir" 
             fi
         done
 

@@ -7,7 +7,8 @@ import argparse
 import codecs
 from lxml import etree
 from datetime import datetime
-from emotools.folia_helpers import add_entity
+from embem.emotools.folia_helpers import add_entity
+
 
 class Annotation:
     def __init__(self, level, label, annotation_id, word_id, word):
@@ -17,10 +18,8 @@ class Annotation:
         self.word_ids = [word_id]
         self.words = {word_id: word}
 
-
     def entity_id(self, annotation_class):
         return '{}.{}'.format(annotation_class, self.annotation_id)
-
 
     def folia_entity_class(self):
         tag_levels = {
@@ -37,13 +36,13 @@ class Annotation:
 
 def add_entity2(entity_layer, annotation, annotation_class):
     return 'Adding {} ({}; {})'.format(annotation.entity_id(annotation_class),
-                                      annotation.folia_entity_class(),
-                                      ' - '.join(annotation.word_ids))
+                                       annotation.folia_entity_class(),
+                                       ' - '.join(annotation.word_ids))
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('tag', help='the name of the KAF tag file ' \
+    parser.add_argument('tag', help='the name of the KAF tag file '
                         'containing the annotations')
     parser.add_argument('folia', help='the name of the FoLiA XML file ')
 
@@ -56,7 +55,7 @@ if __name__ == '__main__':
     annotator_set = '{}-set'.format(annotator_name)
 
     # Load KAF tags file
-    with codecs.open(tag_file,'r','utf-8',errors='ignore') as f:
+    with codecs.open(tag_file, 'r', 'utf-8', errors='ignore') as f:
         lines = f.readlines()
 
     # Tag file is tab separated file

@@ -2,7 +2,7 @@
 # Batch add annotations in tag files to FoLiA files
 # Usage: ./batch_add_tags.sh <dir with folia-files> <dir with tag-files dirs>
 # <dir to save new folia-files in>
-# Tag files for a folia file should be in a directory named text_id. 
+# Tag files for a folia file should be in a directory named text_id.
 # 2014-11-04 j.vanderzwaan@esciencecenter.nl
 
 echo ''
@@ -11,7 +11,7 @@ echo 'Reading tag files from' $2
 echo 'Saving new FoLiA XML files in' $3
 echo ''
 
-# Create output directory if it doesn't exist  
+# Create output directory if it doesn't exist
 [[ -d "$3" ]] || mkdir "$3"
 
 total=0
@@ -39,7 +39,7 @@ for dir in $(find $2 -mindepth 1 -maxdepth 1 -type d); do
         for tag in $(find $2/$text_id -maxdepth 1 -type f); do
             if [[ $tag == *.tag ]]; then
                 echo " $tag"
-                python kaf2folia.py $tag $folia_new 
+                python embem/kaf-tag/kaf2folia.py $tag $folia_new 
             fi
         done
 
