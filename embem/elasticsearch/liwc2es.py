@@ -2,11 +2,18 @@
 # -*- coding: utf-8 -*-
 """Script to put liwc entity categories in elasticsearch.
 """
+import argparse
 from elasticsearch import Elasticsearch
-from emotools.liwc_helpers import load_liwc
+from embem.emotools.liwc_helpers import load_liwc
 
 if __name__ == '__main__':
-    liwc_dict, liwc_categories = load_liwc('historic_Dutch_LIWC.dic', 'utf8')
+    parser = argparse.ArgumentParser()
+    parser.add_argument('dic', help='json file containing liwc dictionary '
+                        '(e.g., <embem_data_dir>/dict/historic_'
+                        'Dutch_LIWC.dic)')
+    args = parser.parse_args()
+
+    liwc_dict, liwc_categories = load_liwc(args.file, 'utf8')
 
     # Make dictionary of the form {liwc category: [word, word, word, ...]}
     liwc = {}

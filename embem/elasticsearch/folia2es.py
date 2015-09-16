@@ -20,8 +20,8 @@ from datetime import datetime
 from elasticsearch import Elasticsearch
 from lxml import etree
 from bs4 import BeautifulSoup
-from emotools.plays import extract_character_name, xml_id2play_id
-from emotools.bs4_helpers import sentence, note, entity
+from embem.emotools.plays import extract_character_name, xml_id2play_id
+from embem.emotools.bs4_helpers import sentence, note, entity
 
 
 def create_index(es, index_name, type_name):
