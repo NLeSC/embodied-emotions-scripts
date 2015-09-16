@@ -32,6 +32,7 @@ if __name__ == '__main__':
     all_pairs = set()
     texts = []
     data = {}
+    embodied = {}
 
     text_files = glob.glob(os.path.join(input_dir, '*.txt'))
     for i, text_file in enumerate(text_files):
@@ -40,6 +41,7 @@ if __name__ == '__main__':
         texts.append(text_id)
 
         data[text_id] = Counter()
+        embodied[text_id] = Counter()
 
         X_data, Y_data = load_data(text_file)
 
@@ -53,11 +55,15 @@ if __name__ == '__main__':
                         pair = '{}_{}'.format(e, ct)
                         all_pairs.add(pair)
                         data[text_id][pair] += 1
+                    embodied[text_id]['Embodied_{}'.format(e)] += 1
 
     # write to file
     all_pairs = list(all_pairs)
     all_pairs.sort()
-    df = pd.DataFrame(columns=all_pairs, index=texts)
+
+    embodied_labels = ['Embodied_{}'.format(l) for l in heem_emotion_labels]
+
+    df = pd.DataFrame(columns=all_pairs+embodied_labels, index=texts)
     for text_id, counter in data.iteritems():
-        df.loc[text_id] = pd.Series(counter)
+        df.loc[text_id] = pd.Series(counter + embodied[text_id])
     df.fillna(0).to_csv(output_file)
