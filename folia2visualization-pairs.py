@@ -1,6 +1,6 @@
 """Create data set for visualization assignment
 The data set consists of:
-<sentence id>\t<emotion label>\t<other label>\t<tagged words>
+<text id>\t<sentence id>\t<emotion label>\t<other label>\t<tagged words>
 
 Usage: python folia2visualization-pairs.py <file in> <output dir>
 Or: ./batch_do_python.sh folia2visualization-pairs.py <dir in> <output dir>
@@ -38,7 +38,8 @@ if __name__ == '__main__':
     num_emotional = 0
     sents = set()
 
-    out_file = os.path.join(output_dir, '{}.txt'.format(file_name[-20:-7]))
+    text_id = file_name[-20:-7]
+    out_file = os.path.join(output_dir, '{}.txt'.format(text_id))
     print 'Writing file: {}'.format(out_file)
     with codecs.open(out_file, 'wb', encoding='utf-8') as f:
         for event, elem in context:
@@ -87,9 +88,11 @@ if __name__ == '__main__':
                                         ent_words = ' '.join(words1).lower()
                                     else:
                                         ent_words = ' '.join(words2).lower()
-
-                                    f.write(u'{}\t{}\t{}\t{}\n'.format(sent_id,
-                                            label1, label2, ent_words))
+                                    l1 = label1.split(':')[1]
+                                    l2 = label2.split(':')[1]
+                                    f.write(u'{}\t{}\t{}\t{}\t{}\n'.format(
+                                            text_id, sent_id, l1, l2,
+                                            ent_words))
                                 else:
                                     print 'Not subset!'
                                     print sent_id
