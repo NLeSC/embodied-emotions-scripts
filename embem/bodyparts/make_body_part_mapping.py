@@ -6,7 +6,7 @@ clustering.
 Usage: python make_body_part_mapping.py
 
 Requires files body_part_clusters_renaissance.csv,
-body_part_clusters_classisism.csv, and body_part_clusters_enlightenment.csv to 
+body_part_clusters_classisism.csv, and body_part_clusters_enlightenment.csv to
 be in the current directory.
 
 Writes body_part_mapping.json to the current directory.
@@ -14,6 +14,8 @@ Writes body_part_mapping.json to the current directory.
 
 import codecs
 import json
+import argparse
+import os
 
 
 def csv2mapping(file_name):
@@ -42,10 +44,19 @@ def merge_mappings(m1, m2):
             m1[k] = m1[k] + v
     return m1
 
+parser = argparse.ArgumentParser()
+parser.add_argument('dir', help='directory containing the body part cluster '
+                    'csv files (<embem_data_dir>/dict).')
+parser.add_argument('json_out', help='name of file to write the mapping to '
+                    '(json file).')
+args = parser.parse_args()
 
-mapping_r = csv2mapping('body_part_clusters_renaissance.csv')
-mapping_c = csv2mapping('body_part_clusters_classisism.csv')
-mapping_e = csv2mapping('body_part_clusters_enlightenment.csv')
+dr = args.dir
+
+mapping_r = csv2mapping(os.path.join(dr, 'body_part_clusters_renaissance.csv'))
+mapping_c = csv2mapping(os.path.join(dr, 'body_part_clusters_classisism.csv'))
+mapping_e = csv2mapping(os.path.join(dr,
+                                     'body_part_clusters_enlightenment.csv'))
 
 mapping = merge_mappings(mapping_r, mapping_c)
 mapping = merge_mappings(mapping, mapping_e)
@@ -53,5 +64,5 @@ mapping = merge_mappings(mapping, mapping_e)
 for k, v in mapping.iteritems():
     mapping[k] = list(set(mapping[k]))
 
-with codecs.open('body_part_mapping.json', 'wb', 'utf-8') as f:
+with codecs.open(args.json_out, 'wb', 'utf-8') as f:
     json.dump(mapping, f, indent=2)
