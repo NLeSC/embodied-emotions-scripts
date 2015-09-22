@@ -69,6 +69,40 @@ Because for some reason, we used different folia files to generate the tag files
 `print_liwc_cat.py` -> Script to print all words in a LIWC category to std out  
 `liwc2csv.py` -> Script to generate statistics on LIWC entities for each folia file in a directory  
 
+### Machine Learning
+
+`br_classifier.py` -> Script to train binary relevance classifiers  
+`do_br.sh` -> Bash script to run all br experiments  
+`rakel_clf.py` -> Script to train rakel classifiers  
+`do_rakel.sh` -> Bash script to run all rakel experiments  
+`rakel.py` -> Class to create RAKEL classifier  
+`rakel_save_clf.py` -> Script to train rakel classifier (based on all data) and save classifier object  
+`classify.py` -> Script to classify new data  
+`mlutils.py` -> Utils for the machine learning scripts
+
+### Machine Learning Data
+
+Contains scripts to generate input for machine learning (training classifiers) and scripts to generate results based on the output of machine learning.
+
+#### Input
+
+`folia2dataset_multilabel.py` -> Create multilabel data set to train embodied emotions classifiers (sentences with labels)  
+`folia2dataset_emo_sentences.py` -> Create data set to train emotional sentence classifier (sentence with 0 or 1)  
+`folia2dataset_for_prediction.py` -> Create text files for prediction (sentences with None)  
+`create_multilabel_train_and_test_set.py` -> Create 10 different train and test sets (used for determining classifier performance)  
+`generate_labels_json.py` -> Generate json objects storing the label replacements for diffent subdivisions of the emotion labels  
+`transform_labels.py` -> Generate text files with transformed labels (e.g., HEEM -> HEEM emotion clusters)   
+`txt2for_prediction.py` -> Script to convert text file to input for embem classifier    
+`merge_data_and_labels.py` -> Merge sentences from one file to HEEM labels in another
+
+#### Output 
+
+`label_density.py` -> Calculate label density and cardinality of the complete dataset
+`count_labels.py` -> Script to write csv file with label counts for each text  
+`count_labelsets.py` -> Count labelsets that occur in the multilabel data  
+`calculate_significance.py` -> Script that calculates statistical significance between two experiments  
+`calculate_average_f1.py` -> Script that calculates average F1 scores for all labels  
+
 ### Embem
 
 Other scripts.

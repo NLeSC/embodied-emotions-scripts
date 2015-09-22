@@ -2,7 +2,8 @@ from __future__ import print_function
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.grid_search import GridSearchCV
-from sklearn.metrics import accuracy_score, f1_score, hamming_loss, precision_score, recall_score
+from sklearn.metrics import accuracy_score, f1_score, hamming_loss, \
+    precision_score, recall_score
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import classification_report
 from sklearn.multiclass import OneVsRestClassifier

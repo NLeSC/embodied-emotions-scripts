@@ -91,7 +91,7 @@ if __name__ == '__main__':
     parser.add_argument('out_file', help='name of the output file')
     args = parser.parse_args()
 
-    files = glob.glob('{}*.txt'.format(args.input_dir))
+    files = glob.glob('{}/*.txt'.format(args.input_dir))
 
     labels = heem_concept_type_labels + heem_emotion_labels + \
         heem_body_part_labels

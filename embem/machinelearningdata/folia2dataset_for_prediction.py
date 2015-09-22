@@ -4,13 +4,13 @@ The data set consists of:
 _)
 <sentence id>\t<sentence>\tNone ('None' if no words were tagged)
 
-Usage: python folia2dataset_multiclass.py <file in> <output dir>
+Usage: python folia2dataset_for_prediction.py <file in> <output dir>
 Or: ./batch_do_python.sh folia2dataset_multiclass.py <dir in> <output dir>
 (for a directory containing folia files)
 """
 from lxml import etree
 from bs4 import BeautifulSoup
-from emotools.bs4_helpers import sentence, note, word
+from embem.emotools.bs4_helpers import sentence, note, word
 import argparse
 import codecs
 import os

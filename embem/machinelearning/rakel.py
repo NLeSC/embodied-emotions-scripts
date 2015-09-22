@@ -1,3 +1,5 @@
+"""Class to create RAKEL classifier
+"""
 from itertools import combinations
 from math import factorial
 

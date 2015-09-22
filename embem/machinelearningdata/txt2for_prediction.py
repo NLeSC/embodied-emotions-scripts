@@ -3,7 +3,7 @@
 The script tokenizes the text and writes it to a new file containing:
 <sentence id>\t<sentence (tokens separated by space)>\tNone\n
 
-Usage: python txt2ml.py <dir in> <dir out>
+Usage: python txt2for_prediction.py <dir in> <dir out>
 """
 
 import argparse
@@ -22,6 +22,9 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     tokenizer = nltk.data.load('tokenizers/punkt/dutch.pickle')
+
+    if not os.path.exists(args.dir_out):
+        os.makedirs(args.dir_out)
 
     text_files = [t for t in os.listdir(args.dir_in) if t.endswith('.txt')]
     for text_file in text_files:

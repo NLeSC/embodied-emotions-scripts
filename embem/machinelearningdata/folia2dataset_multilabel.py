@@ -1,9 +1,10 @@
-"""Create data set to train emotional sentence classifier file
-The file contains (0=non-emotional, 1=emotional):
-<sentence>\t{0,1}
-
-Usage: python folia2dataset_emo_sentences.py <file in> <output dir>
-Or: ./batch_do_python.sh folia2dataset_emo_sentences.py <dir in> <output dir>
+"""Create multilabel data set to train embodied emotions classifiers
+The data set consists of:
+<sentence id>\t<sentence>\tEmotie_Liefde (embodied emotions labels separated by
+_)
+<sentence id>\t<sentence>\tNone ('None' if no words were tagged)
+Usage: python folia2dataset_multiclass.py <file in> <output dir>
+Or: ./batch_do_python.sh folia2dataset_multiclass.py <dir in> <output dir>
 (for a directory containing folia files)
 """
 from lxml import etree
@@ -12,7 +13,6 @@ from embem.emotools.bs4_helpers import sentence, note, word
 import argparse
 import codecs
 import os
-import string
 
 
 if __name__ == '__main__':
@@ -26,7 +26,9 @@ if __name__ == '__main__':
     file_name = args.file
     output_dir = args.output_dir
 
-    entity_class = u'EmbodiedEmotions'
+    # We are interested in labels/classes of the following three entity types:
+    entity_classes = [u'EmbodiedEmotions-Level1', u'EmbodiedEmotions-Level2',
+                      u'EmbodiedEmotions-EmotionLabel']
 
     act_tag = '{http://ilk.uvt.nl/folia}div'
 
@@ -48,6 +50,7 @@ if __name__ == '__main__':
                 s = None
                 for sent in sentences:
                     if not note(sent.parent):
+                        sent_id = sent.attrs.get('xml:id')
                         # use folia tokenization
                         sent_words = [w.t.string for w in sent.find_all(word)]
                         s = ' '.join(sent_words)
@@ -60,16 +63,25 @@ if __name__ == '__main__':
                             num_sent += 1
 
                             entities = sent.find_all('entity')
-                            emotional = False
+                            classes = []
                             for entity in entities:
                                 e = entity.attrs.get('class')
-                                if e.startswith(entity_class):
-                                    emotional = True
-                                    break
+                                for cl in entity_classes:
+                                    if e.startswith(cl):
+                                        l = e.split(':')
+                                        classes.append(l[1])
 
-                            if emotional:
+                            if len(classes) > 0:
                                 num_emotional += 1
+                                # make labels uniform (for easy counting of
+                                # label combinations)
+                                classes = list(set(classes))
+                                classes.sort()
+                            else:
+                                classes.append('None')
 
-                            f.write(u'{}\t{}\n'.format(s, int(emotional)))
+                            f.write(u'{}\t{}\t{}\n'.format(sent_id,
+                                                           s,
+                                                           '_'.join(classes)))
 
     print '{} sentences, {} emotional\n'.format(num_sent, num_emotional)

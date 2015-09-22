@@ -13,8 +13,8 @@ from collections import Counter
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('input_dir', help='the name of the directory '
-                        'containing text files that should be normalized.')
+    parser.add_argument('input_dir', help='the directory where the input text '
+                        'files can be found.')
     args = parser.parse_args()
 
     input_dir = args.input_dir

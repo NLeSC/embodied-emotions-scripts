@@ -2,13 +2,14 @@
 This script is used to combine predicted labels and unnormalized sentences to
 make it easier to inspect/interpret label predictions for individual sentences.
 
-Usage: python count_labels.py <dir with train and test files>
+Usage: python merge_data_and_labels.py <input_dir_labels> <input_dir_data>
+<output dir>
 """
 import os
 import codecs
 import argparse
 import json
-from count_labels import load_data
+from embem.machinelearningdata.count_labels import load_data
 
 
 def merge_data_and_labels(labels_file, data_file, out_file):
