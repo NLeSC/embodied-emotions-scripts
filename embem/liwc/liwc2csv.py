@@ -2,9 +2,10 @@
 # -*- coding: utf-8 -*-
 """Script to generate statistics on LIWC entities.
 
-The script calculates how many LIWC words are found. This script can be used to
-compare the differences in numbers of words found for the modern and historic
-versions of LIWC.
+The script calculates how many LIWC words are found. Results are reported per
+document.
+This script can be used to compare the differences in numbers of words found
+for the modern and historic versions of LIWC.
 """
 from bs4 import BeautifulSoup
 from lxml import etree
@@ -14,19 +15,19 @@ import string
 import glob
 import pandas as pd
 
-from emotools.bs4_helpers import sentence, note, word
-from emotools.liwc_helpers import load_liwc
+from embem.emotools.bs4_helpers import sentence, note, word
+from embem.emotools.liwc_helpers import load_liwc
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('dir_name', help='the name of the FoLiA XML file to '
-                        'be processed')
+    parser.add_argument('dir_name', help='the name of the directory '
+                        'containing the FoLiA XML files processed')
     parser.add_argument('dic', help='the liwc dictionary to be used')
-    parser.add_argument('out_file', help='the liwc dictionary to be used')
+    parser.add_argument('out_file', help='csv file to store the results')
     args = parser.parse_args()
 
-    if args.dic == 'LIWC_Dutch_dictionary.dic':
+    if args.dic.endswith('LIWC_Dutch_dictionary.dic'):
         encoding = 'latin1'
     else:
         encoding = 'utf8'

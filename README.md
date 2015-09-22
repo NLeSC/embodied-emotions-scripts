@@ -39,7 +39,7 @@ Scripts to do things with Elasticsearch.
 ### Emotools
 
 Helpers for the other scripts.
-    
+
 ### Folia
 
 Scripts to do things with folia files.
@@ -50,16 +50,28 @@ Scripts to do things with folia files.
 `folia2txt.py` -> Script to extract text from a folia xml file (use with batch_do_python.sh)  
 `inspect_folia.py` -> Inspect FoLiA XML file to determine whether it matches our expectations (old, not used for project, because none of the files matched our expectations)
 
-## Kaf-tag
+### Kaf-tag
 
 Scripts to do things with kaf/tag files.
 
 `generate_kaf.sh` -> Batch generate kaf-files from folia files (run from project directory)  
 `folia2kaf.py` -> Create a KAF file for each act in a FoLiA file (used with `generate_kaf.sh`)  
 
-Because for some reason, we used different folia files to generate the tag files and these folia files were  not available anymore, the tag files needed fixing.   
-`batch_fix_tags.sh` -> Batch fix word ids in the tag-files (run from project directory)   
+Because for some reason, we used different folia files to generate the tag files and these folia files were  not available anymore, the tag files needed fixing.
+`batch_fix_tags.sh` -> Batch fix word ids in the tag-files (run from project directory)
 `fix_tags.py` -> Script that generates a tag file with new word ids
 
 `batch_add_tags.sh` -> Batch add annotations in tag files to FoLiA files (run from project directory)  
 `kaf2folia.py` -> Insert KAF annotations into a FoLiA files (used with `batch_add_tags.sh`)
+
+### LIWC
+
+`print_liwc_cat.py` -> Script to print all words in a LIWC category to std out  
+`liwc2csv.py` -> Script to generate statistics on LIWC entities for each folia file in a directory  
+
+### Embem
+
+Other scripts.
+
+`heem2csv.py` -> Count the numbers of words annotated with heem entities in the annotation corpus
+`translate_labels.py` -> Translate Dutch HEEM labels to English  

@@ -1,17 +1,15 @@
-"""Find known body parts in sentences with predicted label 'Lichaamsdeel'.
+"""Translate Dutch HEEM labels to English.
 
-Extended body parts are saved to new text files.
-
-Usage: python classify_body_parts.py <json file with body part mapping> <dir
-with input texts> <dir for output texts>
+Usage: python translate_labels.py <dir with input texts> <dir for output texts>
 """
 import os
 import codecs
 import argparse
 import json
-from count_labels import load_data
 import pandas as pd
-from emotools.heem_utils import heem_labels_en
+
+from embem.machinelearningdata.count_labels import load_data
+from embem.emotools.heem_utils import heem_labels_en
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
