@@ -48,6 +48,7 @@ Scripts to do things with folia files.
 `batch_add_liwc_entities.sh` -> Batch add LIWC entities to FoLiA files (run from project directory)
 `annotation_statistics.py` -> Count the numbers of annotated entities and emotional sentences in the corpus that was manually annotated. Prints tab separated data to std out.  
 `folia2txt.py` -> Script to extract text from a folia xml file (use with batch_do_python.sh)  
+`generate_lmf_lexicon.py` -> Script to generate a LMF xml lexicon from a directory with Folia files with embem annotations
 `inspect_folia.py` -> Inspect FoLiA XML file to determine whether it matches our expectations (old, not used for project, because none of the files matched our expectations)
 
 ### Kaf-tag
@@ -91,11 +92,11 @@ Contains scripts to generate input for machine learning (training classifiers) a
 `folia2dataset_for_prediction.py` -> Create text files for prediction (sentences with None)  
 `create_multilabel_train_and_test_set.py` -> Create 10 different train and test sets (used for determining classifier performance)  
 `generate_labels_json.py` -> Generate json objects storing the label replacements for diffent subdivisions of the emotion labels  
-`transform_labels.py` -> Generate text files with transformed labels (e.g., HEEM -> HEEM emotion clusters)   
-`txt2for_prediction.py` -> Script to convert text file to input for embem classifier    
+`transform_labels.py` -> Generate text files with transformed labels (e.g., HEEM -> HEEM emotion clusters)
+`txt2for_prediction.py` -> Script to convert text file to input for embem classifier
 `merge_data_and_labels.py` -> Merge sentences from one file to HEEM labels in another
 
-#### Output 
+#### Output
 
 `label_density.py` -> Calculate label density and cardinality of the complete dataset
 `count_labels.py` -> Script to write csv file with label counts for each text  

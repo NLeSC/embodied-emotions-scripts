@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Generate LMF lexicon from FoLiA XML files containing embem annotations
 
-Usage: python generate_lexicon.py <dir containing folia xml files>
+Usage: python generate_lmf_lexicon.py <dir containing folia xml files>
 <lexicon file (output)>
 
 If the lexicon file does not exist, it is created. If it does exist, non-
@@ -13,7 +13,7 @@ import argparse
 import codecs
 import os
 import errno
-from emotools.heem_utils import heem_concept_type_labels, heem_labels_en
+from embem.emotools.heem_utils import heem_concept_type_labels, heem_labels_en
 from folia2kaf import _folia_pos2kaf_pos
 
 time_period = '1600-1830'
