@@ -1,20 +1,20 @@
-"""Generate visualization pairs (emotion label - concept type) for predicted
-labels.
+"""Generate emotion label - concept type pairs for predicted labels.
 
 Input: directory containing text files with predicted heem labels.
 
 Generates a text file containing
-<text_id>\t<sentence id>\t<emotion label>\t<concept type label>
+<text_id>\t<emotion label>\t<concept type label>\t<# of occurrences>
 for each file in the input dir.
 
-Usage: python predictions2visualization.py <dir in> <dir out>
+Usage: python predictions2visualization-pairs.py <dir in> <dir out>
 """
 import argparse
 import glob
 import os
 import codecs
-from count_labels import load_data
-from emotools.heem_utils import heem_emotion_labels, heem_concept_type_labels
+from embem.machinelearningdata.count_labels import load_data
+from embem.emotools.heem_utils import heem_emotion_labels, \
+    heem_concept_type_labels
 from collections import Counter
 
 
@@ -28,6 +28,9 @@ if __name__ == '__main__':
 
     input_dir = args.input_dir
     output_dir = args.output_dir
+
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
 
     pairs = Counter()
 

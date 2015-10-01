@@ -1,5 +1,4 @@
-"""Generate visualization pairs (emotion label - body part) for predicted
-labels.
+"""Generate pairs (emotion label - expanded body part) for predicted labels.
 
 Input: directory containing text files with predicted heem labels and expanded
 body parts.
@@ -7,13 +6,14 @@ body parts.
 Generates a csv file containing the text id in the first column and a column
 containing frequencies for each found emotion-body part pair.
 
-Usage: python predictions2emotion_bodypart_pairs.py <dir in> <dir out>
+Usage: python predictions2emotion_expanded_bodypart_pairs.py <dir in> <dir out>
 """
 import argparse
 import glob
 import os
-from count_labels import load_data
-from emotools.heem_utils import heem_emotion_labels, heem_body_part_labels
+from embem.machinelearningdata.count_labels import load_data
+from embem.emotools.heem_utils import heem_emotion_labels, \
+    heem_concept_type_labels, heem_body_part_labels
 from collections import Counter
 import pandas as pd
 
@@ -47,6 +47,7 @@ if __name__ == '__main__':
 
         for j, predicted in enumerate(Y_data):
             lbs = (set(predicted.split('_')) - {'None'})
+            print lbs
             emotion_labels = [l for l in lbs if l in heem_emotion_labels]
             ct_labels = [l for l in lbs if l in heem_body_part_labels]
             if emotion_labels and ct_labels:

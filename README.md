@@ -116,6 +116,16 @@ mapping (modern spelling variants do not have to be replaced)
 `reverse_dict.py` -> Reverse modern->historic spelling variants dictonary to
 historic->modern mappings
 
+### Visualization Data
+
+`folia2visualization-pairs.py` -> Create data set for visualization assignment  
+`generate_emotion2bodyparts.py` -> Create csv files with emotions in the first
+column and a column for every expanded body part  
+`predictions2emotion_expanded_bodypart_pairs.py` -> Generate pairs (emotion
+label - expanded body part) for predicted labels.  
+`predictions2emotion_concept_pairs.py` -> Generate emotion label - concept type
+pairs for predicted labels
+
 ### Embem
 
 Other scripts.

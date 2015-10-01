@@ -9,9 +9,9 @@ In addition to the output.csv, also files for each time period are written.
 import os
 import argparse
 from collections import Counter
-from count_labels import load_data
-from emotools.heem_utils import heem_body_part_labels, heem_emotion_labels
-from count_labels import corpus_metadata
+from embem.machinelearningdata.count_labels import load_data, corpus_metadata
+from embem.emotools.heem_utils import heem_body_part_labels, \
+    heem_emotion_labels
 import pandas as pd
 
 

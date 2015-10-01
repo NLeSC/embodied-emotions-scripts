@@ -8,7 +8,7 @@ Or: ./batch_do_python.sh folia2visualization-pairs.py <dir in> <output dir>
 """
 from lxml import etree
 from bs4 import BeautifulSoup
-from emotools.bs4_helpers import sentence, note
+from embem.emotools.bs4_helpers import sentence, note
 import argparse
 import codecs
 import os
@@ -25,6 +25,9 @@ if __name__ == '__main__':
 
     file_name = args.file
     output_dir = args.output_dir
+
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
 
     # We are interested in labels/classes of the following three entity types:
     entity_classes = [u'EmbodiedEmotions-Level1', u'EmbodiedEmotions-Level2']
