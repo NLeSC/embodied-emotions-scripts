@@ -11,6 +11,7 @@ liwc_output.json
 *.json
 BWNT05_v003.txt
 *.txt
+!requirements.txt
 *.html
 Ceneton*
 *.xlsx
