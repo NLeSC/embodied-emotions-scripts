@@ -7,7 +7,7 @@ The data set consists of:
 _)
 <sentence id>\t<sentence>\tNone ('None' if no words were tagged)
 
-Usage: python normalize_dataset.py <input dir> <output dir>
+Usage: python normalize_dataset.py <input dir> <hist2modern dict> <output dir>
 """
 import argparse
 import codecs
@@ -22,6 +22,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('input_dir', help='the name of the directory '
                         'containing text files that should be normalized.')
+    parser.add_argument('hist2modern', help='json file containing historic2'
+                        'modern mapping (json object)')
     parser.add_argument('output_dir', help='the directory where the '
                         'normalized data files should be saved.')
     args = parser.parse_args()
@@ -33,7 +35,7 @@ if __name__ == '__main__':
         os.makedirs(output_dir)
 
     # load hist2modern dictionary
-    with codecs.open('hist2modern_bwnt.json', 'rb', 'utf-8') as f:
+    with codecs.open(args.hist2modern, 'rb', 'utf-8') as f:
         full_dict = json.load(f, 'utf-8')
 
     # create simple historic word -> modern word mapping

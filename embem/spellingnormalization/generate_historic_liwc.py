@@ -3,12 +3,23 @@
 from time import sleep
 import json
 import codecs
-from emotools.lexicon import get_spelling_variants
+import argparse
+import os
+from embem.emotools.lexicon import get_spelling_variants
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('dict_file', help='Dutch LIWC dict file (.dic)')
+    parser.add_argument('output_dir', help='the directory where the '
+                        'generated json and dic files should be saved')
+    args = parser.parse_args()
+
+    if not os.path.exists(args.output_dir):
+        os.makedirs(args.output_dir)
+
     # read file and convert byte strings to unicode
-    with codecs.open('LIWC_Dutch_dictionary.dic', 'rb', 'latin-1') as f:
+    with codecs.open(args.dict_file, 'rb', 'latin-1') as f:
         lines = f.readlines()
 
     liwc_category_output = []
@@ -46,10 +57,12 @@ if __name__ == '__main__':
     #    liwc_output = json.load(f, encoding='utf-8')
 
     # write spelling variants to file
-    with codecs.open('liwc_spelling_variants.json', 'w', 'utf8') as f:
+    f1 = os.path.join(args.out_dir, 'liwc_spelling_variants.json')
+    with codecs.open(f1, 'w', 'utf8') as f:
         json.dump(spelling_vars, f, sort_keys=True, ensure_ascii=False, indent=2)
 
-    with codecs.open('historic_Dutch_LIWC.dic', 'wb', 'utf8') as f:
+    f2 = os.path.join(args.out_dir, 'historic_Dutch_LIWC.dic')
+    with codecs.open(f2, 'wb', 'utf8') as f:
         f.write('\n'.join(liwc_category_output))
 
         entries = liwc_output.keys()

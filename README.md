@@ -104,6 +104,18 @@ Contains scripts to generate input for machine learning (training classifiers) a
 `calculate_significance.py` -> Script that calculates statistical significance between two experiments  
 `calculate_average_f1.py` -> Script that calculates average F1 scores for all labels  
 
+### Spelling Normalization
+
+`generate_historic_bwnt.py` -> generate historic version of bwnt word list  
+`generate_historic_liwc.py` -> generate historic version of LIWC dictionary  
+`generate_historic_wnaffect.py` -> generate historic version of wordnet affect word list
+`normalize_dataset.py` -> script to spelling normalize machine learning input  
+`normalize_dataset_parallel.py` -> parallel version of `normalize_dataset.py`  
+`prune_dict.py` -> Script to remove modern variants from modern to historic
+mapping (modern spelling variants do not have to be replaced)  
+`reverse_dict.py` -> Reverse modern->historic spelling variants dictonary to
+historic->modern mappings
+
 ### Embem
 
 Other scripts.
