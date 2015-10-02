@@ -46,3 +46,5 @@ clf.fit(X_train, Y_train)
 
 # save classifier
 joblib.dump(clf, classifier_file)
+
+print('saved', classifier_file)
