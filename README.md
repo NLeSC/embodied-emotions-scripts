@@ -2,6 +2,46 @@
 
 ## Installation
 
+1. [Install pip](http://pip.readthedocs.org/en/latest/installing/)
+2. [Install git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
+2. Clone the Embodied Emotions Scripts repository
+
+    git clone git@github.com:NLeSC/embodied-emotions-scripts.git
+
+3. Change directory to the Embodied Emotions Scripts directory
+
+    cd embodied-emotions-scripts
+
+4. Install the requirements
+
+    pip install -r
+
+5. Start using the scripts or iPython notebooks.
+
+## Notebooks
+
+Many of the Embodied Emotions Scripts can be accessed through iPython notebooks
+([more info on iPython notebooks](http://ipython.org/notebook.html)).
+
+To use them, start the terminal/command line. Change directories to where the
+Emodied Emotions Scripts are stored. Start the iPython notebook server by typing
+
+    ipython notebook
+
+Click on the notebook you want to use.
+
+There are 6 notebooks:
+
+* `00_CreateClassifiers.ipynb`
+* `01_CreateDataForPrediction.ipynb`
+* `02_ClassifyTexts.ipynb`
+* `03_AnalysisCorpora.ipynb`
+* `04_HEEMLabelsResults.ipynb`
+* `05_EmotionBodyPartsResults.ipynb`
+
+Notebooks 03--05 were used to do the analyses for paper 3. These can be used as
+an example of how to analyse new classified texts.
+
 ## Code
 
 Code is in de `embem` directory.
