@@ -32,7 +32,7 @@ def kaf_file_name(input_file, act_number):
     return '{n}__act-0{a}.kaf'.format(a=act_number, n=p[0])
 
 
-def add_word2kaf(elem, w_id, s_id, term_id, text, terms):
+def add_word2kafnaf(elem, s_id, term_id, text, terms):
     w_id = elem.get('xml:id')
     w = etree.SubElement(text, 'wf', wid=w_id, sent=s_id)
     w.text = unicode(elem.t.string)
@@ -65,16 +65,19 @@ def act2kaf(act_xml, sentence_id):
         text = etree.SubElement(root, 'text')
         terms = etree.SubElement(root, 'terms')
 
-        for elem in act_xml.descendants:
-            if sentence(elem) and not note(elem.parent):
-                sentence_id += 1
-            elif word(elem) and not note(elem.parent.parent):
-                add_word2kaf(elem, w_id, str(sentence_id), term_id, text,
-                             terms)
-
-                term_id += 1
+        sentence_id = xml2kafnaf(act_xml, sentence_id, term_id, text, terms)
 
     return kaf_document, sentence_id
+
+
+def xml2kafnaf(xml, sentence_id, term_id, text, terms):
+    for elem in xml.descendants:
+        if sentence(elem) and not note(elem.parent):
+            sentence_id += 1
+        elif word(elem) and not note(elem.parent.parent):
+            add_word2kafnaf(elem, str(sentence_id), term_id, text, terms)
+            term_id += 1
+    return sentence_id
 
 
 if __name__ == '__main__':
