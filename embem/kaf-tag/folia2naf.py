@@ -5,6 +5,7 @@ Or: ./generate_kaf.sh <dir in> <dir out>
 from lxml import etree
 from bs4 import BeautifulSoup
 from embem.emotools.bs4_helpers import act, sentence, note
+from embem.emotools.heem_utils import heem_emotion_labels, heem_labels_en
 from folia2kaf import xml2kafnaf
 import argparse
 import os
@@ -25,7 +26,6 @@ def contains_markable(entities):
     for l1 in entity_labels:
         for l2 in markables_labels:
             if l2 in l1:
-                print 'markable!', l1, l2
                 return True
     return False
 
@@ -70,9 +70,24 @@ def emotions2naf(emotions, markables, elem, emo_id):
                 etree.SubElement(span, 'target', id=wid)
             # emovals
             for label in data['labels']:
-                l = label.split(':')[1]
+                last_part = label.split(':')[1]
+                if label.endswith('Lichaamsdeel'):
+                    l = heem_labels_en['Lichaamsdeel']
+                    l = l[0].lower() + l[1:]
+                    r = 'embemo:conceptType'
+                elif label.split(':')[1] in heem_emotion_labels:
+                    l = heem_labels_en[last_part]
+                    l = l[0].lower() + l[1:]
+                    r = 'embemo:emotionType'
+                else:
+                    parts = label.split('-')[1].split(':')
+                    l = parts[1]
+                    l = l[0].lower() + l[1:]
+                    r = 'embemo:{}'.format(parts[0][0].lower() + parts[0][1:])
+                    print l, r
+
                 etree.SubElement(markable, 'emoVal', value=l,
-                                 confidence='1.0', resource='bla')
+                                 confidence='1.0', resource=r)
             markables.append(markable)
         else:
             # If it is not a markable, we assume that it is an emotion
@@ -94,8 +109,14 @@ def emotions2naf(emotions, markables, elem, emo_id):
             # emovals
             for label in data['labels']:
                 l = label.split(':')[1]
-                etree.SubElement(emotion, 'emoVal', value=l,
-                                 confidence='1.0', resource='bla')
+                l = heem_labels_en[l]
+                l = l[0].lower() + l[1:]
+                if l in heem_emotion_labels:
+                    r = 'embemo:emotionType'
+                else:
+                    r = 'embemo:conceptType'
+                etree.SubElement(emotion, 'emoVal', value=l, confidence='1.0',
+                                 resource=r)
             emotions.append(emotion)
             emo_id += 1
 
