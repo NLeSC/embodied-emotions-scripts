@@ -65,7 +65,8 @@ def act2kaf(act_xml, sentence_id):
         text = etree.SubElement(root, 'text')
         terms = etree.SubElement(root, 'terms')
 
-        sentence_id = xml2kafnaf(act_xml, sentence_id, term_id, text, terms)
+        sentence_id, term_id = xml2kafnaf(act_xml, sentence_id, term_id, text,
+                                          terms)
 
     return kaf_document, sentence_id
 
@@ -77,7 +78,7 @@ def xml2kafnaf(xml, sentence_id, term_id, text, terms):
         elif word(elem) and not note(elem.parent.parent):
             add_word2kafnaf(elem, str(sentence_id), term_id, text, terms)
             term_id += 1
-    return sentence_id
+    return sentence_id, term_id
 
 
 if __name__ == '__main__':
