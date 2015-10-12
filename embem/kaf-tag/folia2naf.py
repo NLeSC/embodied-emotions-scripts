@@ -173,7 +173,7 @@ if __name__ == '__main__':
         emo_id = 1
 
         # create output naf xml tree for act
-        root = etree.Element('NAF')
+        root = etree.Element('NAF', lang='nl', version='v4')
         naf_document = etree.ElementTree(root)
         text = etree.SubElement(root, 'text')
         terms = etree.SubElement(root, 'terms')
