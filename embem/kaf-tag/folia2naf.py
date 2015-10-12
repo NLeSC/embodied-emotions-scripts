@@ -5,7 +5,8 @@ Or: ./generate_kaf.sh <dir in> <dir out>
 from lxml import etree
 from bs4 import BeautifulSoup
 from embem.emotools.bs4_helpers import act, sentence, note
-from embem.emotools.heem_utils import heem_emotion_labels, heem_labels_en
+from embem.emotools.heem_utils import heem_emotion_labels, heem_labels_en, \
+    heem_modifiers_en
 from folia2kaf import xml2kafnaf
 import argparse
 import os
@@ -85,14 +86,18 @@ def emotions2naf(emotions, markables, elem, emo_id):
                 else:
                     parts = label.split('-')[1].split(':')
                     l = parts[1]
-                    l = l[0].lower() + l[1:]
-                    r = 'embemo:{}'.format(parts[0][0].lower() + parts[0][1:])
-                    # make list of all modifiers
-                    modifiers[l] += 1
-                    #print l, r
-
-                etree.SubElement(markable, 'emoVal', value=l,
-                                 confidence='1.0', resource=r)
+                    if l in heem_modifiers_en.keys():
+                        l = heem_modifiers_en[l]
+                        l = l[0].lower() + l[1:]
+                        r = 'embemo:{}'.format(parts[0][0].lower() + parts[0][1:])
+                        # make list of all modifiers
+                        modifiers[l] += 1
+                        #print l, r
+                    else:
+                        l = None
+                if l and r:
+                    etree.SubElement(markable, 'emoVal', value=l,
+                                     confidence='1.0', resource=r)
             markables.append(markable)
         if contains_emotion(data['entities']) or \
             (not contains_emotion(data['entities']) and
