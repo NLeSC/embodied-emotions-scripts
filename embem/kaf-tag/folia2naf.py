@@ -11,6 +11,8 @@ import argparse
 import os
 import sys
 import glob
+from collections import Counter
+import pandas as pd
 
 emotions_labels = ['Emotie', 'Lichaamswerking', 'EmotioneleHandeling']
 markables_labels = ['Lichaamsdeel', 'HumorModifier', 'Intensifier']
@@ -85,6 +87,8 @@ def emotions2naf(emotions, markables, elem, emo_id):
                     l = parts[1]
                     l = l[0].lower() + l[1:]
                     r = 'embemo:{}'.format(parts[0][0].lower() + parts[0][1:])
+                    # make list of all modifiers
+                    modifiers[l] += 1
                     #print l, r
 
                 etree.SubElement(markable, 'emoVal', value=l,
@@ -148,6 +152,8 @@ if __name__ == '__main__':
     act_tag = '{http://ilk.uvt.nl/folia}div'
     entities_tag = '{http://ilk.uvt.nl/folia}entities'
 
+    modifiers = Counter()
+
     for i, f in enumerate(xml_files):
         print '{} ({} of {})'.format(f, (i + 1), len(xml_files))
 
@@ -197,3 +203,7 @@ if __name__ == '__main__':
         naf_document.write(xml_out, xml_declaration=True, encoding='utf-8',
                            method='xml', pretty_print=True)
         print
+
+    out_file = os.path.join(output_dir, '_modifiers.csv')
+    data = pd.DataFrame.from_dict(modifiers, orient='index').reset_index()
+    data.to_csv(out_file, encoding='utf-8')
