@@ -89,11 +89,14 @@ def emotions2naf(emotions, markables, elem, emo_id):
                 etree.SubElement(markable, 'emoVal', value=l,
                                  confidence='1.0', resource=r)
             markables.append(markable)
-        else:
-            # If it is not a markable, we assume that it is an emotion
+        if contains_emotion(data['entities']) or \
+            (not contains_emotion(data['entities']) and
+             not contains_markable(data['entities'])):
+            # Add entity as emotion if it contains an emotion.
             # The data set contains words tagged with only an emotion label
-            # These words are added as emotion
+            # These annotations are also added as emotion
             print 'Add emotion!'
+            print [(e.tag, e.attrib) for e in data['entities']]
             eid = 'emo{}'.format(emo_id)
             emotion = etree.Element('emotion', id=str(eid))
             etree.SubElement(emotion, 'emotion_target')
@@ -109,15 +112,17 @@ def emotions2naf(emotions, markables, elem, emo_id):
             # emovals
             for label in data['labels']:
                 l = label.split(':')[1]
-                l = heem_labels_en[l]
-                l = l[0].lower() + l[1:]
-                if l in heem_emotion_labels:
-                    r = 'embemo:emotionType'
-                else:
-                    r = 'embemo:conceptType'
-                etree.SubElement(emotion, 'emoVal', value=l, confidence='1.0',
-                                 resource=r)
-            emotions.append(emotion)
+                l = heem_labels_en.get(l)
+                if l:
+                    l = l[0].lower() + l[1:]
+                    if l in heem_emotion_labels:
+                        r = 'embemo:emotionType'
+                    else:
+                        r = 'embemo:conceptType'
+                    etree.SubElement(emotion, 'emoVal', value=l,
+                                     confidence='1.0', resource=r)
+            if l:
+                emotions.append(emotion)
             emo_id += 1
 
     return emo_id
