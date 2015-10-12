@@ -10,6 +10,7 @@ from folia2kaf import xml2kafnaf
 import argparse
 import os
 import sys
+import glob
 
 emotions_labels = ['Emotie', 'Lichaamswerking', 'EmotioneleHandeling']
 markables_labels = ['Lichaamsdeel', 'HumorModifier', 'Intensifier']
@@ -33,8 +34,8 @@ def contains_markable(entities):
 def contains_emotion(entities):
     labels = [ent.get('class').split(':')[1] for ent in entities]
 
-    if bool(set(labels) & set(emotions_labels)):
-        print 'Emotion!'
+    #if bool(set(labels) & set(emotions_labels)):
+        #print 'Emotion!'
 
     return bool(set(labels) & set(emotions_labels))
 
@@ -60,7 +61,7 @@ def emotions2naf(emotions, markables, elem, emo_id):
 
     for key, data in emotion_values.iteritems():
         if contains_markable(data['entities']):
-            print 'Add markable!'
+            #print 'Add markable!'
             markable = etree.Element('markable')
             span = etree.SubElement(markable, 'span')
             # words
@@ -84,7 +85,7 @@ def emotions2naf(emotions, markables, elem, emo_id):
                     l = parts[1]
                     l = l[0].lower() + l[1:]
                     r = 'embemo:{}'.format(parts[0][0].lower() + parts[0][1:])
-                    print l, r
+                    #print l, r
 
                 etree.SubElement(markable, 'emoVal', value=l,
                                  confidence='1.0', resource=r)
@@ -95,8 +96,8 @@ def emotions2naf(emotions, markables, elem, emo_id):
             # Add entity as emotion if it contains an emotion.
             # The data set contains words tagged with only an emotion label
             # These annotations are also added as emotion
-            print 'Add emotion!'
-            print [(e.tag, e.attrib) for e in data['entities']]
+            #print 'Add emotion!'
+            #print [(e.tag, e.attrib) for e in data['entities']]
             eid = 'emo{}'.format(emo_id)
             emotion = etree.Element('emotion', id=str(eid))
             etree.SubElement(emotion, 'emotion_target')
@@ -139,49 +140,60 @@ if __name__ == '__main__':
     input_dir = args.input_dir
     output_dir = args.output_dir
 
-    file_name = input_dir
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
+    xml_files = glob.glob('{}/*.xml'.format(input_dir))
 
     act_tag = '{http://ilk.uvt.nl/folia}div'
     entities_tag = '{http://ilk.uvt.nl/folia}entities'
 
-    # Load document
-    context = etree.iterparse(file_name, events=('end',),
-                              tag=(act_tag, entities_tag))
+    for i, f in enumerate(xml_files):
+        print '{} ({} of {})'.format(f, (i + 1), len(xml_files))
 
-    act_number = 0
+        # Load document
+        context = etree.iterparse(f, events=('end',),
+                                  tag=(act_tag, entities_tag))
 
-    s_id = 0  # in KAF, sentence numbers must be integers
-    term_id = 1
-    emo_id = 1
+        act_number = 0
 
-    # create output naf xml tree for act
-    root = etree.Element('NAF')
-    naf_document = etree.ElementTree(root)
-    text = etree.SubElement(root, 'text')
-    terms = etree.SubElement(root, 'terms')
-    emotions_layer = etree.SubElement(root, 'emotions')
+        s_id = 0  # in KAF, sentence numbers must be integers
+        term_id = 1
+        emo_id = 1
 
-    # TODO: nafheader with fileDesc and linguistic processors
+        # create output naf xml tree for act
+        root = etree.Element('NAF')
+        naf_document = etree.ElementTree(root)
+        text = etree.SubElement(root, 'text')
+        terms = etree.SubElement(root, 'terms')
+        emotions_layer = etree.SubElement(root, 'emotions')
 
-    emotions = []
-    markables = []
+        # TODO: nafheader with fileDesc and linguistic processors
 
-    for event, elem in context:
-        if elem.tag == act_tag and elem.get('class') == 'act':
-            # load act into memory
-            act_xml = BeautifulSoup(etree.tostring(elem), 'xml')
-            subacts = act_xml.find_all(act)
-            # act_xml should contain exactly one act; if it contains more acts,
-            # these acts are sub acts, that will be processed later
-            if len(subacts) == 1:
-                print 'act:', act_xml.find('div', 'act').attrs.get('xml:id')
-                s_id, term_id = xml2kafnaf(act_xml, s_id, term_id, text, terms)
-        elif elem.tag == entities_tag:
-            emo_id = emotions2naf(emotions, markables, elem, emo_id)
+        emotions = []
+        markables = []
 
-    for t in emotions + markables:
-        emotions_layer.append(t)
+        for event, elem in context:
+            if elem.tag == act_tag and elem.get('class') == 'act':
+                # load act into memory
+                act_xml = BeautifulSoup(etree.tostring(elem), 'xml')
+                subacts = act_xml.find_all(act)
+                # act_xml should contain exactly one act; if it contains more
+                # acts, these acts are sub acts, that will be processed later
+                if len(subacts) == 1:
+                    print 'act:', act_xml.find('div', 'act').attrs.\
+                          get('xml:id')
+                    s_id, term_id = xml2kafnaf(act_xml, s_id, term_id, text,
+                                               terms)
+            elif elem.tag == entities_tag:
+                emo_id = emotions2naf(emotions, markables, elem, emo_id)
 
-    f = os.path.join(output_dir, 'naf_test.xml')
-    naf_document.write(f, xml_declaration=True, encoding='utf-8', method='xml',
-                       pretty_print=True)
+        for t in emotions + markables:
+            emotions_layer.append(t)
+
+        out_file = os.path.basename(f)
+        xml_out = os.path.join(output_dir, out_file)
+        print 'writing', xml_out
+        naf_document.write(xml_out, xml_declaration=True, encoding='utf-8',
+                           method='xml', pretty_print=True)
+        print
