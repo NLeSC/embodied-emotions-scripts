@@ -14,9 +14,17 @@ import sys
 import glob
 from collections import Counter
 import pandas as pd
+import datetime
+from embem.machinelearningdata.count_labels import corpus_metadata
 
 emotions_labels = ['Emotie', 'Lichaamswerking', 'EmotioneleHandeling']
 markables_labels = ['Lichaamsdeel', 'HumorModifier', 'Intensifier']
+
+genres_en = {'blijspel / komedie': 'comedy',
+             'tragedie/treurspel': 'tragedy',
+             'klucht': 'farce',
+             'Anders': 'other',
+             'unknown': 'unknown'}
 
 
 def embem_entity(elem):
@@ -142,6 +150,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('input_dir', help='the name of the FoLiA XML file to '
                         'generate KAF files for')
+    parser.add_argument('metadata', help='the name of the csv file containing '
+                        'collection metadata')
     parser.add_argument('output_dir', help='the directory where the '
                         'generated KAF files should be saved')
     args = parser.parse_args()
@@ -156,15 +166,19 @@ if __name__ == '__main__':
 
     act_tag = '{http://ilk.uvt.nl/folia}div'
     entities_tag = '{http://ilk.uvt.nl/folia}entities'
+    annotation_tag = '{http://ilk.uvt.nl/folia}token-annotation'
 
     modifiers = Counter()
 
     for i, f in enumerate(xml_files):
         print '{} ({} of {})'.format(f, (i + 1), len(xml_files))
 
+        # reset linguisting processor terms datetime
+        lp_terms_datetime = ''
+
         # Load document
         context = etree.iterparse(f, events=('end',),
-                                  tag=(act_tag, entities_tag))
+                                  tag=(act_tag, entities_tag, annotation_tag))
 
         act_number = 0
 
@@ -175,11 +189,46 @@ if __name__ == '__main__':
         # create output naf xml tree for act
         root = etree.Element('NAF', lang='nl', version='v4')
         naf_document = etree.ElementTree(root)
+        header = etree.SubElement(root, 'nafHeader')
         text = etree.SubElement(root, 'text')
         terms = etree.SubElement(root, 'terms')
         emotions_layer = etree.SubElement(root, 'emotions')
 
         # TODO: nafheader with fileDesc and linguistic processors
+        # fileDesc
+        ctime = str(datetime.datetime.fromtimestamp(os.path.getmtime(f)))
+        #print ctime
+        fname = os.path.basename(f)
+
+        text_id = f[-20:-7]
+        text2period, text2year, text2genre, period2text, genre2text = \
+            corpus_metadata(args.metadata)
+        year = text2year[text_id]
+        genre = genres_en.get(text2genre[text_id], 'unknown')
+        metadata = pd.read_csv(args.metadata, header=None, sep='\\t',
+                               index_col=0, encoding='utf-8')
+        title = metadata.at[text_id, 3].decode('utf-8')
+        author = metadata.at[text_id, 4].decode('utf-8')
+        etree.SubElement(header, 'fileDesc', creationtime=ctime,
+                         title=unicode(title), author=unicode(author),
+                         filename=fname, filetype='FoLiA/XML', year=year,
+                         genre=genre)
+
+        # public
+        uri = 'http://dbnl.nl/titels/titel.php?id={}'.format(text_id)
+        etree.SubElement(header, 'public', publicId=text_id, uri=uri)
+
+        # linguistic processors
+        # terms
+        lp_terms = etree.SubElement(header, 'linguisticProcessors',
+                                    layer='terms')
+
+        # annotations
+        lp_emotions = etree.SubElement(header, 'linguisticProcessors',
+                                       layer='emotions')
+        etree.SubElement(lp_emotions, 'lp',
+                         name='Embodied Emotions Annotations', version='1.0',
+                         timestamp=ctime)
 
         emotions = []
         markables = []
@@ -198,6 +247,16 @@ if __name__ == '__main__':
                                                terms)
             elif elem.tag == entities_tag:
                 emo_id = emotions2naf(emotions, markables, elem, emo_id)
+            elif elem.tag == annotation_tag:
+                lp_terms_datetime = elem.attrib.get('datetime')
+
+        # linguistic processors
+        # terms
+        generator = context.root.attrib.get('generator')
+        name, version = generator.split('-')
+        #print lp_terms_datetime
+        etree.SubElement(lp_terms, 'lp', name=name, version=version,
+                         timestamp=lp_terms_datetime)
 
         for t in emotions + markables:
             emotions_layer.append(t)
