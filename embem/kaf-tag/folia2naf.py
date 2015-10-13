@@ -50,6 +50,84 @@ def contains_emotion(entities):
     return bool(set(labels) & set(emotions_labels))
 
 
+def lowerc(str):
+    """Lowercase first character of input string"""
+    return str[0].lower() + str[1:]
+
+
+def add_targets(elem, words, wids):
+    span = etree.SubElement(elem, 'span')
+    # words
+    span.append(etree.Comment(' ' + ' '.join(words) + ' '))
+    # word ids (targets)
+    for wid in wids:
+        etree.SubElement(span, 'target', id=wid)
+
+
+def add_emoVal(elem, value, resource, confidence):
+    etree.SubElement(elem, 'emoVal', value=value, confidence=confidence,
+                     resource=resource)
+
+
+def naf_markable(data):
+    markable = etree.Element('markable')
+    add_targets(markable, data['words'], data['wids'])
+
+    # emovals
+    for label in data['labels']:
+        last_part = label.split(':')[1]
+        if label.endswith('Lichaamsdeel'):
+            l = heem_labels_en['Lichaamsdeel']
+            l = lowerc(l)
+            r = 'embemo:conceptType'
+        elif label.split(':')[1] in heem_emotion_labels:
+            l = heem_labels_en[last_part]
+            l = lowerc(l)
+            r = 'embemo:emotionType'
+        else:
+            parts = label.split('-')[1].split(':')
+            l = parts[1]
+            if l in heem_modifiers_en.keys():
+                l = heem_modifiers_en[l]
+                l = lowerc(l)
+                r = 'embemo:{}'.format(lowerc(parts[0]))
+                # make list of all modifiers
+                modifiers[l] += 1
+                #print l, r
+            else:
+                l = None
+        if l and r:
+            add_emoVal(markable, l, r, '1.0')
+    return markable
+
+
+def naf_emotion(data, emo_id):
+    eid = 'emo{}'.format(emo_id)
+    emotion = etree.Element('emotion', id=str(eid))
+    etree.SubElement(emotion, 'emotion_target')
+    etree.SubElement(emotion, 'emotion_holder')
+    expr = etree.SubElement(emotion, 'emotion_expression')
+
+    add_targets(emotion, data['words'], data['wids'])
+
+    # emovals
+    for label in data['labels']:
+        l = label.split(':')[1]
+        l = heem_labels_en.get(l)
+        if l:
+            l = lowerc(l)
+            if l in heem_emotion_labels:
+                r = 'embemo:emotionType'
+            else:
+                r = 'embemo:conceptType'
+            add_emoVal(emotion, l, r, '1.0')
+    if not l:
+        emotion = None
+    emo_id += 1
+
+    return emotion, emo_id
+
+
 def emotions2naf(emotions, markables, elem, emo_id):
     entity_tag = '{http://ilk.uvt.nl/folia}entity'
     wref_tag = '{http://ilk.uvt.nl/folia}wref'
@@ -72,40 +150,7 @@ def emotions2naf(emotions, markables, elem, emo_id):
     for key, data in emotion_values.iteritems():
         if contains_markable(data['entities']):
             #print 'Add markable!'
-            markable = etree.Element('markable')
-            span = etree.SubElement(markable, 'span')
-            # words
-            span.append(etree.Comment(' '+' '.join(data['words'])+' '))
-            # word ids (targets)
-            for wid in data['wids']:
-                etree.SubElement(span, 'target', id=wid)
-            # emovals
-            for label in data['labels']:
-                last_part = label.split(':')[1]
-                if label.endswith('Lichaamsdeel'):
-                    l = heem_labels_en['Lichaamsdeel']
-                    l = l[0].lower() + l[1:]
-                    r = 'embemo:conceptType'
-                elif label.split(':')[1] in heem_emotion_labels:
-                    l = heem_labels_en[last_part]
-                    l = l[0].lower() + l[1:]
-                    r = 'embemo:emotionType'
-                else:
-                    parts = label.split('-')[1].split(':')
-                    l = parts[1]
-                    if l in heem_modifiers_en.keys():
-                        l = heem_modifiers_en[l]
-                        l = l[0].lower() + l[1:]
-                        r = 'embemo:{}'.format(parts[0][0].lower() + parts[0][1:])
-                        # make list of all modifiers
-                        modifiers[l] += 1
-                        #print l, r
-                    else:
-                        l = None
-                if l and r:
-                    etree.SubElement(markable, 'emoVal', value=l,
-                                     confidence='1.0', resource=r)
-            markables.append(markable)
+            markables.append(naf_markable(data))
         if contains_emotion(data['entities']) or \
             (not contains_emotion(data['entities']) and
              not contains_markable(data['entities'])):
@@ -114,35 +159,51 @@ def emotions2naf(emotions, markables, elem, emo_id):
             # These annotations are also added as emotion
             #print 'Add emotion!'
             #print [(e.tag, e.attrib) for e in data['entities']]
-            eid = 'emo{}'.format(emo_id)
-            emotion = etree.Element('emotion', id=str(eid))
-            etree.SubElement(emotion, 'emotion_target')
-            etree.SubElement(emotion, 'emotion_holder')
-            expr = etree.SubElement(emotion, 'emotion_expression')
-
-            span = etree.SubElement(expr, 'span')
-            # words
-            span.append(etree.Comment(' '+' '.join(data['words'])+' '))
-            # word ids (targets)
-            for wid in data['wids']:
-                etree.SubElement(span, 'target', id=wid)
-            # emovals
-            for label in data['labels']:
-                l = label.split(':')[1]
-                l = heem_labels_en.get(l)
-                if l:
-                    l = l[0].lower() + l[1:]
-                    if l in heem_emotion_labels:
-                        r = 'embemo:emotionType'
-                    else:
-                        r = 'embemo:conceptType'
-                    etree.SubElement(emotion, 'emoVal', value=l,
-                                     confidence='1.0', resource=r)
-            if l:
+            emotion, emo_id = naf_emotion(data, emo_id)
+            if emotion is not None:
                 emotions.append(emotion)
-            emo_id += 1
 
     return emo_id
+
+
+def create_naf():
+    root = etree.Element('NAF', lang='nl', version='v4')
+    naf_document = etree.ElementTree(root)
+    header = etree.SubElement(root, 'nafHeader')
+    text = etree.SubElement(root, 'text')
+    terms = etree.SubElement(root, 'terms')
+    emotions_layer = etree.SubElement(root, 'emotions')
+
+    return root, naf_document, header, text, terms, emotions_layer
+
+
+def create_fileDesc(xml_file, text_id, metadata_file, timestamp, header):
+    fname = os.path.basename(xml_file)
+
+    text2period, text2year, text2genre, period2text, genre2text = \
+        corpus_metadata(metadata_file)
+    year = text2year[text_id]
+    genre = genres_en.get(text2genre[text_id], 'unknown')
+    metadata = pd.read_csv(metadata_file, header=None, sep='\\t', index_col=0,
+                           encoding='utf-8')
+    title = metadata.at[text_id, 3].decode('utf-8')
+    author = metadata.at[text_id, 4].decode('utf-8')
+    etree.SubElement(header, 'fileDesc', creationtime=timestamp,
+                     title=unicode(title), author=unicode(author),
+                     filename=fname, filetype='FoLiA/XML', year=year,
+                     genre=genre)
+
+
+def create_public(text_id, header):
+    uri = 'http://dbnl.nl/titels/titel.php?id={}'.format(text_id)
+    etree.SubElement(header, 'public', publicId=text_id, uri=uri)
+
+
+def create_linguisticProcessor(xml_file, layer, name, version, timestamp,
+                               header):
+    ctime = str(datetime.datetime.fromtimestamp(os.path.getmtime(xml_file)))
+    lp = etree.SubElement(header, 'linguisticProcessors', layer=layer)
+    etree.SubElement(lp, 'lp', name=name, version=version, timestamp=ctime)
 
 
 if __name__ == '__main__':
@@ -171,6 +232,7 @@ if __name__ == '__main__':
 
     for i, f in enumerate(xml_files):
         print '{} ({} of {})'.format(f, (i + 1), len(xml_files))
+        text_id = f[-20:-7]
 
         # reset linguisting processor terms datetime
         lp_terms_datetime = ''
@@ -179,55 +241,20 @@ if __name__ == '__main__':
         context = etree.iterparse(f, events=('end',),
                                   tag=(act_tag, entities_tag, annotation_tag))
 
-        act_number = 0
-
         s_id = 0  # in KAF, sentence numbers must be integers
         term_id = 1
         emo_id = 1
 
-        # create output naf xml tree for act
-        root = etree.Element('NAF', lang='nl', version='v4')
-        naf_document = etree.ElementTree(root)
-        header = etree.SubElement(root, 'nafHeader')
-        text = etree.SubElement(root, 'text')
-        terms = etree.SubElement(root, 'terms')
-        emotions_layer = etree.SubElement(root, 'emotions')
+        # create output naf xml tree
+        root, naf_document, header, text, terms, emotions_layer = create_naf()
 
-        # TODO: nafheader with fileDesc and linguistic processors
-        # fileDesc
         ctime = str(datetime.datetime.fromtimestamp(os.path.getmtime(f)))
-        #print ctime
-        fname = os.path.basename(f)
 
-        text_id = f[-20:-7]
-        text2period, text2year, text2genre, period2text, genre2text = \
-            corpus_metadata(args.metadata)
-        year = text2year[text_id]
-        genre = genres_en.get(text2genre[text_id], 'unknown')
-        metadata = pd.read_csv(args.metadata, header=None, sep='\\t',
-                               index_col=0, encoding='utf-8')
-        title = metadata.at[text_id, 3].decode('utf-8')
-        author = metadata.at[text_id, 4].decode('utf-8')
-        etree.SubElement(header, 'fileDesc', creationtime=ctime,
-                         title=unicode(title), author=unicode(author),
-                         filename=fname, filetype='FoLiA/XML', year=year,
-                         genre=genre)
-
-        # public
-        uri = 'http://dbnl.nl/titels/titel.php?id={}'.format(text_id)
-        etree.SubElement(header, 'public', publicId=text_id, uri=uri)
-
-        # linguistic processors
-        # terms
-        lp_terms = etree.SubElement(header, 'linguisticProcessors',
-                                    layer='terms')
-
-        # annotations
-        lp_emotions = etree.SubElement(header, 'linguisticProcessors',
-                                       layer='emotions')
-        etree.SubElement(lp_emotions, 'lp',
-                         name='Embodied Emotions Annotations', version='1.0',
-                         timestamp=ctime)
+        create_fileDesc(f, text_id, args.metadata, ctime, header)
+        create_public(text_id, header)
+        create_linguisticProcessor(f, 'emotions',
+                                   'Embodied Emotions Annotations', '1.0',
+                                   ctime, header)
 
         emotions = []
         markables = []
@@ -249,17 +276,17 @@ if __name__ == '__main__':
             elif elem.tag == annotation_tag:
                 lp_terms_datetime = elem.attrib.get('datetime')
 
-        # linguistic processors
-        # terms
+        # linguistic processors for terms
         generator = context.root.attrib.get('generator')
         name, version = generator.split('-')
-        #print lp_terms_datetime
-        etree.SubElement(lp_terms, 'lp', name=name, version=version,
-                         timestamp=lp_terms_datetime)
+        create_linguisticProcessor(f, 'terms', name, version,
+                                   lp_terms_datetime, header)
 
+        # add emotions layer
         for t in emotions + markables:
             emotions_layer.append(t)
 
+        # save naf document
         out_file = os.path.basename(f)
         xml_out = os.path.join(output_dir, out_file)
         print 'writing', xml_out
@@ -267,6 +294,7 @@ if __name__ == '__main__':
                            method='xml', pretty_print=True)
         print
 
+    # save list of modifiers/intensifiers
     out_file = os.path.join(output_dir, '_modifiers.csv')
     data = pd.DataFrame.from_dict(modifiers, orient='index').reset_index()
     data.to_csv(out_file, encoding='utf-8')
