@@ -1,6 +1,5 @@
-"""Create a KAF file for each act in a FoLiA file
-Usage: python folia2kaf.py <file in> <output dir>
-Or: ./generate_kaf.sh <dir in> <dir out>
+"""Create a NAF file for FoLiA files containing embodied emotions annotations.
+Usage: python folia2naf.py <dir in> <corpus metadata csv> <dir out>
 """
 from lxml import etree
 from bs4 import BeautifulSoup
@@ -148,8 +147,8 @@ def emotions2naf(emotions, markables, elem, emo_id):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('input_dir', help='the name of the FoLiA XML file to '
-                        'generate KAF files for')
+    parser.add_argument('input_dir', help='directory containing FoLiA XML '
+                        'files containing annotations')
     parser.add_argument('metadata', help='the name of the csv file containing '
                         'collection metadata')
     parser.add_argument('output_dir', help='the directory where the '
