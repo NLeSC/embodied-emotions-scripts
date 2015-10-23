@@ -3,17 +3,26 @@
 The emotions layer is created based on FoLiA files containing embodied emotions
 annotations or heem label predictions.
 
-Usage: python emotions_layer.py <dir naf> <dir folia> <dir out>
+Usage: python emotions_layer.py <dir naf> -f <dir folia> <dir out>
+Or: python emotions_layer.py <dir naf> <dir out> -c <classifier>
+    -d <hist2modern json>
 """
 import argparse
 import os
 import glob
 import datetime
+import multiprocessing
+import string
+import unicodedata
 from collections import Counter
 from lxml import etree
 from embem.emotools.heem_utils import heem_emotion_labels, heem_labels_en, \
-    heem_modifiers_en
+    heem_modifiers_en, heem_concept_type_labels
+from embem.machinelearning.mlutils import get_data, load_data
+from embem.spellingnormalization.normalize_dataset import normalize_spelling, \
+    get_hist2modern
 from folia2naf import create_linguisticProcessor
+from sklearn.externals import joblib
 
 emotions_labels = ['Emotie', 'Lichaamswerking', 'EmotioneleHandeling']
 markables_labels = ['Lichaamsdeel', 'HumorModifier', 'Intensifier']
@@ -67,19 +76,27 @@ def naf_markable(data):
     add_targets(markable, data['words'], data['wids'])
 
     # emovals
-    for label in data['labels']:
-        last_part = label.split(':')[1]
-        if label.endswith('Lichaamsdeel'):
+    for i, label in enumerate(data['labels']):
+        parts = label.split(':')
+        if len(parts) > 1:
+            l = label.split(':')[1]
+        else:
+            l = label
+
+        if l == 'Lichaamsdeel':
             l = heem_labels_en['Lichaamsdeel']
             l = lowerc(l)
             r = 'embemo:conceptType'
-        elif label.split(':')[1] in heem_emotion_labels:
-            l = heem_labels_en[last_part]
+        elif l in heem_emotion_labels:
+            l = heem_labels_en[l]
             l = lowerc(l)
             r = 'embemo:emotionType'
         else:
-            parts = label.split('-')[1].split(':')
-            l = parts[1]
+            parts = l.split('-')
+            if len(parts) > 1:
+                l = parts[1]
+            else:
+                l = None
             if l in heem_modifiers_en.keys():
                 l = heem_modifiers_en[l]
                 l = lowerc(l)
@@ -90,7 +107,12 @@ def naf_markable(data):
             else:
                 l = None
         if l and r:
-            add_emoVal(markable, l, r, '1.0')
+            if data.get('confidence'):
+                conf = data.get('confidence')[i]
+            else:
+                # TODO: decide on confidence for annotations
+                conf = 1.0
+            add_emoVal(markable, l, r, str(conf))
     return markable
 
 
@@ -104,16 +126,25 @@ def naf_emotion(data, emo_id):
     add_targets(emotion, data['words'], data['wids'])
 
     # emovals
-    for label in data['labels']:
-        l = label.split(':')[1]
+    for i, label in enumerate(data['labels']):
+        parts = label.split(':')
+        if len(parts) > 1:
+            l = label.split(':')[1]
+        else:
+            l = label
         l = heem_labels_en.get(l)
-        if l:
+        if l and l != 'BodyPart':
             l = lowerc(l)
             if l in heem_emotion_labels:
                 r = 'embemo:emotionType'
             else:
                 r = 'embemo:conceptType'
-            add_emoVal(emotion, l, r, '1.0')
+            if data.get('confidence'):
+                confidence = data['confidence'][i]
+            else:
+                # TODO: decide on confidence for annotations
+                confidence = 1.0
+            add_emoVal(emotion, l, r, str(confidence))
     if not l:
         emotion = None
     emo_id += 1
@@ -157,67 +188,181 @@ def emotions2naf(emotions, markables, elem, emo_id):
     return emo_id
 
 
+def update_naf(file_name, timestamp, emotions, markables):
+    naf, header = load_naf(file_name)
+
+    # add linguistic processor to header for annotations
+    create_linguisticProcessor('emotions', 'Embodied Emotions Annotations',
+                               '1.0', timestamp, header)
+
+    # add emotions layer
+    emotions_layer = etree.SubElement(naf.getroot(), 'emotions')
+
+    # add emotions and markables to emotions layer
+    for t in emotions + markables:
+        emotions_layer.append(t)
+
+    return naf
+
+
+def save_naf(naf, file_name):
+    print 'writing', file_name
+    naf.write(file_name, xml_declaration=True, encoding='utf-8',
+              method='xml', pretty_print=True)
+    print
+
+
+def process_naf(f, input_dir_naf, emotions, markables, output_dir):
+    file_name = os.path.basename(f)
+    naf_file = os.path.join(input_dir_naf, file_name)
+    ctime = str(datetime.datetime.fromtimestamp(os.path.getmtime(f)))
+
+    naf = update_naf(naf_file, ctime, emotions, markables)
+
+    xml_out = os.path.join(output_dir, file_name)
+    save_naf(naf, xml_out)
+
+
+def load_naf(file_name):
+    parser = etree.XMLParser(remove_blank_text=True)
+    naf = etree.parse(file_name, parser)
+    header = naf.find('nafHeader')
+    return naf, header
+
+
+def sp_norm_word(word, hist2modern):
+    if word in string.punctuation:
+        return ''
+    w = hist2modern.get(word, word)
+    # replace accented characters by unaccented ones
+    s = unicodedata.normalize('NFKD', w).encode('ascii', 'ignore')
+    return s
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('input_dir_naf', help='directory containing NAF files')
-    parser.add_argument('input_dir_folia', help='directory containing FoLiA '
-                        'XML files containing annotations')
+    parser.add_argument('naf', help='directory containing NAF files')
     parser.add_argument('output_dir', help='the directory where the '
                         'updated KAF files should be saved')
+    parser.add_argument('-f', '--folia', help='directory containing FoLiA '
+                        'XML files containing annotations')
+    parser.add_argument('-d', '--hist2modern', help='json file containing '
+                        'historic2modern mapping (json object)')
+    parser.add_argument('-c', '--classifier', help='classifier file')
     args = parser.parse_args()
 
-    input_dir_naf = args.input_dir_naf
-    input_dir_folia = args.input_dir_folia
+    input_dir_naf = args.naf
 
     output_dir = args.output_dir
-
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
-    folia_files = glob.glob('{}/*.xml'.format(input_dir_folia))
+    if args.folia:
+        input_dir_folia = args.folia
 
-    entities_tag = '{http://ilk.uvt.nl/folia}entities'
+        folia_files = glob.glob('{}/*.xml'.format(input_dir_folia))
 
-    modifiers = Counter()
+        entities_tag = '{http://ilk.uvt.nl/folia}entities'
 
-    for i, f in enumerate(folia_files):
-        print '{} ({} of {})'.format(f, (i + 1), len(folia_files))
-        text_id = f[-20:-7]
+        modifiers = Counter()
 
-        # Load folia document
-        context = etree.iterparse(f, events=('end',), tag=(entities_tag),
-                                  huge_tree=True)
+        for i, f in enumerate(folia_files):
+            print '{} ({} of {})'.format(f, (i + 1), len(folia_files))
+            text_id = f[-20:-7]
 
-        emo_id = 1
+            # Load folia document
+            context = etree.iterparse(f, events=('end',), tag=(entities_tag),
+                                      huge_tree=True)
 
-        emotions = []
-        markables = []
+            emo_id = 1
 
-        for event, elem in context:
-            emo_id = emotions2naf(emotions, markables, elem, emo_id)
+            emotions = []
+            markables = []
 
-        # Load naf document
-        file_name = os.path.basename(f)
-        naf_file = os.path.join(input_dir_naf, file_name)
-        parser = etree.XMLParser(remove_blank_text=True)
-        naf = etree.parse(naf_file, parser)
-        header = naf.find('nafHeader')
+            for event, elem in context:
+                emo_id = emotions2naf(emotions, markables, elem, emo_id)
 
-        # add linguistic processor to header for annotations
-        ctime = str(datetime.datetime.fromtimestamp(os.path.getmtime(f)))
-        create_linguisticProcessor('emotions', 'Embodied Emotions Annotations',
-                                   '1.0', ctime, header)
+            process_naf(f, input_dir_naf, emotions, markables, output_dir)
+    elif args.hist2modern and args.classifier:
+        hist2modern = get_hist2modern(args.hist2modern)
 
-        # add emotions layer
-        emotions_layer = etree.SubElement(naf.getroot(), 'emotions')
+        clf = joblib.load(args.classifier)
 
-        # add emotions and markables to emotions layer
-        for t in emotions + markables:
-            emotions_layer.append(t)
+        labels = heem_emotion_labels + heem_concept_type_labels
+        labels.sort()
 
-        # save naf document
-        xml_out = os.path.join(output_dir, file_name)
-        print 'writing', xml_out
-        naf.write(xml_out, xml_declaration=True, encoding='utf-8',
-                  method='xml', pretty_print=True)
-        print
+        naf_files = glob.glob('{}/*.xml'.format(input_dir_naf))
+        for i, f in enumerate(naf_files):
+            print '{} ({} of {})'.format(f, (i + 1), len(naf_files))
+
+            # extract sentences for prediction
+            sentence_id = 1
+            text = []
+            text_n = []
+            spans = []
+
+            words = []
+            words_n = []
+            word_ids = []
+
+            naf, header = load_naf(f)
+
+            wfs = naf.findall('.//wf')
+            #print len(wfs)
+            for wf in wfs:
+                s_id = int(wf.attrib.get('sent'))
+                if s_id != sentence_id:
+                    text_n.append(unicode(' '.join(words_n)))
+                    text.append(unicode(' '.join(words)))
+                    spans.append(word_ids)
+
+                    words = []
+                    words_n = []
+                    word_ids = []
+                    sentence_id += 1
+                else:
+                    words_n.append(sp_norm_word(unicode(wf.text), hist2modern))
+                    words.append(wf.text)
+                    word_ids.append(wf.attrib.get('wid'))
+            # add last sentence
+            text_n.append(unicode(' '.join(words_n)))
+            text.append(unicode(' '.join(words)))
+            spans.append(word_ids)
+
+            proba = clf.predict_proba(text_n)
+
+            emotions = []
+            markables = []
+            emo_id = 0
+
+            emotion_values = {}
+            for i, pred in enumerate(proba):
+                for j, conf in enumerate(pred):
+                    if conf > 0.0:
+                        x = ''.join(spans[i])
+                        if x not in emotion_values.keys():
+                            emotion_values[x] = {'labels': [],
+                                                 'wids': spans[i],
+                                                 'words': text[i].split(),
+                                                 'confidence': []}
+                        emotion_values[x]['labels'].append(labels[j])
+                        emotion_values[x]['confidence'].append(conf)
+
+                        #print text[i]
+                        #print spans[i]
+                        #print labels[j]
+                        #print conf
+
+            for key, data in emotion_values.iteritems():
+                emotion, emo_id = naf_emotion(data, emo_id)
+                if emotion is not None:
+                    emotions.append(emotion)
+                for l in data['labels']:
+                    if l in markables_labels:
+                        markables.append(naf_markable(data))
+
+            process_naf(f, input_dir_naf, emotions, markables, output_dir)
+
+    else:
+        print 'Please specify either a directory containing FoLiA files or' + \
+              ' a hist2modern json file and a classifier file.'

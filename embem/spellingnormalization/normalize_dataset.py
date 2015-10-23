@@ -18,6 +18,47 @@ import unicodedata
 import string
 
 
+def get_hist2modern(file_name):
+    # load hist2modern dictionary
+    with codecs.open(file_name, 'rb', 'utf-8') as f:
+        full_dict = json.load(f, 'utf-8')
+
+    # create simple historic word -> modern word mapping
+    # (full_dict may contain multiple alternatives for a word)
+    hist2modern = {}
+    for w in full_dict.keys():
+        if w not in full_dict[w]:
+            c = Counter(full_dict[w])
+            hist2modern[w] = c.most_common()[0][0]
+
+    return hist2modern
+
+
+def normalize_spelling(text, hist2modern, replacements):
+    num_words = 0
+    num_replaced = 0
+
+    words = text.split(' ')
+
+    new_words = []
+    for w in words:
+        if w not in string.punctuation:
+            num_words += 1
+
+        wo = w.lower()
+        if wo in hist2modern.keys():
+            new_words.append(hist2modern[wo])
+            num_replaced += 1
+            replacements[wo] += 1
+        else:
+            new_words.append(w)
+
+    # replace accented characters by unaccented ones
+    s = unicodedata.normalize('NFKD', ' '.join(new_words)) \
+                   .encode('ascii', 'ignore')
+    return s, num_words, num_replaced
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('input_dir', help='the name of the directory '
@@ -35,16 +76,7 @@ if __name__ == '__main__':
         os.makedirs(output_dir)
 
     # load hist2modern dictionary
-    with codecs.open(args.hist2modern, 'rb', 'utf-8') as f:
-        full_dict = json.load(f, 'utf-8')
-
-    # create simple historic word -> modern word mapping
-    # (full_dict may contain multiple alternatives for a word)
-    hist2modern = {}
-    for w in full_dict.keys():
-        if w not in full_dict[w]:
-            c = Counter(full_dict[w])
-            hist2modern[w] = c.most_common()[0][0]
+    hist2modern = get_hist2modern(args.hist2modern)
     print '#words in dict: {}'.format(len(hist2modern))
 
     replacements = Counter()
@@ -63,24 +95,10 @@ if __name__ == '__main__':
         with codecs.open(out_file, 'wb', 'utf-8') as f:
             for line in lines:
                 parts = line.split('\t')
-                words = parts[1].split(' ')
+                s, num_words, num_replaced = normalize_spelling(parts[1],
+                                                                hist2modern,
+                                                                replacements)
 
-                new_words = []
-                for w in words:
-                    if w not in string.punctuation:
-                        num_words += 1
-
-                    wo = w.lower()
-                    if wo in hist2modern.keys():
-                        new_words.append(hist2modern[wo])
-                        num_replaced += 1
-                        replacements[wo] += 1
-                    else:
-                        new_words.append(w)
-
-                # replace accented characters by unaccented ones
-                s = unicodedata.normalize('NFKD', ' '.join(new_words)) \
-                               .encode('ascii', 'ignore')
                 f.write(u'{}\t{}\t{}'.format(parts[0], s, parts[2]))
 
     # print number of replacements
