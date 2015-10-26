@@ -21,6 +21,7 @@ from embem.emotools.heem_utils import heem_emotion_labels, heem_labels_en, \
 from embem.machinelearning.mlutils import get_data, load_data
 from embem.spellingnormalization.normalize_dataset import normalize_spelling, \
     get_hist2modern
+from embem.bodyparts.classify_body_parts import get_extended_body_part_mapping
 from folia2naf import create_linguisticProcessor
 from sklearn.externals import joblib
 
@@ -71,7 +72,8 @@ def add_emoVal(elem, value, resource, confidence):
                      resource=resource)
 
 
-def naf_markable(data):
+def naf_markable(data, bpmapping=None):
+    print 'add markable'
     markable = etree.Element('markable')
     add_targets(markable, data['words'], data['wids'])
 
@@ -108,6 +110,16 @@ def naf_markable(data):
                 # TODO: decide on confidence for annotations
                 conf = 1.0
             add_emoVal(markable, l, r, str(conf))
+
+            # expand body parts
+            if l == 'bodyPart' and bpmapping is not None:
+                for w in data['words']:
+                    if w in bpmapping.keys():
+                        l = bpmapping[w]
+                        r = 'embemo:bodyPart'
+                        print l, r, conf
+                        add_emoVal(markable, l, r, str(conf))
+
     return markable
 
 
@@ -247,6 +259,8 @@ if __name__ == '__main__':
     parser.add_argument('-d', '--hist2modern', help='json file containing '
                         'historic2modern mapping (json object)')
     parser.add_argument('-c', '--classifier', help='classifier file')
+    parser.add_argument('-b', '--bpmapping', help='json file containing '
+                        'extend body part mapping (json object)')
     args = parser.parse_args()
 
     input_dir_naf = args.naf
@@ -290,6 +304,12 @@ if __name__ == '__main__':
 
         labels = heem_emotion_labels + heem_concept_type_labels
         labels.sort()
+
+        bpmapping = None
+        if args.bpmapping:
+            print 'loading body part mapping from {}'.format(args.bpmapping)
+            bpmapping = get_extended_body_part_mapping(args.bpmapping)
+            print
 
         naf_files = glob.glob('{}/*.xml'.format(input_dir_naf))
         for i, f in enumerate(naf_files):
@@ -359,7 +379,7 @@ if __name__ == '__main__':
                     emotions.append(emotion)
                 for l in data['labels']:
                     if l in markables_labels:
-                        markables.append(naf_markable(data))
+                        markables.append(naf_markable(data, bpmapping))
 
             process_naf(f, input_dir_naf, emotions, markables, output_dir,
                         lp_name='rakel-heem-spelling_normalized',

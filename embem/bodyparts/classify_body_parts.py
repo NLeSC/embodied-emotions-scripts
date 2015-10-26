@@ -9,7 +9,7 @@ import os
 import codecs
 import argparse
 import json
-from count_labels import load_data
+from embem.machinelearningdata.count_labels import load_data
 import pandas as pd
 
 
@@ -42,6 +42,24 @@ def extend_body_part(text_id, file_name, out_file, word2cat):
     return text_id, num_body_parts, num_added
 
 
+def get_extended_body_part_mapping(file_name):
+    mapping = {}
+
+    # read body part mapping
+    with codecs.open(file_name, 'rb', 'utf8') as f:
+        mapping = json.load(f, encoding='utf8')
+
+    # reverse body part mapping
+    word2cat = {}
+    for la, ws in mapping.iteritems():
+        for word in ws:
+            if not word2cat.get(word):
+                word2cat[word] = la
+            else:
+                print 'ignored: {} ({})'.format(word, la)
+    return word2cat
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('file', help='json file containing the body part '
@@ -62,20 +80,7 @@ if __name__ == '__main__':
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
-    mapping = {}
-
-    # read body part mapping
-    with codecs.open(file_name, 'rb', 'utf8') as f:
-        mapping = json.load(f, encoding='utf8')
-
-    # reverse body part mapping
-    word2cat = {}
-    for la, ws in mapping.iteritems():
-        for word in ws:
-            if not word2cat.get(word):
-                word2cat[word] = la
-            else:
-                print 'ignored: {} ({})'.format(word, la)
+    word2cat = get_extended_body_part_mapping(file_name)
 
     data = {'#body_parts': [], '#replaced': []}
     index = {'text_id': []}
