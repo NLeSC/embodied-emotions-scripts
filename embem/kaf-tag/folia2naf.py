@@ -1,4 +1,4 @@
-"""Create a NAF file for FoLiA files containing embodied emotions annotations.
+"""Create a NAF file containing a terms layer from FoLiA files.
 Usage: python folia2naf.py <dir in> <corpus metadata csv> <dir out>
 """
 from lxml import etree

@@ -105,6 +105,9 @@ Because for some reason, we used different folia files to generate the tag files
 `batch_add_tags.sh` -> Batch add annotations in tag files to FoLiA files (run from project directory)  
 `kaf2folia.py` -> Insert KAF annotations into a FoLiA files (used with `batch_add_tags.sh`)
 
+`folia2naf.py` -> Create a NAF file containing a terms layer from FoLiA files.  
+`emotions_layer.py` -> Add emotions layer to naf document containing terms layer.
+
 ### LIWC
 
 `print_liwc_cat.py` -> Script to print all words in a LIWC category to std out  
