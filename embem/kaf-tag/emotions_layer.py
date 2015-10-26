@@ -188,15 +188,16 @@ def emotions2naf(emotions, markables, elem, emo_id):
     return emo_id
 
 
-def update_naf(file_name, timestamp, emotions, markables):
+def update_naf(file_name, timestamp, emotions, markables, lp_name, lp_version):
+    layer_name = 'emotions'
     naf, header = load_naf(file_name)
 
     # add linguistic processor to header for annotations
-    create_linguisticProcessor('emotions', 'Embodied Emotions Annotations',
-                               '1.0', timestamp, header)
+    create_linguisticProcessor(layer_name, lp_name, lp_version, timestamp,
+                               header)
 
     # add emotions layer
-    emotions_layer = etree.SubElement(naf.getroot(), 'emotions')
+    emotions_layer = etree.SubElement(naf.getroot(), layer_name)
 
     # add emotions and markables to emotions layer
     for t in emotions + markables:
@@ -212,12 +213,14 @@ def save_naf(naf, file_name):
     print
 
 
-def process_naf(f, input_dir_naf, emotions, markables, output_dir):
+def process_naf(f, input_dir_naf, emotions, markables, output_dir, lp_name,
+                lp_version):
     file_name = os.path.basename(f)
     naf_file = os.path.join(input_dir_naf, file_name)
     ctime = str(datetime.datetime.fromtimestamp(os.path.getmtime(f)))
 
-    naf = update_naf(naf_file, ctime, emotions, markables)
+    naf = update_naf(naf_file, ctime, emotions, markables, lp_name,
+                     lp_version)
 
     xml_out = os.path.join(output_dir, file_name)
     save_naf(naf, xml_out)
@@ -282,7 +285,9 @@ if __name__ == '__main__':
             for event, elem in context:
                 emo_id = emotions2naf(emotions, markables, elem, emo_id)
 
-            process_naf(f, input_dir_naf, emotions, markables, output_dir)
+            process_naf(f, input_dir_naf, emotions, markables, output_dir,
+                        lp_name='Embodied Emotions Annotations',
+                        lp_version='1.0')
     elif args.hist2modern and args.classifier:
         hist2modern = get_hist2modern(args.hist2modern)
 
@@ -361,8 +366,9 @@ if __name__ == '__main__':
                     if l in markables_labels:
                         markables.append(naf_markable(data))
 
-            process_naf(f, input_dir_naf, emotions, markables, output_dir)
-
+            process_naf(f, input_dir_naf, emotions, markables, output_dir,
+                        lp_name='rakel-heem-spelling_normalized',
+                        lp_version='1.0')
     else:
         print 'Please specify either a directory containing FoLiA files or' + \
               ' a hist2modern json file and a classifier file.'
