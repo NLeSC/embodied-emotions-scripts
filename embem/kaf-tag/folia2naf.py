@@ -52,9 +52,11 @@ def create_public(text_id, header):
     etree.SubElement(header, 'public', publicId=text_id, uri=uri)
 
 
-def create_linguisticProcessor(layer, name, version, timestamp, header):
+def create_linguisticProcessor(layer, lps, timestamp, header):
     lp = etree.SubElement(header, 'linguisticProcessors', layer=layer)
-    etree.SubElement(lp, 'lp', name=name, version=version, timestamp=timestamp)
+    for name, version in lps.iteritems():
+        etree.SubElement(lp, 'lp', name=name, version=version,
+                         timestamp=timestamp)
 
 
 if __name__ == '__main__':
@@ -121,7 +123,10 @@ if __name__ == '__main__':
         # linguistic processors for terms
         generator = context.root.attrib.get('generator')
         name, version = generator.split('-')
-        create_linguisticProcessor('terms', name, version, lp_terms_datetime,
+
+        lps = {}
+        lps[name] = version
+        create_linguisticProcessor('terms', lps, lp_terms_datetime,
                                    header)
 
         # save naf document

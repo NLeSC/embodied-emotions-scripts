@@ -112,6 +112,8 @@ def naf_markable(data, bpmapping=None):
             add_emoVal(markable, l, r, str(conf))
 
             # expand body parts
+            # confidence for recognozed body parts is equal to the confidence
+            # for label bodyPart (Lichaamsdeel)
             if l == 'bodyPart' and bpmapping is not None:
                 for w in data['words']:
                     if w in bpmapping.keys():
@@ -195,13 +197,12 @@ def emotions2naf(emotions, markables, elem, emo_id):
     return emo_id
 
 
-def update_naf(file_name, timestamp, emotions, markables, lp_name, lp_version):
+def update_naf(file_name, timestamp, emotions, markables, lps):
     layer_name = 'emotions'
     naf, header = load_naf(file_name)
 
     # add linguistic processor to header for annotations
-    create_linguisticProcessor(layer_name, lp_name, lp_version, timestamp,
-                               header)
+    create_linguisticProcessor(layer_name, lps, timestamp, header)
 
     # add emotions layer
     emotions_layer = etree.SubElement(naf.getroot(), layer_name)
@@ -220,14 +221,12 @@ def save_naf(naf, file_name):
     print
 
 
-def process_naf(f, input_dir_naf, emotions, markables, output_dir, lp_name,
-                lp_version):
+def process_naf(f, input_dir_naf, emotions, markables, output_dir, lps):
     file_name = os.path.basename(f)
     naf_file = os.path.join(input_dir_naf, file_name)
     ctime = str(datetime.datetime.fromtimestamp(os.path.getmtime(f)))
 
-    naf = update_naf(naf_file, ctime, emotions, markables, lp_name,
-                     lp_version)
+    naf = update_naf(naf_file, ctime, emotions, markables, lps)
 
     xml_out = os.path.join(output_dir, file_name)
     save_naf(naf, xml_out)
@@ -294,9 +293,8 @@ if __name__ == '__main__':
             for event, elem in context:
                 emo_id = emotions2naf(emotions, markables, elem, emo_id)
 
-            process_naf(f, input_dir_naf, emotions, markables, output_dir,
-                        lp_name='Embodied Emotions Annotations',
-                        lp_version='1.0')
+            lps = {'Embodied Emotions Annotations': '1.0'}
+            process_naf(f, input_dir_naf, emotions, markables, output_dir, lps)
     elif args.hist2modern and args.classifier:
         hist2modern = get_hist2modern(args.hist2modern)
 
@@ -381,9 +379,12 @@ if __name__ == '__main__':
                     if l in markables_labels:
                         markables.append(naf_markable(data, bpmapping))
 
+            lps = {'rakel-heem-spelling_normalized': '1.0'}
+            if args.bpmapping:
+                lps['heem-expand-body_parts'] = '1.0'
+            print lps
             process_naf(f, input_dir_naf, emotions, markables, output_dir,
-                        lp_name='rakel-heem-spelling_normalized',
-                        lp_version='1.0')
+                        lps)
     else:
         print 'Please specify either a directory containing FoLiA files or' + \
               ' a hist2modern json file and a classifier file.'
