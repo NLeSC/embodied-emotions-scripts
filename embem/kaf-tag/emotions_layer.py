@@ -91,21 +91,16 @@ def naf_markable(data):
             l = heem_labels_en[l]
             l = lowerc(l)
             r = 'embemo:emotionType'
+        elif l in heem_modifiers_en.keys():
+            l = heem_modifiers_en[l]
+            l = lowerc(l)
+            r = 'embemo:{}'.format(lowerc(parts[0].split('-')[1]))
+            # make list of all modifiers
+            modifiers[l] += 1
+            #print l, r
         else:
-            parts = l.split('-')
-            if len(parts) > 1:
-                l = parts[1]
-            else:
-                l = None
-            if l in heem_modifiers_en.keys():
-                l = heem_modifiers_en[l]
-                l = lowerc(l)
-                r = 'embemo:{}'.format(lowerc(parts[0]))
-                # make list of all modifiers
-                modifiers[l] += 1
-                #print l, r
-            else:
-                l = None
+            l = None
+
         if l and r:
             if data.get('confidence'):
                 conf = data.get('confidence')[i]
