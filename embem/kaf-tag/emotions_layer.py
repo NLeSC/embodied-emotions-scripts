@@ -3,9 +3,13 @@
 The emotions layer is created based on FoLiA files containing embodied emotions
 annotations or heem label predictions.
 
-Usage: python emotions_layer.py <dir naf> -f <dir folia> <dir out>
+Usage: python emotions_layer.py <dir naf> <dir out> -f <dir folia>
+[-b <body part mapping>]
+
 Or: python emotions_layer.py <dir naf> <dir out> -c <classifier>
-    -d <hist2modern json>
+    -d <hist2modern json> [-b <body part mapping>]
+
+If <body part mapping> is specified, body parts are expanded.
 """
 import argparse
 import os
@@ -73,7 +77,7 @@ def add_emoVal(elem, value, resource, confidence):
 
 
 def naf_markable(data, bpmapping=None):
-    print 'add markable'
+    #print 'add markable'
     markable = etree.Element('markable')
     add_targets(markable, data['words'], data['wids'])
 
@@ -119,7 +123,7 @@ def naf_markable(data, bpmapping=None):
                     if w in bpmapping.keys():
                         l = bpmapping[w]
                         r = 'embemo:bodyPart'
-                        print l, r, conf
+                        #print l, r, conf
                         add_emoVal(markable, l, r, str(conf))
 
     return markable
@@ -161,7 +165,7 @@ def naf_emotion(data, emo_id):
     return emotion, emo_id
 
 
-def emotions2naf(emotions, markables, elem, emo_id):
+def emotions2naf(emotions, markables, elem, emo_id, bpmapping=None):
     entity_tag = '{http://ilk.uvt.nl/folia}entity'
     wref_tag = '{http://ilk.uvt.nl/folia}wref'
 
@@ -181,7 +185,7 @@ def emotions2naf(emotions, markables, elem, emo_id):
     for key, data in emotion_values.iteritems():
         if contains_markable(data['entities']):
             #print 'Add markable!'
-            markables.append(naf_markable(data))
+            markables.append(naf_markable(data, bpmapping))
         if contains_emotion(data['entities']) or \
             (not contains_emotion(data['entities']) and
              not contains_markable(data['entities'])):
@@ -268,6 +272,12 @@ if __name__ == '__main__':
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
+    bpmapping = None
+    if args.bpmapping:
+        print 'loading body part mapping from {}'.format(args.bpmapping)
+        bpmapping = get_extended_body_part_mapping(args.bpmapping)
+        print
+
     if args.folia:
         input_dir_folia = args.folia
 
@@ -291,9 +301,13 @@ if __name__ == '__main__':
             markables = []
 
             for event, elem in context:
-                emo_id = emotions2naf(emotions, markables, elem, emo_id)
+                emo_id = emotions2naf(emotions, markables, elem, emo_id,
+                                      bpmapping)
 
             lps = {'Embodied Emotions Annotations': '1.0'}
+            if args.bpmapping:
+                lps['heem-expand-body_parts'] = '1.0'
+            #print lps
             process_naf(f, input_dir_naf, emotions, markables, output_dir, lps)
     elif args.hist2modern and args.classifier:
         hist2modern = get_hist2modern(args.hist2modern)
@@ -302,12 +316,6 @@ if __name__ == '__main__':
 
         labels = heem_emotion_labels + heem_concept_type_labels
         labels.sort()
-
-        bpmapping = None
-        if args.bpmapping:
-            print 'loading body part mapping from {}'.format(args.bpmapping)
-            bpmapping = get_extended_body_part_mapping(args.bpmapping)
-            print
 
         naf_files = glob.glob('{}/*.xml'.format(input_dir_naf))
         for i, f in enumerate(naf_files):
@@ -382,7 +390,7 @@ if __name__ == '__main__':
             lps = {'rakel-heem-spelling_normalized': '1.0'}
             if args.bpmapping:
                 lps['heem-expand-body_parts'] = '1.0'
-            print lps
+            #print lps
             process_naf(f, input_dir_naf, emotions, markables, output_dir,
                         lps)
     else:
