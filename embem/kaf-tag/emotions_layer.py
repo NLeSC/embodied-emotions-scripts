@@ -145,13 +145,17 @@ def naf_emotion(data, emo_id):
             l = label.split(':')[1]
         else:
             l = label
-        l = heem_labels_en.get(l)
         if l and l != 'BodyPart':
-            l = lowerc(l)
             if l in heem_emotion_labels:
                 r = 'heem:emotionType'
-            else:
+            elif l in heem_concept_type_labels:
                 r = 'heem:conceptType'
+            else:
+                l = None
+                r = None
+        if l and r:
+            l = heem_labels_en.get(l)
+            l = lowerc(l)
             if data.get('confidence'):
                 confidence = data['confidence'][i]
             else:
@@ -160,7 +164,8 @@ def naf_emotion(data, emo_id):
             add_emoVal(emotion, l, r, str(confidence))
     if not l:
         emotion = None
-    emo_id += 1
+    if l:
+        emo_id += 1
 
     return emotion, emo_id
 
