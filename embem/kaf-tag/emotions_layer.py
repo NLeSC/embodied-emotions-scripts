@@ -92,15 +92,15 @@ def naf_markable(data, bpmapping=None):
         if l == 'Lichaamsdeel':
             l = heem_labels_en['Lichaamsdeel']
             l = lowerc(l)
-            r = 'embemo:conceptType'
+            r = 'heem:conceptType'
         elif l in heem_emotion_labels:
             l = heem_labels_en[l]
             l = lowerc(l)
-            r = 'embemo:emotionType'
+            r = 'heem:emotionType'
         elif l in heem_modifiers_en.keys():
             l = heem_modifiers_en[l]
             l = lowerc(l)
-            r = 'embemo:{}'.format(lowerc(parts[0].split('-')[1]))
+            r = 'heem:{}'.format(lowerc(parts[0].split('-')[1]))
             # make list of all modifiers
             modifiers[l] += 1
             #print l, r
@@ -122,7 +122,7 @@ def naf_markable(data, bpmapping=None):
                 for w in data['words']:
                     if w in bpmapping.keys():
                         l = bpmapping[w]
-                        r = 'embemo:bodyPart'
+                        r = 'heem:bodyPart'
                         #print l, r, conf
                         add_emoVal(markable, l, r, str(conf))
 
@@ -149,9 +149,9 @@ def naf_emotion(data, emo_id):
         if l and l != 'BodyPart':
             l = lowerc(l)
             if l in heem_emotion_labels:
-                r = 'embemo:emotionType'
+                r = 'heem:emotionType'
             else:
-                r = 'embemo:conceptType'
+                r = 'heem:conceptType'
             if data.get('confidence'):
                 confidence = data['confidence'][i]
             else:
