@@ -106,7 +106,8 @@ Because for some reason, we used different folia files to generate the tag files
 `kaf2folia.py` -> Insert KAF annotations into a FoLiA files (used with `batch_add_tags.sh`)
 
 `folia2naf.py` -> Create a NAF file containing a terms layer from FoLiA files.  
-`emotions_layer.py` -> Add emotions layer to naf document containing terms layer.
+`emotions_layer.py` -> Add emotions layer to naf document containing terms layer.  
+`add_emoclusters.py` -> Add emoVals of heem clusters and heem posneg to naf documents.  
 
 ### LIWC
 
