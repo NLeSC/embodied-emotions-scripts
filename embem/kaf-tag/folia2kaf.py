@@ -34,13 +34,13 @@ def kaf_file_name(input_file, act_number):
 
 def add_word2kafnaf(elem, s_id, term_id, text, terms):
     w_id = elem.get('xml:id')
-    w = etree.SubElement(text, 'wf', wid=w_id, sent=s_id)
+    w = etree.SubElement(text, 'wf', id=w_id, sent=s_id)
     w.text = unicode(elem.t.string)
     lemma = elem.lemma.get('class')
     pos = _folia_pos2kaf_pos[elem.pos.get('head', 'SPEC')]
 
     t_id = 't{wid}'.format(wid=term_id)
-    t = etree.SubElement(terms, 'term', tid=t_id, type='open', lemma=lemma,
+    t = etree.SubElement(terms, 'term', id=t_id, type='open', lemma=lemma,
                          pos=pos)
     s = etree.SubElement(t, 'span')
     target = etree.SubElement(s, 'target', id=w_id)
