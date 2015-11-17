@@ -3,8 +3,7 @@ Usage: python folia2naf.py <dir in> <corpus metadata csv> <dir out>
 """
 from lxml import etree
 from bs4 import BeautifulSoup
-from embem.emotools.bs4_helpers import act
-from folia2kaf import xml2kafnaf
+from embem.emotools.bs4_helpers import act, sentence, word, speaker_turn, note
 import argparse
 import os
 import glob
@@ -12,6 +11,7 @@ from collections import Counter
 import pandas as pd
 import datetime
 from embem.machinelearningdata.count_labels import corpus_metadata
+from folia2kaf import _folia_pos2kaf_pos
 
 genres_en = {'blijspel / komedie': 'comedy',
              'tragedie/treurspel': 'tragedy',
@@ -59,6 +59,35 @@ def create_linguisticProcessor(layer, lps, timestamp, header):
                          timestamp=timestamp)
 
 
+def add_word2naf(elem, s_id, term_id, offset, text, terms):
+    w_id = elem.get('xml:id')
+    word = unicode(elem.t.string)
+    w = etree.SubElement(text, 'wf', id=w_id, sent=s_id,
+                         offset=unicode(offset), length=unicode(len(word)))
+    w.text = word
+    lemma = elem.lemma.get('class')
+    pos = _folia_pos2kaf_pos[elem.pos.get('head', 'SPEC')]
+
+    t_id = 't{}'.format(term_id)
+    t = etree.SubElement(terms, 'term', id=t_id, type='open', lemma=lemma,
+                         pos=pos)
+    s = etree.SubElement(t, 'span')
+    target = etree.SubElement(s, 'target', id=w_id)
+
+    return offset + len(word) + 1
+
+
+def xml2naf(xml, sentence_id, term_id, offset, text, terms):
+    for elem in xml.descendants:
+        if sentence(elem) and not note(elem.parent):
+            sentence_id += 1
+        elif word(elem) and not note(elem.parent.parent):
+            offset = add_word2naf(elem, str(sentence_id), term_id, offset,
+                                  text, terms)
+            term_id += 1
+    return sentence_id, term_id, offset
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('input_dir', help='directory containing FoLiA XML '
@@ -95,7 +124,7 @@ if __name__ == '__main__':
 
         s_id = 0  # in KAF, sentence numbers must be integers
         term_id = 1
-        emo_id = 1
+        offset = 0
 
         # create output naf xml tree
         root, naf_document, header, text, terms = create_naf()
@@ -115,8 +144,8 @@ if __name__ == '__main__':
                 if len(subacts) == 1:
                     print 'act:', act_xml.find('div', 'act').attrs.\
                           get('xml:id')
-                    s_id, term_id = xml2kafnaf(act_xml, s_id, term_id, text,
-                                               terms)
+                    s_id, term_id, offset = xml2naf(act_xml, s_id, term_id,
+                                                    offset, text, terms)
             elif elem.tag == annotation_tag:
                 lp_terms_datetime = elem.attrib.get('datetime')
 
