@@ -29,22 +29,13 @@ from embem.bodyparts.classify_body_parts import get_extended_body_part_mapping
 from folia2naf import create_linguisticProcessor
 from sklearn.externals import joblib
 
-emotions_labels = ['Emotie', 'Lichaamswerking', 'EmotioneleHandeling']
-markables_labels = ['Lichaamsdeel', 'HumorModifier', 'Intensifier']
+emotions_labels = ['Emotie', 'Lichaamswerking', 'EmotioneleHandeling',
+                   'Lichaamsdeel', 'HumorModifier', 'Intensifier']
 
 
 def embem_entity(elem):
     if elem.get('class').startswith('EmbodiedEmotions'):
         return True
-    return False
-
-
-def contains_markable(entities):
-    entity_labels = [ent.get('class') for ent in entities]
-    for l1 in entity_labels:
-        for l2 in markables_labels:
-            if l2 in l1:
-                return True
     return False
 
 
@@ -74,59 +65,6 @@ def add_targets(elem, words, wids):
 def add_emoVal(elem, value, resource, confidence):
     etree.SubElement(elem, 'emoVal', value=value, confidence=confidence,
                      resource=resource)
-
-
-def naf_markable(data, bpmapping=None):
-    #print 'add markable'
-    markable = etree.Element('markable')
-    add_targets(markable, data['words'], data['wids'])
-
-    # emovals
-    for i, label in enumerate(data['labels']):
-        parts = label.split(':')
-        if len(parts) > 1:
-            l = label.split(':')[1]
-        else:
-            l = label
-
-        if l == 'Lichaamsdeel':
-            l = heem_labels_en['Lichaamsdeel']
-            l = lowerc(l)
-            r = 'heem:conceptType'
-        elif l in heem_emotion_labels:
-            l = heem_labels_en[l]
-            l = lowerc(l)
-            r = 'heem:emotionType'
-        elif l in heem_modifiers_en.keys():
-            l = heem_modifiers_en[l]
-            l = lowerc(l)
-            r = 'heem:{}'.format(lowerc(parts[0].split('-')[1]))
-            # make list of all modifiers
-            modifiers[l] += 1
-            #print l, r
-        else:
-            l = None
-
-        if l and r:
-            if data.get('confidence'):
-                conf = data.get('confidence')[i]
-            else:
-                # TODO: decide on confidence for annotations
-                conf = 1.0
-            add_emoVal(markable, l, r, str(conf))
-
-            # expand body parts
-            # confidence for recognozed body parts is equal to the confidence
-            # for label bodyPart (Lichaamsdeel)
-            if l == 'bodyPart' and bpmapping is not None:
-                for w in data['words']:
-                    if w in bpmapping.keys():
-                        l = bpmapping[w]
-                        r = 'heem:bodyPart'
-                        #print l, r, conf
-                        add_emoVal(markable, l, r, str(conf))
-
-    return markable
 
 
 def naf_emotion(data, emo_id):
@@ -170,7 +108,7 @@ def naf_emotion(data, emo_id):
     return emotion, emo_id
 
 
-def emotions2naf(emotions, markables, elem, emo_id, bpmapping=None):
+def emotions2naf(emotions, elem, emo_id, bpmapping=None):
     entity_tag = '{http://ilk.uvt.nl/folia}entity'
     wref_tag = '{http://ilk.uvt.nl/folia}wref'
 
@@ -188,12 +126,7 @@ def emotions2naf(emotions, markables, elem, emo_id, bpmapping=None):
         emotion_values[x]['entities'].append(ent)
 
     for key, data in emotion_values.iteritems():
-        if contains_markable(data['entities']):
-            #print 'Add markable!'
-            markables.append(naf_markable(data, bpmapping))
-        if contains_emotion(data['entities']) or \
-            (not contains_emotion(data['entities']) and
-             not contains_markable(data['entities'])):
+        if contains_emotion(data['entities']):
             # Add entity as emotion if it contains an emotion.
             # The data set contains words tagged with only an emotion label
             # These annotations are also added as emotion
@@ -206,7 +139,7 @@ def emotions2naf(emotions, markables, elem, emo_id, bpmapping=None):
     return emo_id
 
 
-def update_naf(file_name, timestamp, emotions, markables, lps):
+def update_naf(file_name, timestamp, emotions, lps):
     layer_name = 'emotions'
     naf, header = load_naf(file_name)
 
@@ -216,8 +149,8 @@ def update_naf(file_name, timestamp, emotions, markables, lps):
     # add emotions layer
     emotions_layer = etree.SubElement(naf.getroot(), layer_name)
 
-    # add emotions and markables to emotions layer
-    for t in emotions + markables:
+    # add emotions to emotions layer
+    for t in emotions:
         emotions_layer.append(t)
 
     return naf
@@ -230,12 +163,12 @@ def save_naf(naf, file_name):
     print
 
 
-def process_naf(f, input_dir_naf, emotions, markables, output_dir, lps):
+def process_naf(f, input_dir_naf, emotions, output_dir, lps):
     file_name = os.path.basename(f)
     naf_file = os.path.join(input_dir_naf, file_name)
     ctime = str(datetime.datetime.fromtimestamp(os.path.getmtime(f)))
 
-    naf = update_naf(naf_file, ctime, emotions, markables, lps)
+    naf = update_naf(naf_file, ctime, emotions, lps)
 
     xml_out = os.path.join(output_dir, file_name)
     save_naf(naf, xml_out)
@@ -300,20 +233,17 @@ if __name__ == '__main__':
             context = etree.iterparse(f, events=('end',), tag=(entities_tag),
                                       huge_tree=True)
 
-            emo_id = 1
-
+            emo_id = 0
             emotions = []
-            markables = []
 
             for event, elem in context:
-                emo_id = emotions2naf(emotions, markables, elem, emo_id,
-                                      bpmapping)
+                emo_id = emotions2naf(emotions, elem, emo_id, bpmapping)
 
             lps = {'Embodied Emotions Annotations': '1.0'}
             if args.bpmapping:
                 lps['heem-expand-body_parts'] = '1.0'
             #print lps
-            process_naf(f, input_dir_naf, emotions, markables, output_dir, lps)
+            process_naf(f, input_dir_naf, emotions, output_dir, lps)
     elif args.hist2modern and args.classifier:
         hist2modern = get_hist2modern(args.hist2modern)
 
@@ -354,7 +284,7 @@ if __name__ == '__main__':
                 else:
                     words_n.append(sp_norm_word(unicode(wf.text), hist2modern))
                     words.append(wf.text)
-                    word_ids.append(wf.attrib.get('wid'))
+                    word_ids.append(wf.attrib.get('id'))
             # add last sentence
             text_n.append(unicode(' '.join(words_n)))
             text.append(unicode(' '.join(words)))
@@ -363,7 +293,6 @@ if __name__ == '__main__':
             proba = clf.predict_proba(text_n)
 
             emotions = []
-            markables = []
             emo_id = 0
 
             emotion_values = {}
@@ -388,16 +317,12 @@ if __name__ == '__main__':
                 emotion, emo_id = naf_emotion(data, emo_id)
                 if emotion is not None:
                     emotions.append(emotion)
-                for l in data['labels']:
-                    if l in markables_labels:
-                        markables.append(naf_markable(data, bpmapping))
 
             lps = {'rakel-heem-spelling_normalized': '1.0'}
             if args.bpmapping:
                 lps['heem-expand-body_parts'] = '1.0'
             #print lps
-            process_naf(f, input_dir_naf, emotions, markables, output_dir,
-                        lps)
+            process_naf(f, input_dir_naf, emotions, output_dir, lps)
     else:
         print 'Please specify either a directory containing FoLiA files or' + \
               ' a hist2modern json file and a classifier file.'
