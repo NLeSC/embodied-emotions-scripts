@@ -48,9 +48,9 @@ def contains_emotion(entities):
     return bool(set(labels) & set(emotions_labels))
 
 
-def lowerc(str):
+def lowerc(string):
     """Lowercase first character of input string"""
-    return str[0].lower() + str[1:]
+    return string[0].lower() + string[1:]
 
 
 def add_targets(elem, words, ids):
@@ -285,6 +285,7 @@ if __name__ == '__main__':
             word_ids = []
 
             naf, header = load_naf(f)
+            wf2term = create_wf2term_mapping(naf)
 
             wfs = naf.findall('.//wf')
             #print len(wfs)
@@ -319,8 +320,10 @@ if __name__ == '__main__':
                     if conf > 0.0:
                         x = ''.join(spans[i])
                         if x not in emotion_values.keys():
+                            tids = [wf2term.get(wid) for wid in spans[i]]
                             emotion_values[x] = {'labels': [],
                                                  'wids': spans[i],
+                                                 'tids': tids,
                                                  'words': text[i].split(),
                                                  'confidence': []}
                         emotion_values[x]['labels'].append(labels[j])
