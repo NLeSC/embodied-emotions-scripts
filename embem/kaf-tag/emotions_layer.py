@@ -53,13 +53,13 @@ def lowerc(str):
     return str[0].lower() + str[1:]
 
 
-def add_targets(elem, words, wids):
+def add_targets(elem, words, ids):
     span = etree.SubElement(elem, 'span')
     # words
     span.append(etree.Comment(' ' + ' '.join(words) + ' '))
     # word ids (targets)
-    for wid in wids:
-        etree.SubElement(span, 'target', id=wid)
+    for i in ids:
+        etree.SubElement(span, 'target', id=i)
 
 
 def add_emoVal(elem, value, resource, confidence):
@@ -74,7 +74,7 @@ def naf_emotion(data, emo_id):
     etree.SubElement(emotion, 'emotion_holder')
     etree.SubElement(emotion, 'emotion_expression')
 
-    add_targets(emotion, data['words'], data['wids'])
+    add_targets(emotion, data['words'], data['tids'])
 
     # emovals
     for i, label in enumerate(data['labels']):
@@ -108,7 +108,7 @@ def naf_emotion(data, emo_id):
     return emotion, emo_id
 
 
-def emotions2naf(emotions, elem, emo_id, bpmapping=None):
+def emotions2naf(emotions, elem, emo_id, wf2term, bpmapping=None):
     entity_tag = '{http://ilk.uvt.nl/folia}entity'
     wref_tag = '{http://ilk.uvt.nl/folia}wref'
 
@@ -117,11 +117,12 @@ def emotions2naf(emotions, elem, emo_id, bpmapping=None):
     emotion_values = {}
     for ent in entities:
         ids = [wref.get('id') for wref in ent.findall(wref_tag)]
+        tids = [wf2term.get(wid) for wid in ids]
         x = ''.join(ids)
         if x not in emotion_values.keys():
             words = [wref.get('t') for wref in ent.findall(wref_tag)]
             emotion_values[x] = {'labels': [], 'wids': ids, 'words': words,
-                                 'entities': []}
+                                 'entities': [], 'tids': tids}
         emotion_values[x]['labels'].append(ent.get('class'))
         emotion_values[x]['entities'].append(ent)
 
@@ -190,6 +191,17 @@ def sp_norm_word(word, hist2modern):
     return s
 
 
+def create_wf2term_mapping(naf):
+    terms = naf.findall('.//term')
+
+    mapping = {}
+    for t in terms:
+        tid = t.attrib.get('id')
+        wid = t.find('.//target').attrib.get('id')
+        mapping[wid] = tid
+    return mapping
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('naf', help='directory containing NAF files')
@@ -229,6 +241,11 @@ if __name__ == '__main__':
             print '{} ({} of {})'.format(f, (i + 1), len(folia_files))
             text_id = f[-20:-7]
 
+            file_name = os.path.basename(f)
+            naf_file = os.path.join(input_dir_naf, file_name)
+            naf, header = load_naf(naf_file)
+            wf2term = create_wf2term_mapping(naf)
+
             # Load folia document
             context = etree.iterparse(f, events=('end',), tag=(entities_tag),
                                       huge_tree=True)
@@ -237,7 +254,8 @@ if __name__ == '__main__':
             emotions = []
 
             for event, elem in context:
-                emo_id = emotions2naf(emotions, elem, emo_id, bpmapping)
+                emo_id = emotions2naf(emotions, elem, emo_id, wf2term,
+                                      bpmapping)
 
             lps = {'Embodied Emotions Annotations': '1.0'}
             if args.bpmapping:
