@@ -161,4 +161,29 @@ def test_folia_annotation2heem_label():
     for k, v in annotations.iteritems():
         yield assert_equal, folia_annotation2heem_label(k), v
 
-# TODO: tests for expanded body parts
+
+def test_naf_emotion_expanded_bodyparts():
+    data = {'labels': ['Lichaamsdeel'],
+            'tids': ['t2875', 't2876', 't2877', 't2878', 't2879'],
+            'words': ['hertelijck', ',', 'hikkende', 'en', 'snikkende'],
+            'confidence': [0.25]}
+    emo_id = 125
+    bpmapping = {u'hertelijck': u'heart'}
+    emotion, emo_id_new = naf_emotion(data, emo_id, bpmapping)
+
+    expected = '<emotion id="emo125">' \
+               '<emotion_target/>' \
+               '<emotion_holder/>' \
+               '<emotion_expression/>' \
+               '<span>' \
+               '<!-- hertelijck , hikkende en snikkende -->' \
+               '<target id="t2875"/>' \
+               '<target id="t2876"/>' \
+               '<target id="t2877"/>' \
+               '<target id="t2878"/>' \
+               '<target id="t2879"/>' \
+               '</span>' \
+               '<emoVal confidence="0.25" resource="heem:conceptType" value="bodyPart"/>' \
+               '<emoVal confidence="0.25" resource="heem:bodyParts" value="heart"/>' \
+               '</emotion>'
+    yield assert_equal, expected, tostring(emotion)

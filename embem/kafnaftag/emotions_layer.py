@@ -68,7 +68,7 @@ def add_emoVal(elem, value, resource, confidence):
                      resource=resource)
 
 
-def naf_emotion(data, emo_id):
+def naf_emotion(data, emo_id, bpmapping=None):
     eid = 'emo{}'.format(emo_id)
     emotion = etree.Element('emotion', id=str(eid))
     etree.SubElement(emotion, 'emotion_target')
@@ -103,6 +103,14 @@ def naf_emotion(data, emo_id):
                 # TODO: decide on confidence for annotations
                 confidence = 1.0
             add_emoVal(emotion, l, r, str(confidence))
+
+            # expand body parts
+            if bpmapping is not None and l == 'bodyPart':
+                for w in data['words']:
+                    if w in bpmapping.keys():
+                        r = 'heem:bodyParts'
+                        l = bpmapping.get(w)
+                        add_emoVal(emotion, l, r, str(confidence))
     if not l:
         emotion = None
     if l:
@@ -148,7 +156,7 @@ def emotions2naf(emotions, elem, emo_id, wf2term, bpmapping=None):
             # These annotations are also added as emotion
             #print 'Add emotion!'
             #print [(e.tag, e.attrib) for e in data['entities']]
-            emotion, emo_id = naf_emotion(data, emo_id)
+            emotion, emo_id = naf_emotion(data, emo_id, bpmapping)
             if emotion is not None:
                 emotions.append(emotion)
 
@@ -350,7 +358,7 @@ if __name__ == '__main__':
                         #print conf
 
             for key, data in emotion_values.iteritems():
-                emotion, emo_id = naf_emotion(data, emo_id)
+                emotion, emo_id = naf_emotion(data, emo_id, bpmapping)
                 if emotion is not None:
                     emotions.append(emotion)
 
