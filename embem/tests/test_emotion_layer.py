@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 from lxml.etree import Element, tostring
 
 from embem.kafnaftag.emotions_layer import lowerc, embem_entity, add_targets, \
-    add_emoVal, naf_emotion
+    add_emoVal, naf_emotion, folia_annotation2heem_label
 
 
 def test_lowerc():
@@ -81,7 +81,7 @@ def test_add_emoVal():
 
 
 def test_naf_emotion():
-    data = {'labels': ['EmbodiedEmotions-Level1:Lichaamswerking', 'Verdriet'],
+    data = {'labels': ['Lichaamswerking', 'Verdriet'],
             'tids': ['t2875', 't2876', 't2877', 't2878', 't2879'],
             'words': ['huilende', ',', 'hikkende', 'en', 'snikkende'],
             'confidence': [1.0, 1.0]}
@@ -108,7 +108,7 @@ def test_naf_emotion():
 
 
 def test_naf_emotion_humormodifier():
-    data = {'labels': ['EmbodiedEmotions-HumorModifier:warm'],
+    data = {'labels': ['warm'],
             'tids': ['t2875'],
             'words': ['huilende'],
             'confidence': [1.0]}
@@ -130,7 +130,7 @@ def test_naf_emotion_humormodifier():
 
 
 def test_naf_emotion_intensifier():
-    data = {'labels': ['EmbodiedEmotions-Intensifier:versterkend'],
+    data = {'labels': ['versterkend'],
             'tids': ['t2875'],
             'words': ['huilende'],
             'confidence': [1.0]}
@@ -149,5 +149,16 @@ def test_naf_emotion_intensifier():
                '</emotion>'
     yield assert_equal, expected, tostring(emotion)
     yield assert_equal, emo_id + 1, emo_id_new
+
+
+def test_folia_annotation2heem_label():
+    annotations = {"EmbodiedEmotions-Intensifier:versterkend": 'versterkend',
+                   "EmbodiedEmotions-EmotionLabel:Blijdschap": 'Blijdschap',
+                   "EmbodiedEmotions-HumorModifier:zoet": 'zoet',
+                   "EmbodiedEmotions-Level1:Lichaamswerking": 'Lichaamswerking',
+                   "EmbodiedEmotions-Level2:Lichaamsdeel": 'Lichaamsdeel',
+                   "EmbodiedEmotions-Level1:EmotioneleHandeling": 'EmotioneleHandeling'}
+    for k, v in annotations.iteritems():
+        yield assert_equal, folia_annotation2heem_label(k), v
 
 # TODO: tests for expanded body parts

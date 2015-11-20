@@ -11,6 +11,12 @@ heem_emotion_labels = ['Achterdocht', 'Angst', 'Bedruktheid',
                        'Verwondering', 'Walging', 'Wanhoop', 'Welwillendheid',
                        'Woede', 'Wraakzucht', 'Wrevel', 'Wroeging', 'Wrok']
 
+heem_humor_modifier_labels = ['ontkennend', 'koud', 'donker', 'hard', 'zoet',
+                              'droog', 'warm', 'samentrekkend', 'nat', 'zacht',
+                              'zuur', 'uitdijend', 'bitter', 'licht']
+
+heem_intensifier_labels = ['versterkend', 'afzwakkend']
+
 heem_body_part_labels = ["Heart", "Longs", "Jaws", "Ears", "Mind", "Head",
                          "Arms", "Hair", "Bones", "Lips", "Horns",
                          "Throat", "Tooth", "Conscience", "Knees", "Limbs",

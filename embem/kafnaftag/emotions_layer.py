@@ -21,7 +21,8 @@ import unicodedata
 from collections import Counter
 from lxml import etree
 from embem.emotools.heem_utils import heem_emotion_labels, heem_labels_en, \
-    heem_modifiers_en, heem_concept_type_labels
+    heem_modifiers_en, heem_concept_type_labels, \
+    heem_humor_modifier_labels, heem_intensifier_labels
 from embem.machinelearning.mlutils import get_data, load_data
 from embem.spellingnormalization.normalize_dataset import normalize_spelling, \
     get_hist2modern
@@ -78,21 +79,23 @@ def naf_emotion(data, emo_id):
 
     # emovals
     for i, label in enumerate(data['labels']):
-        parts = label.split(':')
-        if len(parts) > 1:
-            l = label.split(':')[1]
+        if label in heem_emotion_labels:
+            r = 'heem:emotionType'
+            l = heem_labels_en.get(label)
+        elif label in heem_concept_type_labels:
+            r = 'heem:conceptType'
+            l = heem_labels_en.get(label)
+        elif label in heem_intensifier_labels:
+            r = 'heem:intensifier'
+            l = heem_modifiers_en.get(label)
+        elif label in heem_humor_modifier_labels:
+            r = 'heem:humorModifier'
+            l = heem_modifiers_en.get(label)
         else:
-            l = label
-        if l and l != 'BodyPart':
-            if l in heem_emotion_labels:
-                r = 'heem:emotionType'
-            elif l in heem_concept_type_labels:
-                r = 'heem:conceptType'
-            else:
-                l = None
-                r = None
+            r = None
+            l = None
+
         if l and r:
-            l = heem_labels_en.get(l)
             l = lowerc(l)
             if data.get('confidence'):
                 confidence = data['confidence'][i]
@@ -106,6 +109,17 @@ def naf_emotion(data, emo_id):
         emo_id += 1
 
     return emotion, emo_id
+
+
+def folia_annotation2heem_label(annotation):
+    """Extract the label from heem annotations in folia.
+
+    For example: from "EmbodiedEmotions-EmotionLabel:Woede" to "Woede"
+
+    Also returns correct values for intensifiers and humor modifiers.
+    """
+    parts = annotation.split(':')
+    return parts[1]
 
 
 def emotions2naf(emotions, elem, emo_id, wf2term, bpmapping=None):
@@ -123,7 +137,8 @@ def emotions2naf(emotions, elem, emo_id, wf2term, bpmapping=None):
             words = [wref.get('t') for wref in ent.findall(wref_tag)]
             emotion_values[x] = {'labels': [], 'wids': ids, 'words': words,
                                  'entities': [], 'tids': tids}
-        emotion_values[x]['labels'].append(ent.get('class'))
+        label = folia_annotation2heem_label(ent.get('class'))
+        emotion_values[x]['labels'].append(label)
         emotion_values[x]['entities'].append(ent)
 
     for key, data in emotion_values.iteritems():
