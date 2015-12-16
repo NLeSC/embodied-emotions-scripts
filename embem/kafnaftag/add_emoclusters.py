@@ -13,26 +13,31 @@ import glob
 from lxml import etree
 from embem.emotools.heem_utils import heem_emotion_labels, heem_labels_en, \
     heem_modifiers_en, heem_concept_type_labels
-from emotions_layer import load_naf, lowerc, add_emoVal, save_naf
+from emotions_layer import load_naf, lowerc, add_external_reference, \
+    save_naf, get_second_part
 
 
-def add_emovals(elements, en2nl, replacements, name):
-    for elem in elements:
-        transf = {}
-        emoVals = elem.findall('emoVal')
-        for emoVal in emoVals:
-            emNL = en2nl.get(emoVal.attrib.get('value'))
-            #print emNL
-            if emNL in heem_emotion_labels:
-                for cat, lbls in replacements.iteritems():
-                    if emNL in lbls:
-                        if not cat in transf:
-                            transf[cat] = []
-                        if emoVal.attrib.get('confidence'):
-                            transf[cat].append(emoVal.attrib.get('confidence'))
-        for cat, conf in transf.iteritems():
-            add_emoVal(elem, lowerc(cat), 'heem:{}'.format(name),
-                       str(max(conf)))
+def add_cluster_labels(elem, en2nl, replacements, name):
+    transf = {}
+    labels = elem.findall('externalReferences/externalRef')
+    for label in labels:
+        emNL = en2nl.get(get_second_part(label.attrib.get('reference')))
+        #print emNL
+        if emNL in heem_emotion_labels:
+            for cat, lbls in replacements.iteritems():
+                if emNL in lbls:
+                    if cat not in transf:
+                        transf[cat] = []
+                    if label.attrib.get('confidence'):
+                        transf[cat].append(label.attrib.get('confidence'))
+    for cat, conf in transf.iteritems():
+        if len(conf) > 0:
+            c = str(max(conf))
+        else:
+            c = None
+        resource = 'heem:{}'.format(name, name)
+        add_external_reference(elem, resource, lowerc(cat), c)
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -67,10 +72,8 @@ if __name__ == '__main__':
         naf, header = load_naf(f)
 
         emotions = naf.findall('.//emotion')
-        add_emovals(emotions, en2nl, replacements, args.name)
-
-        markables = naf.findall('.//markable')
-        add_emovals(markables, en2nl, replacements, args.name)
+        for emotion in emotions:
+            add_cluster_labels(emotions, en2nl, replacements, args.name)
 
         # save naf document
         out_file = os.path.basename(f)
