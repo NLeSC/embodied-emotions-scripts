@@ -43,8 +43,7 @@ def create_fileDesc(xml_file, text_id, metadata_file, timestamp, header):
     author = metadata.at[text_id, 4].decode('utf-8')
     etree.SubElement(header, 'fileDesc', creationtime=timestamp,
                      title=unicode(title), author=unicode(author),
-                     filename=fname, filetype='FoLiA/XML', year=year,
-                     genre=genre)
+                     filename=fname, filetype='FoLiA/XML')
 
 
 def create_public(text_id, header):
