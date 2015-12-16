@@ -122,7 +122,8 @@ def naf_emotion(data, emo_id, bpmapping=None):
             if bpmapping is not None and l == 'Lichaamsdeel':
                 for w in data['words']:
                     if w in bpmapping.keys():
-                        l = 'bodyParts:{}'.format(bpmapping.get(w))
+                        l = bpmapping.get(w)
+                        r = 'heem:bodyParts'
                         add_external_reference(emotion, r, l, confidence)
     if not l:
         emotion = None

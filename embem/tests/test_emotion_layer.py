@@ -175,7 +175,7 @@ def test_naf_emotion_expanded_bodyparts():
                '</span>' \
                '<externalReferences>' \
                '<externalRef confidence="0.25" reference="conceptType:bodyPart" resource="heem"/>' \
-               '<externalRef confidence="0.25" reference="bodyParts:heart" resource="heem"/>' \
+               '<externalRef confidence="0.25" reference="heart" resource="heem:bodyParts"/>' \
                '</externalReferences>' \
                '</emotion>'
     yield assert_equal, expected, tostring(emotion)
