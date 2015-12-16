@@ -14,7 +14,7 @@ If <body part mapping> is specified, body parts are expanded.
 import argparse
 import os
 import glob
-import datetime
+from datetime import datetime
 import multiprocessing
 import string
 import unicodedata
@@ -206,7 +206,8 @@ def save_naf(naf, file_name):
 def process_naf(f, input_dir_naf, emotions, output_dir, lps):
     file_name = os.path.basename(f)
     naf_file = os.path.join(input_dir_naf, file_name)
-    ctime = str(datetime.datetime.fromtimestamp(os.path.getmtime(f)))
+    ctime = datetime.fromtimestamp(os.path.getmtime(f))
+    ctime = ctime.replace(microsecond=0).isoformat()
 
     naf = update_naf(naf_file, ctime, emotions, lps)
 

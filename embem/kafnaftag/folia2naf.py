@@ -130,7 +130,8 @@ if __name__ == '__main__':
         # create output naf xml tree
         root, naf_document, header, text, terms = create_naf()
 
-        ctime = str(datetime.datetime.fromtimestamp(os.path.getmtime(f)))
+        ctime = datetime.datetime.fromtimestamp(os.path.getmtime(f))
+        ctime = ctime.replace(microsecond=0).isoformat()
 
         create_fileDesc(f, text_id, args.metadata, ctime, header)
         create_public(text_id, header)
