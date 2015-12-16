@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 from lxml.etree import Element, tostring, fromstring
 
 from embem.kafnaftag.emotions_layer import lowerc, embem_entity, add_targets, \
-    naf_emotion, folia_annotation2heem_label,add_external_reference
+    naf_emotion, get_second_part,add_external_reference
 
 
 def test_lowerc():
@@ -141,7 +141,7 @@ def test_naf_emotion_intensifier():
     yield assert_equal, emo_id + 1, emo_id_new
 
 
-def test_folia_annotation2heem_label():
+def test_get_second_part():
     annotations = {"EmbodiedEmotions-Intensifier:versterkend": 'versterkend',
                    "EmbodiedEmotions-EmotionLabel:Blijdschap": 'Blijdschap',
                    "EmbodiedEmotions-HumorModifier:zoet": 'zoet',
@@ -149,7 +149,7 @@ def test_folia_annotation2heem_label():
                    "EmbodiedEmotions-Level2:Lichaamsdeel": 'Lichaamsdeel',
                    "EmbodiedEmotions-Level1:EmotioneleHandeling": 'EmotioneleHandeling'}
     for k, v in annotations.iteritems():
-        yield assert_equal, folia_annotation2heem_label(k), v
+        yield assert_equal, get_second_part(k), v
 
 
 def test_naf_emotion_expanded_bodyparts():

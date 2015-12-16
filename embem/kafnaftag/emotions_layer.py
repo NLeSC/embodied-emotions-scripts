@@ -64,6 +64,22 @@ def add_targets(elem, words, ids):
 
 
 def add_external_reference(elem, resource, reference, confidence):
+    """
+    Parameters:
+    elem : etree.SubElement (emotion)
+    resource : string (heem|heem-manual_annotations)
+    reference : Dutch embodied emotions label or correctly formatted label
+    confidence : float or None
+    """
+    if reference in heem_emotion_labels:
+        reference = 'emotionType:{}'.format(lowerc(heem_labels_en.get(reference)))
+    elif reference in heem_concept_type_labels:
+        reference = 'conceptType:{}'.format(lowerc(heem_labels_en.get(reference)))
+    elif reference in heem_intensifier_labels:
+        reference = 'intensifier:{}'.format(lowerc(heem_modifiers_en.get(reference)))
+    elif reference in heem_humor_modifier_labels:
+        reference = 'humorModifier:{}'.format(lowerc(heem_modifiers_en.get(reference)))
+
     ext_refs = elem.find('externalReferences')
     if ext_refs is None:
         ext_refs = etree.SubElement(elem, 'externalReferences')
@@ -87,15 +103,9 @@ def naf_emotion(data, emo_id, bpmapping=None):
 
     # emovals
     for i, label in enumerate(data['labels']):
-        if label in heem_emotion_labels:
-            l = 'emotionType:{}'.format(lowerc(heem_labels_en.get(label)))
-        elif label in heem_concept_type_labels:
-            l = 'conceptType:{}'.format(lowerc(heem_labels_en.get(label)))
-        elif label in heem_intensifier_labels:
-            l = 'intensifier:{}'.format(lowerc(heem_modifiers_en.get(label)))
-        elif label in heem_humor_modifier_labels:
-            l = 'humorModifier:{}'.format(lowerc(heem_modifiers_en.get(label)))
-        else:
+        l = label
+        if label not in heem_emotion_labels + heem_concept_type_labels + \
+                heem_intensifier_labels + heem_humor_modifier_labels:
             l = None
 
         if l:
@@ -109,7 +119,7 @@ def naf_emotion(data, emo_id, bpmapping=None):
             add_external_reference(emotion, r, l, confidence)
 
             # expand body parts
-            if bpmapping is not None and l == 'conceptType:bodyPart':
+            if bpmapping is not None and l == 'Lichaamsdeel':
                 for w in data['words']:
                     if w in bpmapping.keys():
                         l = 'bodyParts:{}'.format(bpmapping.get(w))
@@ -122,7 +132,7 @@ def naf_emotion(data, emo_id, bpmapping=None):
     return emotion, emo_id
 
 
-def folia_annotation2heem_label(annotation):
+def get_second_part(annotation):
     """Extract the label from heem annotations in folia.
 
     For example: from "EmbodiedEmotions-EmotionLabel:Woede" to "Woede"
@@ -148,7 +158,7 @@ def emotions2naf(emotions, elem, emo_id, wf2term, bpmapping=None):
             words = [wref.get('t') for wref in ent.findall(wref_tag)]
             emotion_values[x] = {'labels': [], 'wids': ids, 'words': words,
                                  'entities': [], 'tids': tids}
-        label = folia_annotation2heem_label(ent.get('class'))
+        label = get_second_part(ent.get('class'))
         emotion_values[x]['labels'].append(label)
         emotion_values[x]['entities'].append(ent)
 
