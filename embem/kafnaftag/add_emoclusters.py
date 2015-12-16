@@ -11,10 +11,12 @@ import codecs
 import os
 import glob
 from lxml import etree
+from datetime import datetime
 from embem.emotools.heem_utils import heem_emotion_labels, heem_labels_en, \
     heem_modifiers_en, heem_concept_type_labels
 from emotions_layer import load_naf, lowerc, add_external_reference, \
     save_naf, get_second_part
+from embem.kafnaftag.folia2naf import create_linguisticProcessor
 
 
 def add_cluster_labels(elem, en2nl, replacements, name):
@@ -71,9 +73,13 @@ if __name__ == '__main__':
 
         naf, header = load_naf(f)
 
+        lps = {'heem-emoclusters-{}'.format(args.name): '1.0'}
+        t = datetime.now().replace(microsecond=0).isoformat()
+        create_linguisticProcessor('emotions', lps, t, header)
+
         emotions = naf.findall('.//emotion')
         for emotion in emotions:
-            add_cluster_labels(emotions, en2nl, replacements, args.name)
+            add_cluster_labels(emotion, en2nl, replacements, args.name)
 
         # save naf document
         out_file = os.path.basename(f)

@@ -52,7 +52,9 @@ def create_public(text_id, header):
 
 
 def create_linguisticProcessor(layer, lps, timestamp, header):
-    lp = etree.SubElement(header, 'linguisticProcessors', layer=layer)
+    lp = header.find('linguisticProcessors[@layer="{}"]'.format(layer))
+    if lp is None:
+        lp = etree.SubElement(header, 'linguisticProcessors', layer=layer)
     for name, version in lps.iteritems():
         etree.SubElement(lp, 'lp', name=name, version=version,
                          timestamp=timestamp)

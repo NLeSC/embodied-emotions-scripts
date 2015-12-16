@@ -141,7 +141,9 @@ def get_second_part(annotation):
     Also returns correct values for intensifiers and humor modifiers.
     """
     parts = annotation.split(':')
-    return parts[1]
+    if len(parts) > 1:
+        return parts[1]
+    return annotation
 
 
 def emotions2naf(emotions, elem, emo_id, wf2term, bpmapping=None):
