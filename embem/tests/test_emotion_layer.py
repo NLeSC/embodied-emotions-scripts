@@ -1,10 +1,10 @@
 from nose.tools import assert_equal, assert_true, assert_false
 
 from bs4 import BeautifulSoup
-from lxml.etree import Element, tostring
+from lxml.etree import Element, tostring, fromstring
 
 from embem.kafnaftag.emotions_layer import lowerc, embem_entity, add_targets, \
-    add_emoVal, naf_emotion, folia_annotation2heem_label
+    naf_emotion, folia_annotation2heem_label,add_external_reference
 
 
 def test_lowerc():
@@ -64,22 +64,6 @@ def test_add_targets():
     assert_equal(result, expected)
 
 
-def test_add_emoVal():
-    emotion = Element('emotion', id='emo125')
-    value = 'sadness'
-    resource = 'heem:emotionType'
-    confidence = str(1.0)
-
-    add_emoVal(emotion, value, resource, confidence)
-    result = tostring(emotion)
-
-    expected = '<emotion id="emo125">' \
-               '<emoVal confidence="1.0" resource="heem:emotionType" value="sadness"/>' \
-               '</emotion>'
-
-    assert_equal(result, expected)
-
-
 def test_naf_emotion():
     data = {'labels': ['Lichaamswerking', 'Verdriet'],
             'tids': ['t2875', 't2876', 't2877', 't2878', 't2879'],
@@ -100,8 +84,10 @@ def test_naf_emotion():
                '<target id="t2878"/>' \
                '<target id="t2879"/>' \
                '</span>' \
-               '<emoVal confidence="1.0" resource="heem:conceptType" value="bodilyProcess"/>' \
-               '<emoVal confidence="1.0" resource="heem:emotionType" value="sadness"/>' \
+               '<externalReferences>' \
+               '<externalRef confidence="1.0" reference="conceptType:bodilyProcess" resource="heem"/>' \
+               '<externalRef confidence="1.0" reference="emotionType:sadness" resource="heem"/>' \
+               '</externalReferences>' \
                '</emotion>'
     yield assert_equal, expected, tostring(emotion)
     yield assert_equal, emo_id + 1, emo_id_new
@@ -123,7 +109,9 @@ def test_naf_emotion_humormodifier():
                '<!-- huilende -->' \
                '<target id="t2875"/>' \
                '</span>' \
-               '<emoVal confidence="1.0" resource="heem:humorModifier" value="warm"/>' \
+               '<externalReferences>' \
+               '<externalRef confidence="1.0" reference="humorModifier:warm" resource="heem"/>' \
+               '</externalReferences>' \
                '</emotion>'
     yield assert_equal, expected, tostring(emotion)
     yield assert_equal, emo_id + 1, emo_id_new
@@ -145,7 +133,9 @@ def test_naf_emotion_intensifier():
                '<!-- huilende -->' \
                '<target id="t2875"/>' \
                '</span>' \
-               '<emoVal confidence="1.0" resource="heem:intensifier" value="intensifying"/>' \
+               '<externalReferences>' \
+               '<externalRef confidence="1.0" reference="intensifier:intensifying" resource="heem"/>' \
+               '</externalReferences>' \
                '</emotion>'
     yield assert_equal, expected, tostring(emotion)
     yield assert_equal, emo_id + 1, emo_id_new
@@ -183,7 +173,135 @@ def test_naf_emotion_expanded_bodyparts():
                '<target id="t2878"/>' \
                '<target id="t2879"/>' \
                '</span>' \
-               '<emoVal confidence="0.25" resource="heem:conceptType" value="bodyPart"/>' \
-               '<emoVal confidence="0.25" resource="heem:bodyParts" value="heart"/>' \
+               '<externalReferences>' \
+               '<externalRef confidence="0.25" reference="conceptType:bodyPart" resource="heem"/>' \
+               '<externalRef confidence="0.25" reference="bodyParts:heart" resource="heem"/>' \
+               '</externalReferences>' \
                '</emotion>'
     yield assert_equal, expected, tostring(emotion)
+
+
+def test_add_external_reference_no_external_references_layer():
+    # in: emotion without externalReferences
+    emotion_xml = '<emotion id="emo129">' \
+                  '<emotion_target/>' \
+                  '<emotion_holder/>' \
+                  '<emotion_expression/>' \
+                  '<span>' \
+                  '<!-- moogje voor bekommerd weezen . -->' \
+                  '<target id="t7165"/>' \
+                  '<target id="t7166"/>' \
+                  '<target id="t7167"/>' \
+                  '<target id="t7168"/>' \
+                  '<target id="t7169"/>' \
+                  '</span>' \
+                  '</emotion>'
+    emotion = fromstring(emotion_xml)
+    resource = 'heem-manual_annotations'
+    reference = 'emotionType:fear'
+    confidence = '0.222222222222'
+    add_external_reference(emotion, resource, reference, confidence)
+
+    expected = '<emotion id="emo129">' \
+               '<emotion_target/>' \
+               '<emotion_holder/>' \
+               '<emotion_expression/>' \
+               '<span>' \
+               '<!-- moogje voor bekommerd weezen . -->' \
+               '<target id="t7165"/>' \
+               '<target id="t7166"/>' \
+               '<target id="t7167"/>' \
+               '<target id="t7168"/>' \
+               '<target id="t7169"/>' \
+               '</span>' \
+               '<externalReferences>' \
+               '<externalRef confidence="0.222222222222" reference="emotionType:fear" resource="heem-manual_annotations"/>' \
+               '</externalReferences>' \
+               '</emotion>'
+
+    assert_equal(expected, tostring(emotion))
+
+
+def test_add_external_reference_with_existing_external_reference_layer():
+    # in: emotion with externalReferences
+    # in: wel confidence
+    # in: no confidence value
+    emotion_xml = '<emotion id="emo129">' \
+                  '<emotion_target/>' \
+                  '<emotion_holder/>' \
+                  '<emotion_expression/>' \
+                  '<span>' \
+                  '<!-- moogje voor bekommerd weezen . -->' \
+                  '<target id="t7165"/>' \
+                  '<target id="t7166"/>' \
+                  '<target id="t7167"/>' \
+                  '<target id="t7168"/>' \
+                  '<target id="t7169"/>' \
+                  '</span>' \
+                  '<externalReferences>' \
+                  '</externalReferences>' \
+                  '</emotion>'
+    emotion = fromstring(emotion_xml)
+    resource = 'heem-manual_annotations'
+    reference = 'emotionType:fear'
+    confidence = '0.222222222222'
+    add_external_reference(emotion, resource, reference, confidence)
+
+    expected = '<emotion id="emo129">' \
+               '<emotion_target/>' \
+               '<emotion_holder/>' \
+               '<emotion_expression/>' \
+               '<span>' \
+               '<!-- moogje voor bekommerd weezen . -->' \
+               '<target id="t7165"/>' \
+               '<target id="t7166"/>' \
+               '<target id="t7167"/>' \
+               '<target id="t7168"/>' \
+               '<target id="t7169"/>' \
+               '</span>' \
+               '<externalReferences>' \
+               '<externalRef confidence="0.222222222222" reference="emotionType:fear" resource="heem-manual_annotations"/>' \
+               '</externalReferences>' \
+               '</emotion>'
+
+    assert_equal(expected, tostring(emotion))
+
+
+def test_add_external_reference_with_existing_external_reference_layer():
+    # in: emotion with externalReferences
+    emotion_xml = '<emotion id="emo129">' \
+                  '<emotion_target/>' \
+                  '<emotion_holder/>' \
+                  '<emotion_expression/>' \
+                  '<span>' \
+                  '<!-- moogje voor bekommerd weezen . -->' \
+                  '<target id="t7165"/>' \
+                  '<target id="t7166"/>' \
+                  '<target id="t7167"/>' \
+                  '<target id="t7168"/>' \
+                  '<target id="t7169"/>' \
+                  '</span>' \
+                  '</emotion>'
+    emotion = fromstring(emotion_xml)
+    resource = 'heem-manual_annotations'
+    reference = 'emotionType:fear'
+    add_external_reference(emotion, resource, reference, None)
+
+    expected = '<emotion id="emo129">' \
+               '<emotion_target/>' \
+               '<emotion_holder/>' \
+               '<emotion_expression/>' \
+               '<span>' \
+               '<!-- moogje voor bekommerd weezen . -->' \
+               '<target id="t7165"/>' \
+               '<target id="t7166"/>' \
+               '<target id="t7167"/>' \
+               '<target id="t7168"/>' \
+               '<target id="t7169"/>' \
+               '</span>' \
+               '<externalReferences>' \
+               '<externalRef reference="emotionType:fear" resource="heem-manual_annotations"/>' \
+               '</externalReferences>' \
+               '</emotion>'
+
+    assert_equal(expected, tostring(emotion))

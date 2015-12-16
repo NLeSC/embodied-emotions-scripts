@@ -63,9 +63,17 @@ def add_targets(elem, words, ids):
         etree.SubElement(span, 'target', id=i)
 
 
-def add_emoVal(elem, value, resource, confidence):
-    etree.SubElement(elem, 'emoVal', value=value, confidence=confidence,
-                     resource=resource)
+def add_external_reference(elem, resource, reference, confidence):
+    ext_refs = elem.find('externalReferences')
+    if ext_refs is None:
+        ext_refs = etree.SubElement(elem, 'externalReferences')
+
+    if confidence:
+        etree.SubElement(ext_refs, 'externalRef', resource=resource,
+                         reference=reference, confidence=confidence)
+    else:
+        etree.SubElement(ext_refs, 'externalRef', resource=resource,
+                         reference=reference)
 
 
 def naf_emotion(data, emo_id, bpmapping=None):
@@ -80,37 +88,32 @@ def naf_emotion(data, emo_id, bpmapping=None):
     # emovals
     for i, label in enumerate(data['labels']):
         if label in heem_emotion_labels:
-            r = 'heem:emotionType'
-            l = heem_labels_en.get(label)
+            l = 'emotionType:{}'.format(lowerc(heem_labels_en.get(label)))
         elif label in heem_concept_type_labels:
-            r = 'heem:conceptType'
-            l = heem_labels_en.get(label)
+            l = 'conceptType:{}'.format(lowerc(heem_labels_en.get(label)))
         elif label in heem_intensifier_labels:
-            r = 'heem:intensifier'
-            l = heem_modifiers_en.get(label)
+            l = 'intensifier:{}'.format(lowerc(heem_modifiers_en.get(label)))
         elif label in heem_humor_modifier_labels:
-            r = 'heem:humorModifier'
-            l = heem_modifiers_en.get(label)
+            l = 'humorModifier:{}'.format(lowerc(heem_modifiers_en.get(label)))
         else:
-            r = None
             l = None
 
-        if l and r:
-            l = lowerc(l)
+        if l:
             if data.get('confidence'):
-                confidence = data['confidence'][i]
+                confidence = str(data['confidence'][i])
+                r = 'heem'
             else:
                 # TODO: decide on confidence for annotations
-                confidence = 1.0
-            add_emoVal(emotion, l, r, str(confidence))
+                confidence = None
+                r = 'heem-manual_annotations'
+            add_external_reference(emotion, r, l, confidence)
 
             # expand body parts
-            if bpmapping is not None and l == 'bodyPart':
+            if bpmapping is not None and l == 'conceptType:bodyPart':
                 for w in data['words']:
                     if w in bpmapping.keys():
-                        r = 'heem:bodyParts'
-                        l = bpmapping.get(w)
-                        add_emoVal(emotion, l, r, str(confidence))
+                        l = 'bodyParts:{}'.format(bpmapping.get(w))
+                        add_external_reference(emotion, r, l, confidence)
     if not l:
         emotion = None
     if l:
