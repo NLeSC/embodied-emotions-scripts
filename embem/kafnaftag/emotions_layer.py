@@ -67,7 +67,7 @@ def add_external_reference(elem, resource, reference, confidence):
     """
     Parameters:
     elem : etree.SubElement (emotion)
-    resource : string (heem|heem-manual_annotations)
+    resource : string (i.e., 'heem')
     reference : Dutch embodied emotions label or correctly formatted label
     confidence : float or None
     """
@@ -115,7 +115,7 @@ def naf_emotion(data, emo_id, bpmapping=None):
             else:
                 # TODO: decide on confidence for annotations
                 confidence = None
-                r = 'heem-manual_annotations'
+                r = 'heem'
             add_external_reference(emotion, r, l, confidence)
 
             # expand body parts
@@ -297,7 +297,7 @@ if __name__ == '__main__':
                 emo_id = emotions2naf(emotions, elem, emo_id, wf2term,
                                       bpmapping)
 
-            lps = {'Embodied Emotions Annotations': '1.0'}
+            lps = {'Embodied Emotions Manual Annotations': '1.0'}
             if args.bpmapping:
                 lps['heem-expand-body_parts'] = '1.0'
             #print lps
