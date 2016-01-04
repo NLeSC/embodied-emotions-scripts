@@ -18,6 +18,7 @@ from datetime import datetime
 import multiprocessing
 import string
 import unicodedata
+import re
 from collections import Counter
 from lxml import etree
 from embem.emotools.heem_utils import heem_emotion_labels, heem_labels_en, \
@@ -56,8 +57,10 @@ def lowerc(string):
 
 def add_targets(elem, words, ids):
     span = etree.SubElement(elem, 'span')
-    # words
-    span.append(etree.Comment(' ' + ' '.join(words) + ' '))
+    # Add words as comment (with dashes (-) removed, because xml doesn't like
+    # dashes in comments)
+    comment = re.sub(r'-+', '', ' '.join(words))
+    span.append(etree.Comment(' ' + comment + ' '))
     # word ids (targets)
     for i in ids:
         etree.SubElement(span, 'target', id=i)
