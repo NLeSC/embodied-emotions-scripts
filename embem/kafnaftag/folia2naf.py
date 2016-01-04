@@ -10,6 +10,7 @@ import glob
 from collections import Counter
 import pandas as pd
 import datetime
+import gzip
 from embem.machinelearningdata.count_labels import corpus_metadata
 from folia2kaf import _folia_pos2kaf_pos
 
@@ -40,15 +41,23 @@ def create_fileDesc(xml_file, text_id, metadata_file, timestamp, header):
     metadata = pd.read_csv(metadata_file, header=None, sep='\\t', index_col=0,
                            encoding='utf-8', engine='python')
     title = metadata.at[text_id, 3].decode('utf-8')
-    author = metadata.at[text_id, 4].decode('utf-8')
-    etree.SubElement(header, 'fileDesc', creationtime=timestamp,
-                     title=unicode(title), author=unicode(author),
-                     filename=fname, filetype='FoLiA/XML')
+    try:
+        author = metadata.at[text_id, 4].decode('utf-8')
+        etree.SubElement(header, 'fileDesc', creationtime=timestamp,
+                         title=unicode(title), author=unicode(author),
+                         filename=fname, filetype='FoLiA/XML')
+    except:
+        etree.SubElement(header, 'fileDesc', creationtime=timestamp,
+                         title=unicode(title), filename=fname,
+                         filetype='FoLiA/XML')
 
 
 def create_public(text_id, header):
-    uri = 'http://dbnl.nl/titels/titel.php?id={}'.format(text_id)
-    etree.SubElement(header, 'public', publicId=text_id, uri=uri)
+    if text_id.startswith('F'):
+        etree.SubElement(header, 'public', publicId=text_id)
+    else:
+        uri = 'http://dbnl.nl/titels/titel.php?id={}'.format(text_id)
+        etree.SubElement(header, 'public', publicId=text_id, uri=uri)
 
 
 def create_linguisticProcessor(layer, lps, timestamp, header):
@@ -107,19 +116,37 @@ if __name__ == '__main__':
 
     xml_files = glob.glob('{}/*.xml'.format(input_dir))
 
+    if xml_files == []:
+        xml_files = glob.glob('{}/*.xml.gz'.format(input_dir))
+
     act_tag = '{http://ilk.uvt.nl/folia}div'
     annotation_tag = '{http://ilk.uvt.nl/folia}token-annotation'
+    sentence_tag = '{http://ilk.uvt.nl/folia}s'
+    note_tag = '{http://ilk.uvt.nl/folia}note'
 
     modifiers = Counter()
 
-    for i, f in enumerate(xml_files):
-        print '{} ({} of {})'.format(f, (i + 1), len(xml_files))
-        text_id = f[-20:-7]
+    for i, fi in enumerate(xml_files):
+        print '{} ({} of {})'.format(fi, (i + 1), len(xml_files))
+        text_id = fi[-20:-7]
 
         # reset linguisting processor terms datetime
         lp_terms_datetime = ''
 
+        ctime = datetime.datetime.fromtimestamp(os.path.getmtime(fi))
+        ctime = ctime.replace(microsecond=0).isoformat()
+
+        # create output naf xml tree
+        root, naf_document, header, text, terms = create_naf()
+
+        create_fileDesc(fi, text_id, args.metadata, ctime, header)
+        create_public(text_id, header)
+
         # Load document
+        if fi.endswith('.gz'):
+            f = gzip.open(fi)
+        else:
+            f = fi
         context = etree.iterparse(f, events=('end',), huge_tree=True,
                                   tag=(act_tag, annotation_tag))
 
@@ -127,17 +154,11 @@ if __name__ == '__main__':
         term_id = 1
         offset = 0
 
-        # create output naf xml tree
-        root, naf_document, header, text, terms = create_naf()
-
-        ctime = datetime.datetime.fromtimestamp(os.path.getmtime(f))
-        ctime = ctime.replace(microsecond=0).isoformat()
-
-        create_fileDesc(f, text_id, args.metadata, ctime, header)
-        create_public(text_id, header)
+        found_acts = False
 
         for event, elem in context:
             if elem.tag == act_tag and elem.get('class') == 'act':
+                found_acts = True
                 # load act into memory
                 act_xml = BeautifulSoup(etree.tostring(elem), 'xml')
                 subacts = act_xml.find_all(act)
@@ -151,6 +172,21 @@ if __name__ == '__main__':
             elif elem.tag == annotation_tag:
                 lp_terms_datetime = elem.attrib.get('datetime')
 
+        del context
+
+        if not found_acts:
+            print 'Extracting sentences from s-tags'
+            f.close()
+            f = gzip.open(fi)
+
+            context = etree.iterparse(f, events=('end',), tag=sentence_tag,
+                                      huge_tree=True)
+
+            for event, elem in context:
+                if not elem.getparent().tag == note_tag:
+                    s_xml = BeautifulSoup(etree.tostring(elem), 'xml')
+                    s_id, term_id, offset = xml2naf(s_xml, s_id, term_id,
+                                                    offset, text, terms)
         # linguistic processors for terms
         generator = context.root.attrib.get('generator')
         name, version = generator.split('-')
@@ -161,7 +197,9 @@ if __name__ == '__main__':
                                    header)
 
         # save naf document
-        out_file = os.path.basename(f)
+        out_file = os.path.basename(fi)
+        if out_file.endswith('.gz'):
+            out_file = out_file.replace('.gz', '')
         xml_out = os.path.join(output_dir, out_file)
         print 'writing', xml_out
         naf_document.write(xml_out, xml_declaration=True, encoding='utf-8',
