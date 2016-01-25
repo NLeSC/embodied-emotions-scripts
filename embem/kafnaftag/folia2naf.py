@@ -1,6 +1,7 @@
 """Create a NAF file containing a terms layer from FoLiA files.
 Usage: python folia2naf.py <dir in> <corpus metadata csv> <dir out>
 """
+import recipy
 from lxml import etree
 from bs4 import BeautifulSoup
 from embem.emotools.bs4_helpers import act, sentence, word, speaker_turn, note
@@ -172,9 +173,9 @@ if __name__ == '__main__':
             elif elem.tag == annotation_tag:
                 lp_terms_datetime = elem.attrib.get('datetime')
 
-        del context
-
         if not found_acts:
+            del context
+
             print 'Extracting sentences from s-tags'
             f.close()
             f = gzip.open(fi)
