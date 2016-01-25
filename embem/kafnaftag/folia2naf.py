@@ -1,7 +1,7 @@
 """Create a NAF file containing a terms layer from FoLiA files.
 Usage: python folia2naf.py <dir in> <corpus metadata csv> <dir out>
 """
-import recipy
+#import recipy
 from lxml import etree
 from bs4 import BeautifulSoup
 from embem.emotools.bs4_helpers import act, sentence, word, speaker_turn, note
