@@ -116,7 +116,7 @@ if __name__ == '__main__':
         json_out['timeline']['sources'] = [{'uri': 'alew001besl01', 'text': 'bla bla'}]
 
         for event, data in events.iteritems():
-            data['climax-score'] = len(data['mentions'])/num_sentences*100.0
+            data['climax-score'] = len(data['mentions'])+0.0/num_sentences*100
 
             # TODO: make more intelligent choice for prefLabel (if possible)
             data['prefLabel'] = [data['labels'][0]]
