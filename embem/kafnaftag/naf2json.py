@@ -113,7 +113,10 @@ if __name__ == '__main__':
             }
         }
 
-        json_out['timeline']['sources'] = [{'uri': 'alew001besl01', 'text': 'bla bla'}]
+        text = ' '.join([wf.text for wf in soup.find_all('wf')])
+
+        json_out['timeline']['sources'] = [{'uri': 'alew001besl01',
+                                            'text': text}]
 
         for event, data in events.iteritems():
             data['climax-score'] = len(data['mentions'])+0.0/num_sentences*100
