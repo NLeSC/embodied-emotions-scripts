@@ -10,12 +10,12 @@ from random import randint
 
 
 def event(emotion_label, text_id):
-    group_score = randint(75, 100)
+    group_score = 100
     event_object = {
         'actors': {},
         'event': emotion_label,
-        'group': "{}:[\"{}\"]".format(group_score, text_id),
-        'groupName': "[\"{}\"]".format(text_id),
+        'group': "{}:{}".format(group_score, text_id),
+        'groupName': text_id,
         'groupScore': str(group_score),
         'labels': [],
         'mentions': [],
