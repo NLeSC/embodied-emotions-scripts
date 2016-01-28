@@ -62,17 +62,19 @@ def get_label(soup, mention):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('input_dir', help='directory containing naf XML files')
-    parser.add_argument('output_dir', help='the directory where the '
-                        'generated JSON files should be saved')
+    parser.add_argument('output_file', help='filename of the output (.json)')
     args = parser.parse_args()
 
     input_dir = args.input_dir
-    output_dir = args.output_dir
+    output_file = args.output_file
+    output_dir = os.path.dirname(output_file)
 
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
     xml_files = glob.glob('{}/*.xml'.format(input_dir))
+
+    events = {}
 
     for i, fi in enumerate(xml_files):
         start = time.time()
@@ -86,8 +88,6 @@ if __name__ == '__main__':
             soup = BeautifulSoup(f, 'lxml')
 
         num_sentences = int((soup.find_all('wf')[-1]).get('sent'))
-
-        events = {}
 
         emotions = soup.find_all('emotion')
         for emotion in emotions:
@@ -135,8 +135,9 @@ if __name__ == '__main__':
             #        'prefLabel': ["offer"],
             #        'time': "20090730"
             json_out['timeline']['events'].append(data)
-        with codecs.open(os.path.join(output_dir, '{}.json'.format(text_id)), 'wb', encoding='utf-8') as f:
-            json.dump(json_out, f, sort_keys=True, indent=4)
 
         end = time.time()
-        print 'generating JSON took {} sec.'.format(end-start)
+        print 'processing took {} sec.'.format(end-start)
+
+    with codecs.open(output_file, 'wb', encoding='utf-8') as f:
+        json.dump(json_out, f, sort_keys=True, indent=4)
