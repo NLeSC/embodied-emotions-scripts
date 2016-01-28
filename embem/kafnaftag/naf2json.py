@@ -12,7 +12,6 @@ def event(emotion_label, text_id):
     group_score = randint(75, 100)
     event_object = {
         'actors': {},
-        'climax-score': 0,
         'event': emotion_label,
         'group': "{}:[\"{}\"]".format(group_score, text_id),
         'groupName': "[\"{}\"]".format(text_id),
@@ -119,7 +118,7 @@ if __name__ == '__main__':
                                             'text': text}]
 
         for event, data in events.iteritems():
-            data['climax-score'] = len(data['mentions'])+0.0/num_sentences*100
+            data['climax'] = len(data['mentions'])+0.0/num_sentences*100
 
             # TODO: make more intelligent choice for prefLabel (if possible)
             data['prefLabel'] = [data['labels'][0]]
