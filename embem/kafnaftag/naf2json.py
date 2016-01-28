@@ -17,9 +17,9 @@ def event(emotion_label, text_id):
         'group': "{}:[\"{}\"]".format(group_score, text_id),
         'groupName': "[\"{}\"]".format(text_id),
         'groupScore': str(group_score),
-        'labels': ['bla'],
+        'labels': [],
         'mentions': [],
-        'prefLabel': ["offer"],
+        'prefLabel': [],
         'time': "20090730"
     }
 
@@ -49,6 +49,14 @@ def mention(emotion, soup, text_id):
         'uri': [str(text_id)]
     }
     return mention
+
+
+def get_label(soup, mention):
+    label_parts = []
+    for wid in mention['tokens']:
+        word = soup.find('wf', id=wid).text
+        label_parts.append(word)
+    return ' '.join(label_parts)
 
 
 if __name__ == '__main__':
@@ -90,7 +98,9 @@ if __name__ == '__main__':
                     label = el['reference']
                     if not events.get(label):
                         events[label] = event(label, text_id)
-                    events[label]['mentions'].append(mention(emotion, soup, text_id))
+                    m = mention(emotion, soup, text_id)
+                    events[label]['mentions'].append(m)
+                    events[label]['labels'].append(get_label(soup, m))
                 elif el['resource'] == 'heem:bodyParts':
                     for e in ems:
                         events[e]['actors'][el['reference']] = [el['reference']]
@@ -107,11 +117,9 @@ if __name__ == '__main__':
 
         for event, data in events.iteritems():
             data['climax-score'] = len(data['mentions'])/num_sentences*100.0
-            #        'actors': {},
-            #        'climax-score': 0,
-            #        'event': 'emotion_label',
-            #        'group': "100:[\"{}\"]".format(text_id),
-            #        'groupName': "[\"{}\"]".format(text_id),
+
+            # TODO: make more intelligent choice for prefLabel (if possible)
+            data['prefLabel'] = [data['labels'][0]]
             #        'groupScore': "100",
             #        'labels': [],
             #        'mentions': [],
