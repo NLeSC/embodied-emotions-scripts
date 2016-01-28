@@ -9,7 +9,7 @@ from bs4 import BeautifulSoup
 from random import randint
 
 
-def event(emotion_label, text_id):
+def create_event(emotion_label, text_id):
     group_score = 100
     event_object = {
         'actors': {},
@@ -26,7 +26,7 @@ def event(emotion_label, text_id):
     return event_object
 
 
-def mention(emotion, soup, text_id):
+def create_mention(emotion, soup, text_id):
     terms = [t['id'] for t in emotion.find_all('target')]
     tokens = [soup.find('term', id=t).span.target['id'] for t in terms]
     sentence = soup.find('wf', id=tokens[0])['sent']
@@ -98,9 +98,9 @@ if __name__ == '__main__':
             for el in emotion_labels:
                 if el['resource'] == 'heem':
                     label = el['reference']
-                    if not events.get(label):
-                        events[label] = event(label, text_id)
-                    m = mention(emotion, soup, text_id)
+                    if events.get(label) not in events.keys():
+                        events[label] = create_event(label, text_id)
+                    m = create_mention(emotion, soup, text_id)
                     events[label]['mentions'].append(m)
                     events[label]['labels'].append(get_label(soup, m))
 
