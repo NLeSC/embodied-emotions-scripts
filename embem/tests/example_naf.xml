@@ -1,0 +1,832 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<NAF lang="nl" version="v4">
+  <nafHeader>
+    <fileDesc author="Abraham Alewijn" creationtime="2015-01-16T17:24:03" filename="alew001besl01_01.xml" filetype="FoLiA/XML" title="Beslikte Swaantje en drooge Fobert"/>
+    <public publicId="alew001besl01" uri="http://dbnl.nl/titels/titel.php?id=alew001besl01"/>
+    <linguisticProcessors layer="terms">
+      <lp name="libfolia" timestamp="2014-08-13T19:30:00" version="v0.11"/>
+    </linguisticProcessors>
+    <linguisticProcessors layer="emotions">
+      <lp name="Embodied Emotions Manual Annotations" timestamp="2015-01-16T17:24:03" version="1.0"/>
+      <lp name="heem-expand-body_parts" timestamp="2015-01-16T17:24:03" version="1.0"/>
+      <lp name="heem-emoclusters-clusters" timestamp="2016-01-25T13:53:19" version="1.0"/>
+      <lp name="heem-emoclusters-posNeg" timestamp="2016-01-25T13:53:31" version="1.0"/>
+    </linguisticProcessors>
+  </nafHeader>
+  <text>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.head.205.s.1.w.1" length="8" offset="0" sent="1">Beslikte</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.head.205.s.1.w.2" length="8" offset="9" sent="1">Swaantje</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.head.205.s.1.w.3" length="1" offset="18" sent="1">,</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.head.205.s.1.w.4" length="2" offset="20" sent="1">en</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.head.205.s.1.w.5" length="6" offset="23" sent="1">Drooge</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.head.205.s.1.w.6" length="6" offset="30" sent="1">Fobert</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.head.205.s.1.w.7" length="1" offset="37" sent="1">;</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.head.205.s.1.w.8" length="2" offset="39" sent="1">of</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.head.205.s.1.w.9" length="2" offset="42" sent="1">de</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.head.205.s.1.w.10" length="5" offset="45" sent="1">boere</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.head.205.s.1.w.11" length="9" offset="51" sent="1">rechtbank</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.head.205.s.1.w.12" length="1" offset="61" sent="1">.</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.head.206.s.1.w.1" length="6" offset="63" sent="2">Eerste</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.head.206.s.1.w.2" length="6" offset="70" sent="2">bedryf</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.head.206.s.1.w.3" length="1" offset="77" sent="2">.</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.head.207.s.1.w.1" length="6" offset="79" sent="3">Eerste</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.head.207.s.1.w.2" length="7" offset="86" sent="3">tooneel</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.head.207.s.1.w.3" length="1" offset="94" sent="3">.</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.stage.209.s.1.w.1" length="3" offset="96" sent="4">Het</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.stage.209.s.1.w.2" length="7" offset="100" sent="4">Tooneel</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.stage.209.s.1.w.3" length="13" offset="108" sent="4">verbeeldeenig</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.stage.209.s.1.w.4" length="8" offset="122" sent="4">Geboomte</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.stage.209.s.1.w.5" length="1" offset="131" sent="4">,</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.stage.209.s.1.w.6" length="2" offset="133" sent="4">in</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.stage.209.s.1.w.7" length="2" offset="136" sent="4">'t</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.stage.209.s.1.w.8" length="9" offset="139" sent="4">verschiet</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.stage.209.s.1.w.9" length="3" offset="149" sent="4">een</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.stage.209.s.1.w.10" length="6" offset="153" sent="4">Heeren</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.stage.209.s.1.w.11" length="4" offset="160" sent="4">Huis</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.stage.209.s.1.w.12" length="1" offset="165" sent="4">.</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.stage.216.s.1.w.1" length="6" offset="167" sent="5">Crelis</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.stage.216.s.1.w.2" length="1" offset="174" sent="5">,</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.stage.216.s.1.w.3" length="2" offset="176" sent="5">en</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.stage.216.s.1.w.4" length="4" offset="179" sent="5">Kryn</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.stage.216.s.1.w.5" length="1" offset="184" sent="5">,</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.stage.216.s.1.w.6" length="9" offset="186" sent="5">malkander</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.stage.216.s.1.w.7" length="2" offset="196" sent="5">en</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.stage.216.s.1.w.8" length="2" offset="199" sent="5">op</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.stage.216.s.1.w.9" length="3" offset="202" sent="5">den</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.stage.216.s.1.w.10" length="3" offset="206" sent="5">weg</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.stage.216.s.1.w.11" length="11" offset="210" sent="5">ontmoetende</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.stage.216.s.1.w.12" length="1" offset="222" sent="5">.</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.speaker.219.s.1.w.1" length="6" offset="224" sent="6">Crelis</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.speaker.219.s.1.w.2" length="1" offset="231" sent="6">.</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.1.w.1" length="3" offset="233" sent="7">Wat</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.1.w.2" length="5" offset="237" sent="7">hebje</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.1.w.3" length="4" offset="243" sent="7">veur</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.1.w.4" length="3" offset="248" sent="7">met</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.1.w.5" length="3" offset="252" sent="7">dat</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.1.w.6" length="8" offset="256" sent="7">Cyteeren</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.1.w.7" length="1" offset="265" sent="7">?</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.2.w.1" length="3" offset="267" sent="8">Wat</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.2.w.2" length="4" offset="271" sent="8">meug</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.2.w.3" length="2" offset="276" sent="8">jy</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.2.w.4" length="6" offset="279" sent="8">leggen</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.2.w.5" length="12" offset="286" sent="8">prossedeeren</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.2.w.6" length="1" offset="299" sent="8">?</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.3.w.1" length="3" offset="301" sent="9">Myn</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.3.w.2" length="5" offset="305" sent="9">goeje</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.3.w.3" length="3" offset="311" sent="9">man</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.3.w.4" length="1" offset="315" sent="9">;</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.3.w.5" length="2" offset="317" sent="9">'k</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.3.w.6" length="3" offset="320" sent="9">lag</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.3.w.7" length="3" offset="324" sent="9">met</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.3.w.8" length="3" offset="328" sent="9">jou</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.3.w.9" length="4" offset="332" sent="9">plyt</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.3.w.10" length="1" offset="337" sent="9">;</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.3.w.11" length="2" offset="339" sent="9">Ho</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.3.w.12" length="1" offset="342" sent="9">,</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.3.w.13" length="4" offset="344" sent="9">Kryn</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.3.w.14" length="1" offset="349" sent="9">,</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.3.w.15" length="2" offset="351" sent="9">je</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.3.w.16" length="4" offset="354" sent="9">bent</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.3.w.17" length="3" offset="359" sent="9">het</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.3.w.18" length="6" offset="363" sent="9">byltje</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.3.w.19" length="4" offset="370" sent="9">kwyt</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.3.w.20" length="1" offset="375" sent="9">.</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.speaker.228.s.1.w.1" length="4" offset="377" sent="10">Kryn</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.speaker.228.s.1.w.2" length="1" offset="382" sent="10">.</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.1.w.1" length="3" offset="384" sent="11">Wel</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.1.w.2" length="1" offset="388" sent="11">,</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.1.w.3" length="4" offset="390" sent="11">ouwe</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.1.w.4" length="4" offset="395" sent="11">Cees</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.1.w.5" length="1" offset="400" sent="11">,</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.1.w.6" length="3" offset="402" sent="11">hoe</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.1.w.7" length="6" offset="406" sent="11">keunje</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.1.w.8" length="7" offset="413" sent="11">praeten</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.1.w.9" length="1" offset="421" sent="11">?</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.1" length="2" offset="423" sent="12">'k</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.2" length="3" offset="426" sent="12">Zeg</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.3" length="4" offset="430" sent="12">noch</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.4" length="1" offset="435" sent="12">,</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.5" length="2" offset="437" sent="12">ik</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.6" length="3" offset="440" sent="12">zel</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.7" length="2" offset="444" sent="12">'t</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.8" length="1" offset="447" sent="12">'</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.9" length="2" offset="449" sent="12">er</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.10" length="4" offset="452" sent="12">niet</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.11" length="2" offset="457" sent="12">by</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.12" length="6" offset="460" sent="12">laeten</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.13" length="1" offset="467" sent="12">,</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.14" length="2" offset="469" sent="12">Al</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.15" length="4" offset="472" sent="12">zouw</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.16" length="3" offset="477" sent="12">het</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.17" length="7" offset="481" sent="12">onderst</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.18" length="5" offset="489" sent="12">boven</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.19" length="5" offset="495" sent="12">staen</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.20" length="1" offset="501" sent="12">;</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.21" length="3" offset="503" sent="12">Lag</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.22" length="2" offset="507" sent="12">jy</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.23" length="3" offset="510" sent="12">vry</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.24" length="3" offset="514" sent="12">uit</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.25" length="1" offset="518" sent="12">;</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.26" length="2" offset="520" sent="12">'t</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.27" length="3" offset="523" sent="12">zal</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.28" length="2" offset="527" sent="12">zo</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.29" length="4" offset="530" sent="12">niet</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.30" length="4" offset="535" sent="12">gaen</wf>
+    <wf id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.31" length="1" offset="540" sent="12">.</wf>
+  </text>
+  <terms>
+    <term id="t1" lemma="beslikte" pos="V" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.head.205.s.1.w.1"/>
+      </span>
+    </term>
+    <term id="t2" lemma="Swaantje" pos="O" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.head.205.s.1.w.2"/>
+      </span>
+    </term>
+    <term id="t3" lemma="," pos="O" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.head.205.s.1.w.3"/>
+      </span>
+    </term>
+    <term id="t4" lemma="en" pos="C" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.head.205.s.1.w.4"/>
+      </span>
+    </term>
+    <term id="t5" lemma="Drooge" pos="O" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.head.205.s.1.w.5"/>
+      </span>
+    </term>
+    <term id="t6" lemma="Fobert" pos="O" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.head.205.s.1.w.6"/>
+      </span>
+    </term>
+    <term id="t7" lemma=";" pos="O" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.head.205.s.1.w.7"/>
+      </span>
+    </term>
+    <term id="t8" lemma="of" pos="C" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.head.205.s.1.w.8"/>
+      </span>
+    </term>
+    <term id="t9" lemma="de" pos="D" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.head.205.s.1.w.9"/>
+      </span>
+    </term>
+    <term id="t10" lemma="boere" pos="G" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.head.205.s.1.w.10"/>
+      </span>
+    </term>
+    <term id="t11" lemma="rechtbank" pos="N" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.head.205.s.1.w.11"/>
+      </span>
+    </term>
+    <term id="t12" lemma="." pos="O" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.head.205.s.1.w.12"/>
+      </span>
+    </term>
+    <term id="t13" lemma="een" pos="O" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.head.206.s.1.w.1"/>
+      </span>
+    </term>
+    <term id="t14" lemma="bedryf" pos="N" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.head.206.s.1.w.2"/>
+      </span>
+    </term>
+    <term id="t15" lemma="." pos="O" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.head.206.s.1.w.3"/>
+      </span>
+    </term>
+    <term id="t16" lemma="een" pos="O" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.head.207.s.1.w.1"/>
+      </span>
+    </term>
+    <term id="t17" lemma="tooneel" pos="N" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.head.207.s.1.w.2"/>
+      </span>
+    </term>
+    <term id="t18" lemma="." pos="O" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.head.207.s.1.w.3"/>
+      </span>
+    </term>
+    <term id="t19" lemma="het" pos="D" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.stage.209.s.1.w.1"/>
+      </span>
+    </term>
+    <term id="t20" lemma="tooneel" pos="N" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.stage.209.s.1.w.2"/>
+      </span>
+    </term>
+    <term id="t21" lemma="verbeeldeenig" pos="N" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.stage.209.s.1.w.3"/>
+      </span>
+    </term>
+    <term id="t22" lemma="Geboomte" pos="O" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.stage.209.s.1.w.4"/>
+      </span>
+    </term>
+    <term id="t23" lemma="," pos="O" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.stage.209.s.1.w.5"/>
+      </span>
+    </term>
+    <term id="t24" lemma="in" pos="O" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.stage.209.s.1.w.6"/>
+      </span>
+    </term>
+    <term id="t25" lemma="'t" pos="D" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.stage.209.s.1.w.7"/>
+      </span>
+    </term>
+    <term id="t26" lemma="verschieten" pos="V" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.stage.209.s.1.w.8"/>
+      </span>
+    </term>
+    <term id="t27" lemma="een" pos="D" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.stage.209.s.1.w.9"/>
+      </span>
+    </term>
+    <term id="t28" lemma="Heeren" pos="O" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.stage.209.s.1.w.10"/>
+      </span>
+    </term>
+    <term id="t29" lemma="Huis" pos="O" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.stage.209.s.1.w.11"/>
+      </span>
+    </term>
+    <term id="t30" lemma="." pos="O" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.stage.209.s.1.w.12"/>
+      </span>
+    </term>
+    <term id="t31" lemma="crelis" pos="N" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.stage.216.s.1.w.1"/>
+      </span>
+    </term>
+    <term id="t32" lemma="," pos="O" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.stage.216.s.1.w.2"/>
+      </span>
+    </term>
+    <term id="t33" lemma="en" pos="C" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.stage.216.s.1.w.3"/>
+      </span>
+    </term>
+    <term id="t34" lemma="Kryn" pos="O" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.stage.216.s.1.w.4"/>
+      </span>
+    </term>
+    <term id="t35" lemma="," pos="O" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.stage.216.s.1.w.5"/>
+      </span>
+    </term>
+    <term id="t36" lemma="malkander" pos="Q" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.stage.216.s.1.w.6"/>
+      </span>
+    </term>
+    <term id="t37" lemma="en" pos="C" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.stage.216.s.1.w.7"/>
+      </span>
+    </term>
+    <term id="t38" lemma="op" pos="P" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.stage.216.s.1.w.8"/>
+      </span>
+    </term>
+    <term id="t39" lemma="de" pos="D" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.stage.216.s.1.w.9"/>
+      </span>
+    </term>
+    <term id="t40" lemma="weg" pos="A" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.stage.216.s.1.w.10"/>
+      </span>
+    </term>
+    <term id="t41" lemma="ontmoetende" pos="V" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.stage.216.s.1.w.11"/>
+      </span>
+    </term>
+    <term id="t42" lemma="." pos="O" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.stage.216.s.1.w.12"/>
+      </span>
+    </term>
+    <term id="t43" lemma="Crelis" pos="O" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.speaker.219.s.1.w.1"/>
+      </span>
+    </term>
+    <term id="t44" lemma="." pos="O" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.speaker.219.s.1.w.2"/>
+      </span>
+    </term>
+    <term id="t45" lemma="wat" pos="Q" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.1.w.1"/>
+      </span>
+    </term>
+    <term id="t46" lemma="heb" pos="N" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.1.w.2"/>
+      </span>
+    </term>
+    <term id="t47" lemma="veur" pos="N" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.1.w.3"/>
+      </span>
+    </term>
+    <term id="t48" lemma="met" pos="P" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.1.w.4"/>
+      </span>
+    </term>
+    <term id="t49" lemma="dat" pos="Q" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.1.w.5"/>
+      </span>
+    </term>
+    <term id="t50" lemma="cyteeren" pos="V" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.1.w.6"/>
+      </span>
+    </term>
+    <term id="t51" lemma="?" pos="O" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.1.w.7"/>
+      </span>
+    </term>
+    <term id="t52" lemma="wat" pos="Q" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.2.w.1"/>
+      </span>
+    </term>
+    <term id="t53" lemma="meug" pos="N" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.2.w.2"/>
+      </span>
+    </term>
+    <term id="t54" lemma="jy" pos="Q" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.2.w.3"/>
+      </span>
+    </term>
+    <term id="t55" lemma="leggen" pos="V" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.2.w.4"/>
+      </span>
+    </term>
+    <term id="t56" lemma="prossedeeren" pos="V" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.2.w.5"/>
+      </span>
+    </term>
+    <term id="t57" lemma="?" pos="O" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.2.w.6"/>
+      </span>
+    </term>
+    <term id="t58" lemma="Myn" pos="O" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.3.w.1"/>
+      </span>
+    </term>
+    <term id="t59" lemma="goeje" pos="G" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.3.w.2"/>
+      </span>
+    </term>
+    <term id="t60" lemma="man" pos="N" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.3.w.3"/>
+      </span>
+    </term>
+    <term id="t61" lemma=";" pos="O" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.3.w.4"/>
+      </span>
+    </term>
+    <term id="t62" lemma="ik" pos="Q" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.3.w.5"/>
+      </span>
+    </term>
+    <term id="t63" lemma="liggen" pos="V" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.3.w.6"/>
+      </span>
+    </term>
+    <term id="t64" lemma="met" pos="P" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.3.w.7"/>
+      </span>
+    </term>
+    <term id="t65" lemma="jou" pos="Q" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.3.w.8"/>
+      </span>
+    </term>
+    <term id="t66" lemma="plyt" pos="N" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.3.w.9"/>
+      </span>
+    </term>
+    <term id="t67" lemma=";" pos="O" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.3.w.10"/>
+      </span>
+    </term>
+    <term id="t68" lemma="ho" pos="N" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.3.w.11"/>
+      </span>
+    </term>
+    <term id="t69" lemma="," pos="O" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.3.w.12"/>
+      </span>
+    </term>
+    <term id="t70" lemma="Kryn" pos="O" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.3.w.13"/>
+      </span>
+    </term>
+    <term id="t71" lemma="," pos="O" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.3.w.14"/>
+      </span>
+    </term>
+    <term id="t72" lemma="je" pos="Q" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.3.w.15"/>
+      </span>
+    </term>
+    <term id="t73" lemma="zijn" pos="V" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.3.w.16"/>
+      </span>
+    </term>
+    <term id="t74" lemma="het" pos="D" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.3.w.17"/>
+      </span>
+    </term>
+    <term id="t75" lemma="byl" pos="N" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.3.w.18"/>
+      </span>
+    </term>
+    <term id="t76" lemma="kwyt" pos="V" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.3.w.19"/>
+      </span>
+    </term>
+    <term id="t77" lemma="." pos="O" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.3.w.20"/>
+      </span>
+    </term>
+    <term id="t78" lemma="Kryn" pos="O" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.speaker.228.s.1.w.1"/>
+      </span>
+    </term>
+    <term id="t79" lemma="." pos="O" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.speaker.228.s.1.w.2"/>
+      </span>
+    </term>
+    <term id="t80" lemma="wel" pos="A" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.1.w.1"/>
+      </span>
+    </term>
+    <term id="t81" lemma="," pos="O" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.1.w.2"/>
+      </span>
+    </term>
+    <term id="t82" lemma="oud" pos="G" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.1.w.3"/>
+      </span>
+    </term>
+    <term id="t83" lemma="Cees" pos="O" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.1.w.4"/>
+      </span>
+    </term>
+    <term id="t84" lemma="," pos="O" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.1.w.5"/>
+      </span>
+    </term>
+    <term id="t85" lemma="hoe" pos="A" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.1.w.6"/>
+      </span>
+    </term>
+    <term id="t86" lemma="keunje" pos="N" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.1.w.7"/>
+      </span>
+    </term>
+    <term id="t87" lemma="praeten" pos="N" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.1.w.8"/>
+      </span>
+    </term>
+    <term id="t88" lemma="?" pos="O" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.1.w.9"/>
+      </span>
+    </term>
+    <term id="t89" lemma="ik" pos="Q" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.1"/>
+      </span>
+    </term>
+    <term id="t90" lemma="zeggen" pos="V" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.2"/>
+      </span>
+    </term>
+    <term id="t91" lemma="noch" pos="C" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.3"/>
+      </span>
+    </term>
+    <term id="t92" lemma="," pos="O" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.4"/>
+      </span>
+    </term>
+    <term id="t93" lemma="ik" pos="Q" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.5"/>
+      </span>
+    </term>
+    <term id="t94" lemma="zel" pos="V" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.6"/>
+      </span>
+    </term>
+    <term id="t95" lemma="het" pos="Q" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.7"/>
+      </span>
+    </term>
+    <term id="t96" lemma="'" pos="O" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.8"/>
+      </span>
+    </term>
+    <term id="t97" lemma="er" pos="Q" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.9"/>
+      </span>
+    </term>
+    <term id="t98" lemma="niet" pos="A" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.10"/>
+      </span>
+    </term>
+    <term id="t99" lemma="by" pos="O" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.11"/>
+      </span>
+    </term>
+    <term id="t100" lemma="laeten" pos="N" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.12"/>
+      </span>
+    </term>
+    <term id="t101" lemma="," pos="O" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.13"/>
+      </span>
+    </term>
+    <term id="t102" lemma="al" pos="A" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.14"/>
+      </span>
+    </term>
+    <term id="t103" lemma="zouw" pos="N" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.15"/>
+      </span>
+    </term>
+    <term id="t104" lemma="het" pos="D" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.16"/>
+      </span>
+    </term>
+    <term id="t105" lemma="onderst" pos="G" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.17"/>
+      </span>
+    </term>
+    <term id="t106" lemma="boven" pos="P" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.18"/>
+      </span>
+    </term>
+    <term id="t107" lemma="staen" pos="N" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.19"/>
+      </span>
+    </term>
+    <term id="t108" lemma=";" pos="O" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.20"/>
+      </span>
+    </term>
+    <term id="t109" lemma="liggen" pos="V" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.21"/>
+      </span>
+    </term>
+    <term id="t110" lemma="jy" pos="Q" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.22"/>
+      </span>
+    </term>
+    <term id="t111" lemma="vry" pos="N" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.23"/>
+      </span>
+    </term>
+    <term id="t112" lemma="uit" pos="P" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.24"/>
+      </span>
+    </term>
+    <term id="t113" lemma=";" pos="O" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.25"/>
+      </span>
+    </term>
+    <term id="t114" lemma="het" pos="Q" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.26"/>
+      </span>
+    </term>
+    <term id="t115" lemma="zullen" pos="V" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.27"/>
+      </span>
+    </term>
+    <term id="t116" lemma="zo" pos="A" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.28"/>
+      </span>
+    </term>
+    <term id="t117" lemma="niet" pos="A" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.29"/>
+      </span>
+    </term>
+    <term id="t118" lemma="gaen" pos="V" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.30"/>
+      </span>
+    </term>
+    <term id="t119" lemma="." pos="O" type="open">
+      <span>
+        <target id="alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.31"/>
+      </span>
+    </term>
+  </terms>
+  <emotions>
+    <emotion id="emo0">
+      <emotion_target/>
+      <emotion_holder/>
+      <emotion_expression/>
+      <span>
+        <!-- kop -->
+        <target id="t45"/>
+      </span>
+      <externalReferences>
+        <externalRef reference="conceptType:bodyPart" resource="heem"/>
+        <externalRef reference="head" resource="heem:bodyParts"/>
+      </externalReferences>
+    </emotion>
+    <emotion id="emo1">
+      <emotion_target/>
+      <emotion_holder/>
+      <emotion_expression/>
+      <span>
+        <!-- maek my de kop niet warm -->
+        <target id="t45"/>
+        <target id="t46"/>
+        <target id="t47"/>
+        <target id="t48"/>
+        <target id="t49"/>
+        <target id="t50"/>
+      </span>
+      <externalReferences>
+        <externalRef reference="conceptType:bodilyProcess" resource="heem"/>
+        <externalRef reference="emotionType:anger" resource="heem"/>
+        <externalRef reference="liver" resource="heem:bodyParts"/>
+        <externalRef reference="anger" resource="heem:clusters"/>
+        <externalRef reference="negative" resource="heem:posNeg"/>
+      </externalReferences>
+    </emotion>
+    <emotion id="emo2">
+      <emotion_target/>
+      <emotion_holder/>
+      <emotion_expression/>
+      <span>
+        <!-- leed -->
+        <target id="t75"/>
+      </span>
+      <externalReferences>
+        <externalRef reference="conceptType:emotion" resource="heem"/>
+        <externalRef reference="emotionType:sadness" resource="heem"/>
+        <externalRef reference="sadness" resource="heem:clusters"/>
+        <externalRef reference="negative" resource="heem:posNeg"/>
+      </externalReferences>
+    </emotion>
+    <emotion id="emo3">
+      <emotion_target/>
+      <emotion_holder/>
+      <emotion_expression/>
+      <span>
+        <!-- rouwen -->
+        <target id="t82"/>
+      </span>
+      <externalReferences>
+        <externalRef reference="conceptType:emotion" resource="heem"/>
+        <externalRef reference="emotionType:remorse" resource="heem"/>
+        <externalRef reference="sadness" resource="heem:clusters"/>
+        <externalRef reference="negative" resource="heem:posNeg"/>
+      </externalReferences>
+    </emotion>
+    <emotion id="emo4">
+      <emotion_target/>
+      <emotion_holder/>
+      <emotion_expression/>
+      <span>
+        <!-- traanen -->
+        <target id="t90"/>
+      </span>
+      <externalReferences>
+        <externalRef reference="conceptType:bodyPart" resource="heem"/>
+        <externalRef reference="tears" resource="heem:bodyParts"/>
+        <externalRef reference="emotionType:sadness" resource="heem"/>
+        <externalRef reference="sadness" resource="heem:clusters"/>
+        <externalRef reference="negative" resource="heem:posNeg"/>
+      </externalReferences>
+    </emotion>
+    <emotion id="emo5">
+      <emotion_target/>
+      <emotion_holder/>
+      <emotion_expression/>
+      <span>
+        <!-- huilen -->
+        <target id="t100"/>
+      </span>
+      <externalReferences>
+        <externalRef reference="conceptType:bodilyProcess" resource="heem"/>
+        <externalRef reference="emotionType:sadness" resource="heem"/>
+        <externalRef reference="snot" resource="heem:bodyParts"/>
+        <externalRef reference="sadness" resource="heem:clusters"/>
+        <externalRef reference="negative" resource="heem:posNeg"/>
+      </externalReferences>
+    </emotion>
+  </emotions>
+</NAF>
