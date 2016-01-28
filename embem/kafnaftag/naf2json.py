@@ -3,6 +3,7 @@ import argparse
 import os
 import glob
 import json
+import time
 
 from bs4 import BeautifulSoup
 from random import randint
@@ -74,6 +75,8 @@ if __name__ == '__main__':
     xml_files = glob.glob('{}/*.xml'.format(input_dir))
 
     for i, fi in enumerate(xml_files):
+        start = time.time()
+
         print '{} ({} of {})'.format(fi, (i + 1), len(xml_files))
         text_id = fi[-20:-7]
 
@@ -133,3 +136,6 @@ if __name__ == '__main__':
             json_out['timeline']['events'].append(data)
         with codecs.open(os.path.join(output_dir, '{}.json'.format(text_id)), 'wb', encoding='utf-8') as f:
             json.dump(json_out, f, sort_keys=True, indent=4)
+
+        end = time.time()
+        print 'generating JSON took {} sec.'.format(end-start)
