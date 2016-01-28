@@ -127,7 +127,8 @@ if __name__ == '__main__':
             data['climax'] = len(data['mentions'])+0.0/num_sentences*100
 
             # TODO: make more intelligent choice for prefLabel (if possible)
-            data['prefLabel'] = [data['labels'][0]]
+            # Also, it seems that prefLabel is not used in the visualization
+            data['prefLabel'] = [data['event']]
             #        'groupScore': "100",
             #        'labels': [],
             #        'mentions': [],
