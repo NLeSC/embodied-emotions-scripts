@@ -100,9 +100,12 @@ if __name__ == '__main__':
                     m = mention(emotion, soup, text_id)
                     events[label]['mentions'].append(m)
                     events[label]['labels'].append(get_label(soup, m))
-                elif el['resource'] == 'heem:bodyParts':
+
+            for el in emotion_labels:
+                if el['resource'] == 'heem:bodyParts':
                     for e in ems:
                         events[e]['actors'][el['reference']] = [el['reference']]
+
         print events.keys()
 
         json_out = {
