@@ -177,8 +177,9 @@ if __name__ == '__main__':
             del context
 
             print 'Extracting sentences from s-tags'
-            f.close()
-            f = gzip.open(fi)
+            if fi.endswith('.gz'):
+                f.close()
+                f = gzip.open(fi)
 
             context = etree.iterparse(f, events=('end',), tag=sentence_tag,
                                       huge_tree=True)
