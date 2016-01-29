@@ -61,6 +61,10 @@ def get_label(soup, mention):
     return ' '.join(label_parts)
 
 
+def event_name(label, text_id):
+    return '{}_{}'.format(label, text_id)
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('input_dir', help='directory containing naf XML files')
@@ -110,7 +114,7 @@ if __name__ == '__main__':
             ems = [l['reference'] for l in emotion_labels if l['reference'].startswith('emotionType:')]
             for el in emotion_labels:
                 if el['resource'] == 'heem':
-                    label = el['reference']+text_id
+                    label = event_name(el['reference'], text_id)
 
                     if label not in events.keys():
                         #print 'created new event', label
@@ -126,7 +130,7 @@ if __name__ == '__main__':
                     #print 'found bodypart', el['reference']
                     #print ems
                     for e in ems:
-                        events[e+text_id]['actors'][el['reference']] = [el['reference']]
+                        events[event_name(e, text_id)]['actors'][el['reference']] = [el['reference']]
                         #print 'event'
                         #print events[e+text_id]
                         #print 'actors'
