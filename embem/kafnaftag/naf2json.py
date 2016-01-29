@@ -144,7 +144,12 @@ if __name__ == '__main__':
             data['prefLabel'] = [data['event']]
             json_out['timeline']['events'].append(data)
 
-        output_file = output_file.replace('.json', '{}.json'.format(i))
-        print output_file
-        with codecs.open(output_file, 'wb', encoding='utf-8') as f:
+        # write temporary output
+        temp_output_file = output_file.replace('.json', '{}.json'.format(i))
+        print temp_output_file
+        with codecs.open(temp_output_file, 'wb', encoding='utf-8') as f:
             json.dump(json_out, f, sort_keys=True, indent=4)
+
+    # write output
+    with codecs.open(output_file, 'wb', encoding='utf-8') as f:
+        json.dump(json_out, f, sort_keys=True, indent=4)
