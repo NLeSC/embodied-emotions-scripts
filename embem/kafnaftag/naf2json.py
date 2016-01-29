@@ -76,6 +76,12 @@ if __name__ == '__main__':
 
     events = {}
     sources = {}
+    json_out = {
+        'timeline': {
+            'events': [],
+            'sources': []
+        }
+    }
 
     for i, fi in enumerate(xml_files):
         start = time.time()
@@ -98,40 +104,47 @@ if __name__ == '__main__':
             ems = [l['reference'] for l in emotion_labels if l['reference'].startswith('emotionType:')]
             for el in emotion_labels:
                 if el['resource'] == 'heem':
-                    label = el['reference']
-                    if events.get(label) not in events.keys():
+                    label = el['reference']+text_id
+
+                    if label not in events.keys():
+                        #print 'created new event', label
                         events[label] = create_event(label, text_id)
                     m = create_mention(emotion, soup, text_id)
                     events[label]['mentions'].append(m)
                     events[label]['labels'].append(get_label(soup, m))
 
             for el in emotion_labels:
+                #print 'checking for bodyparts'
                 if el['resource'] == 'heem:bodyParts':
+                    #print 'found bodypart', el['reference']
+                    #print ems
                     for e in ems:
-                        events[e]['actors'][el['reference']] = [el['reference']]
+                        events[e+text_id]['actors'][el['reference']] = [el['reference']]
+                        #print 'event'
+                        #print events[e+text_id]
+                        #print 'actors'
+                        #print events[e+text_id]['actors']
+                        #print 'actor value'
+                        #print events[e+text_id]['actors'][el['reference']]
+                        #print
 
         sources[text_id] = ' '.join([wf.text for wf in soup.find_all('wf')])
 
-    end = time.time()
-    print 'processing took {} sec.'.format(end-start)
+        end = time.time()
+        print 'processing took {} sec.'.format(end-start)
 
-    json_out = {
-        'timeline': {
-            'events': [],
-            'sources': []
-        }
-    }
+        for tid, text in sources.iteritems():
+            json_out['timeline']['sources'].append({'uri': tid, 'text': text})
 
-    for tid, text in sources.iteritems():
-        json_out['timeline']['sources'].append({'uri': tid, 'text': text})
+        for event, data in events.iteritems():
+            data['climax'] = len(data['mentions'])+0.0/num_sentences*100
 
-    for event, data in events.iteritems():
-        data['climax'] = len(data['mentions'])+0.0/num_sentences*100
+            # TODO: make more intelligent choice for prefLabel (if possible)
+            # Also, it seems that prefLabel is not used in the visualization
+            data['prefLabel'] = [data['event']]
+            json_out['timeline']['events'].append(data)
 
-        # TODO: make more intelligent choice for prefLabel (if possible)
-        # Also, it seems that prefLabel is not used in the visualization
-        data['prefLabel'] = [data['event']]
-        json_out['timeline']['events'].append(data)
-
-    with codecs.open(output_file, 'wb', encoding='utf-8') as f:
-        json.dump(json_out, f, sort_keys=True, indent=4)
+        output_file = output_file.replace('.json', '{}.json'.format(i))
+        print output_file
+        with codecs.open(output_file, 'wb', encoding='utf-8') as f:
+            json.dump(json_out, f, sort_keys=True, indent=4)
