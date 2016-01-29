@@ -75,6 +75,7 @@ if __name__ == '__main__':
     xml_files = glob.glob('{}/*.xml'.format(input_dir))
 
     events = {}
+    sources = {}
 
     for i, fi in enumerate(xml_files):
         start = time.time()
@@ -109,35 +110,28 @@ if __name__ == '__main__':
                     for e in ems:
                         events[e]['actors'][el['reference']] = [el['reference']]
 
-        print events.keys()
+        sources[text_id] = ' '.join([wf.text for wf in soup.find_all('wf')])
 
-        json_out = {
-            'timeline': {
-                'events': [],
-                'sources': []
-            }
+    end = time.time()
+    print 'processing took {} sec.'.format(end-start)
+
+    json_out = {
+        'timeline': {
+            'events': [],
+            'sources': []
         }
+    }
 
-        text = ' '.join([wf.text for wf in soup.find_all('wf')])
+    for tid, text in sources.iteritems():
+        json_out['timeline']['sources'].append({'uri': tid, 'text': text})
 
-        json_out['timeline']['sources'] = [{'uri': 'alew001besl01',
-                                            'text': text}]
+    for event, data in events.iteritems():
+        data['climax'] = len(data['mentions'])+0.0/num_sentences*100
 
-        for event, data in events.iteritems():
-            data['climax'] = len(data['mentions'])+0.0/num_sentences*100
-
-            # TODO: make more intelligent choice for prefLabel (if possible)
-            # Also, it seems that prefLabel is not used in the visualization
-            data['prefLabel'] = [data['event']]
-            #        'groupScore': "100",
-            #        'labels': [],
-            #        'mentions': [],
-            #        'prefLabel': ["offer"],
-            #        'time': "20090730"
-            json_out['timeline']['events'].append(data)
-
-        end = time.time()
-        print 'processing took {} sec.'.format(end-start)
+        # TODO: make more intelligent choice for prefLabel (if possible)
+        # Also, it seems that prefLabel is not used in the visualization
+        data['prefLabel'] = [data['event']]
+        json_out['timeline']['events'].append(data)
 
     with codecs.open(output_file, 'wb', encoding='utf-8') as f:
         json.dump(json_out, f, sort_keys=True, indent=4)
