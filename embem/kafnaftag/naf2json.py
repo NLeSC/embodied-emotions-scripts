@@ -8,8 +8,10 @@ import time
 from bs4 import BeautifulSoup
 from random import randint
 
+from embem.machinelearningdata.count_labels import corpus_metadata
 
-def create_event(emotion_label, text_id):
+
+def create_event(emotion_label, text_id, year):
     group_score = 100
     event_object = {
         'actors': {},
@@ -20,7 +22,7 @@ def create_event(emotion_label, text_id):
         'labels': [],
         'mentions': [],
         'prefLabel': [],
-        'time': "20090730"
+        'time': "{}0000".format(year)
     }
 
     return event_object
@@ -62,6 +64,8 @@ def get_label(soup, mention):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('input_dir', help='directory containing naf XML files')
+    parser.add_argument('metadata', help='the name of the csv file containing '
+                        'collection metadata')
     parser.add_argument('output_file', help='filename of the output (.json)')
     args = parser.parse_args()
 
@@ -73,6 +77,9 @@ if __name__ == '__main__':
         os.makedirs(output_dir)
 
     xml_files = glob.glob('{}/*.xml'.format(input_dir))
+
+    text2period, text2year, text2genre, period2text, genre2text = \
+        corpus_metadata(args.metadata)
 
     events = {}
     json_out = {
@@ -107,7 +114,8 @@ if __name__ == '__main__':
 
                     if label not in events.keys():
                         #print 'created new event', label
-                        events[label] = create_event(label, text_id)
+                        year = text2year[text_id]
+                        events[label] = create_event(label, text_id, year)
                     m = create_mention(emotion, soup, text_id)
                     events[label]['mentions'].append(m)
                     events[label]['labels'].append(get_label(soup, m))
