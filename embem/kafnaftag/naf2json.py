@@ -75,7 +75,6 @@ if __name__ == '__main__':
     xml_files = glob.glob('{}/*.xml'.format(input_dir))
 
     events = {}
-    sources = {}
     json_out = {
         'timeline': {
             'events': [],
@@ -128,13 +127,11 @@ if __name__ == '__main__':
                         #print events[e+text_id]['actors'][el['reference']]
                         #print
 
-        sources[text_id] = ' '.join([wf.text for wf in soup.find_all('wf')])
-
         end = time.time()
         print 'processing took {} sec.'.format(end-start)
 
-        for tid, text in sources.iteritems():
-            json_out['timeline']['sources'].append({'uri': tid, 'text': text})
+        text = ' '.join([wf.text for wf in soup.find_all('wf')])
+        json_out['timeline']['sources'].append({'uri': text_id, 'text': text})
 
         for event, data in events.iteritems():
             data['climax'] = len(data['mentions'])+0.0/num_sentences*100
