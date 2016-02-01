@@ -7,6 +7,7 @@ import time
 
 from bs4 import BeautifulSoup
 from random import randint
+from collections import Counter
 
 from embem.machinelearningdata.count_labels import corpus_metadata
 
@@ -22,7 +23,7 @@ def create_event(emotion_label, text_id, year):
         'labels': [],
         'mentions': [],
         'prefLabel': [],
-        'time': "{}0000".format(year)
+        'time': "{}0101".format(year)
     }
 
     return event_object
@@ -31,7 +32,7 @@ def create_event(emotion_label, text_id, year):
 def create_mention(emotion, soup, text_id):
     terms = [t['id'] for t in emotion.find_all('target')]
     tokens = [soup.find('term', id=t).span.target['id'] for t in terms]
-    sentence = soup.find('wf', id=tokens[0])['sent']
+    #sentence = soup.find('wf', id=tokens[0])['sent']
 
     if terms > 1:
         begin = soup.find('wf', id=tokens[0])['offset']
@@ -45,8 +46,6 @@ def create_mention(emotion, soup, text_id):
 
     mention = {
         'char': chars,
-        'sentence': sentence,
-        'terms': terms,
         'tokens': tokens,
         'uri': [str(text_id)]
     }
@@ -96,6 +95,8 @@ if __name__ == '__main__':
     for i, fi in enumerate(xml_files):
         start = time.time()
 
+        mention_counter = Counter()
+
         print '{} ({} of {})'.format(fi, (i + 1), len(xml_files))
         text_id = fi[-20:-7]
 
@@ -107,6 +108,7 @@ if __name__ == '__main__':
         num_sentences = int((soup.find_all('wf')[-1]).get('sent'))
 
         emotions = soup.find_all('emotion')
+        print 'text contains {} emotions'.format(len(emotions))
         for emotion in emotions:
             # for some reason, BeautifulSoup does not see the capitals in
             # <externalRef>
@@ -121,6 +123,7 @@ if __name__ == '__main__':
                         year = text2year[text_id]
                         events[label] = create_event(label, text_id, year)
                     m = create_mention(emotion, soup, text_id)
+                    mention_counter[label] += 1
                     events[label]['mentions'].append(m)
                     events[label]['labels'].append(get_label(soup, m))
 
@@ -138,6 +141,9 @@ if __name__ == '__main__':
                         #print 'actor value'
                         #print events[e+text_id]['actors'][el['reference']]
                         #print
+
+        print 'found {} events'.format(len(mention_counter.keys()))
+        print 'top three events: {}'.format(' '.join(['{} ({})'.format(k, v) for k, v in mention_counter.most_common(3)]))
 
         end = time.time()
         print 'processing took {} sec.'.format(end-start)
