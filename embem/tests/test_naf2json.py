@@ -46,9 +46,7 @@ def test_create_mention():
                          'alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.1.w.4',
                          'alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.1.w.5',
                          'alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.1.w.6'],
-              'terms': ['t45', 't46', 't47', 't48', 't49', 't50'],
-              'uri': ['text_id'],
-              'sentence': '7'}
+              'uri': ['text_id']}
 
     m = create_mention(emotion, soup, text_id)
 
@@ -63,6 +61,7 @@ def test_get_label():
 def test_create_event():
     emotion_label = 'conceptType:bodyPart'
     group_score = 100
+    year = 1719
 
     event_object = {
         'actors': {},
@@ -73,7 +72,11 @@ def test_create_event():
         'labels': [],
         'mentions': [],
         'prefLabel': [],
-        'time': "20090730"
+        'time': "17190101"
     }
 
-    assert_equal(event_object, create_event(emotion_label, text_id))
+    assert_equal(event_object, create_event(emotion_label, text_id, year))
+
+
+#def test_process_emotions():
+#    process_emotions(emotions, soup, text_id, year)
