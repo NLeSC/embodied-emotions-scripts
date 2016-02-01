@@ -90,7 +90,7 @@ def process_emotions(soup, text_id, year):
         for el in emotion_labels:
             #print 'checking for bodyparts'
             if el['resource'] == 'heem:bodyParts':
-                print 'found bodypart', el['reference']
+                #print 'found bodypart', el['reference']
                 #print ems
                 for e in ems:
                     events[event_name(e, text_id)]['actors'][el['reference']] = [el['reference']]
