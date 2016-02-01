@@ -1,4 +1,4 @@
-from nose.tools import assert_equal
+from nose.tools import assert_equal, assert_true
 
 from bs4 import BeautifulSoup
 from codecs import open
@@ -147,3 +147,21 @@ def test_add_events():
     add_events(events, num_sentences, json_object)
 
     yield assert_equal, 12, len(json_object['timeline']['events'])
+
+
+def test_add_events_climax_score():
+    year = 1918
+    json_object = {
+        'timeline': {
+            'events': [],
+            'sources': []
+        }
+    }
+    events, mention_counter = process_emotions(soup, text_id, year)
+    num_sentences = get_num_sentences(soup)
+    add_events(events, num_sentences, json_object)
+
+    # every event has a climax score
+    for e in json_object['timeline']['events']:
+        yield assert_true, e.get('climax')
+        yield assert_equal, len(e['mentions'])+0.0/num_sentences*100, e.get('climax')
