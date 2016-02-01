@@ -84,7 +84,6 @@ if __name__ == '__main__':
     text2period, text2year, text2genre, period2text, genre2text = \
         corpus_metadata(args.metadata)
 
-    events = {}
     json_out = {
         'timeline': {
             'events': [],
@@ -95,6 +94,7 @@ if __name__ == '__main__':
     for i, fi in enumerate(xml_files):
         start = time.time()
 
+        events = {}
         mention_counter = Counter()
 
         print '{} ({} of {})'.format(fi, (i + 1), len(xml_files))
@@ -142,7 +142,7 @@ if __name__ == '__main__':
                         #print events[e+text_id]['actors'][el['reference']]
                         #print
 
-        print 'found {} events'.format(len(mention_counter.keys()))
+        print 'found {} events and {} mentions'.format(len(mention_counter.keys()), sum(mention_counter.values()))
         print 'top three events: {}'.format(' '.join(['{} ({})'.format(k, v) for k, v in mention_counter.most_common(3)]))
 
         end = time.time()
