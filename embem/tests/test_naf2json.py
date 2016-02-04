@@ -67,9 +67,9 @@ def test_create_event():
 
     event_object = {
         'actors': {},
-        'event': emotion_label,
-        'group': "{}:{}".format(group_score, text_id),
-        'groupName': text_id,
+        'event': event_name(emotion_label, text_id),
+        'group': "{}:{}".format(group_score, emotion_label),
+        'groupName': emotion_label,
         'groupScore': str(group_score),
         'labels': [],
         'mentions': [],

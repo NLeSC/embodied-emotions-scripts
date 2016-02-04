@@ -16,9 +16,9 @@ def create_event(emotion_label, text_id, year):
     group_score = 100
     event_object = {
         'actors': {},
-        'event': emotion_label,
-        'group': "{}:{}".format(group_score, text_id),
-        'groupName': text_id,
+        'event': event_name(emotion_label, text_id),
+        'group': "{}:{}".format(group_score, emotion_label),
+        'groupName': emotion_label,
         'groupScore': str(group_score),
         'labels': [],
         'mentions': [],
@@ -81,7 +81,7 @@ def process_emotions(soup, text_id, year):
 
                 if label not in events.keys():
                     #print 'created new event', label
-                    events[label] = create_event(label, text_id, year)
+                    events[label] = create_event(el['reference'], text_id, year)
                 m = create_mention(emotion, soup, text_id)
                 mention_counter[label] += 1
                 events[label]['mentions'].append(m)
