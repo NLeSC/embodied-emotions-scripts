@@ -168,7 +168,9 @@ column and a column for every expanded body part
 `predictions2emotion_expanded_bodypart_pairs.py` -> Generate pairs (emotion
 label - expanded body part) for predicted labels.  
 `predictions2emotion_concept_pairs.py` -> Generate emotion label - concept type
-pairs for predicted labels
+pairs for predicted labels  
+`json2csv.py` -> save data from the entity_vis/embem_entity_graph_title graph to
+csv
 
 ### Embem
 
