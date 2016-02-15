@@ -30,7 +30,7 @@ Emodied Emotions Scripts are stored. Start the iPython notebook server by typing
 
 Click on the notebook you want to use.
 
-There are 6 notebooks:
+There are 7 notebooks:
 
 * `00_CreateClassifiers.ipynb`
 * `01_CreateDataForPrediction.ipynb`
@@ -38,9 +38,13 @@ There are 6 notebooks:
 * `03_AnalysisCorpora.ipynb`
 * `04_HEEMLabelsResults.ipynb`
 * `05_EmotionBodyPartsResults.ipynb`
+* `corpus metadata for DANS.ipynb`
 
 Notebooks 03--05 were used to do the analyses for paper 3. These can be used as
 an example of how to analyse new classified texts.
+
+The corpus metadata notebook was used to create the metadata .csv file for the
+HEEM dataset that will be transfered to DANS.
 
 ## Code
 
