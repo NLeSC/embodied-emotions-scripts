@@ -1,2 +1,6 @@
+[general]
+debug
 [database]
 path = /home/jvdzwaan/data/embem-recipy/recipy.json
+[data]
+file_diff_outputs

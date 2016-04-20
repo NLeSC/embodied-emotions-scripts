@@ -1,3 +1,4 @@
+import recipy
 import codecs
 import argparse
 import os
@@ -167,7 +168,7 @@ if __name__ == '__main__':
 
         print text_id
 
-        with codecs.open(fi, 'rb', encoding='utf-8') as f:
+        with recipy.open(fi, 'rb', encoding='utf-8') as f:
             soup = BeautifulSoup(f, 'lxml')
 
         year = text2year[text_id]
@@ -190,9 +191,9 @@ if __name__ == '__main__':
         # write intermediary output
         temp_output_file = output_file.replace('.json', '{}.json'.format(i))
         print temp_output_file
-        with codecs.open(temp_output_file, 'wb', encoding='utf-8') as f:
+        with recipy.open(temp_output_file, 'wb', encoding='utf-8') as f:
             json.dump(json_out, f, sort_keys=True, indent=4)
 
     # write output
-    with codecs.open(output_file, 'wb', encoding='utf-8') as f:
+    with recipy.open(output_file, 'wb', encoding='utf-8') as f:
         json.dump(json_out, f, sort_keys=True, indent=4)
