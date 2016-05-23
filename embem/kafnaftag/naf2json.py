@@ -11,6 +11,7 @@ from random import randint
 from collections import Counter
 
 from embem.machinelearningdata.count_labels import corpus_metadata
+from embem.emotools.heem_utils import heem_labels_en, heem_emotion_labels
 
 
 def create_event(emotion_label, text_id, year):
@@ -65,7 +66,7 @@ def event_name(label, text_id):
     return '{}_{}'.format(label, text_id)
 
 
-def process_emotions(soup, text_id, year):
+def process_emotions(soup, text_id, year, em_labels):
     events = {}
     mention_counter = Counter()
 
@@ -77,7 +78,7 @@ def process_emotions(soup, text_id, year):
         emotion_labels = emotion.find_all('externalref')
         ems = [l['reference'].split(':')[1] for l in emotion_labels if l['reference'].startswith('emotionType:')]
         for el in emotion_labels:
-            if el['resource'] == 'heem':
+            if el['resource'] == 'heem' and el['reference'].split(':')[1] in em_labels:
                 label = event_name(el['reference'].split(':')[1], text_id)
 
                 if label not in events.keys():
@@ -156,6 +157,9 @@ if __name__ == '__main__':
     text2period, text2year, text2genre, period2text, genre2text = \
         corpus_metadata(args.metadata)
 
+    # the labels for which groups are created (emotion labels only)
+    emotion_labels = [heem_labels_en[l].lower() for l in heem_emotion_labels]
+
     json_out = {
         'timeline': {
             'events': [],
@@ -180,7 +184,7 @@ if __name__ == '__main__':
         year = text2year[text_id]
         num_sentences = get_num_sentences(soup)
 
-        events, mention_counter = process_emotions(soup, text_id, year)
+        events, mention_counter = process_emotions(soup, text_id, year, emotion_labels)
         num_events += len(mention_counter.keys())
 
         end = time.time()
