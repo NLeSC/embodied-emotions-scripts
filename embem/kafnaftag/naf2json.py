@@ -5,6 +5,7 @@ import os
 import glob
 import json
 import time
+import pandas as pd
 
 from bs4 import BeautifulSoup
 from random import randint
@@ -31,7 +32,7 @@ def create_event(emotion_label, text_id, year):
     return event_object
 
 
-def create_mention(emotion, soup, text_id):
+def create_mention(emotion, soup, text_id, source):
     terms = [t['id'] for t in emotion.find_all('target')]
     tokens = [soup.find('term', id=t).span.target['id'] for t in terms]
     #sentence = soup.find('wf', id=tokens[0])['sent']
@@ -49,7 +50,8 @@ def create_mention(emotion, soup, text_id):
     mention = {
         'char': chars,
         'tokens': tokens,
-        'uri': [str(text_id)]
+        'uri': [str(text_id)],
+        'perspective': [{'source': source}]
     }
     return mention
 
@@ -66,7 +68,7 @@ def event_name(label, text_id):
     return '{}_{}'.format(label, text_id)
 
 
-def process_emotions(soup, text_id, year, em_labels):
+def process_emotions(soup, text_id, year, source, em_labels):
     events = {}
     mention_counter = Counter()
 
@@ -83,7 +85,7 @@ def process_emotions(soup, text_id, year, em_labels):
                 if label not in events.keys():
                     #print 'created new event', label
                     events[label] = create_event(el['reference'].split(':')[1], text_id, year)
-                m = create_mention(emotion, soup, text_id)
+                m = create_mention(emotion, soup, text_id, source)
                 mention_counter[label] += 1
                 events[label]['mentions'].append(m)
                 events[label]['labels'].append(get_label(soup, m))
@@ -172,6 +174,9 @@ if __name__ == '__main__':
     text2period, text2year, text2genre, period2text, genre2text = \
         corpus_metadata(args.metadata)
 
+    metadata = pd.read_csv(args.metadata, header=None, sep='\\t', index_col=0,
+                           encoding='utf-8', engine='python')
+
     # the labels for which groups are created (emotion labels only)
     emotion_labels = [heem_labels_en[l].lower() for l in heem_emotion_labels]
 
@@ -189,8 +194,12 @@ if __name__ == '__main__':
 
         print '{} ({} of {})'.format(fi, (i + 1), len(xml_files))
         text_id = fi[-20:-7]
+        title = metadata.at[text_id, 3].decode('utf-8')
+        author = metadata.at[text_id, 4].decode('utf-8')
+        source = u'{} - {}'.format(title, author)
 
         print text_id
+        print source
 
         with recipy.open(fi, 'rb', encoding='utf-8') as f:
             soup = BeautifulSoup(f, 'lxml')
@@ -198,7 +207,8 @@ if __name__ == '__main__':
         year = text2year[text_id]
         num_sentences = get_num_sentences(soup)
 
-        events, mention_counter = process_emotions(soup, text_id, year, emotion_labels)
+        events, mention_counter = process_emotions(soup, text_id, year, source,
+                                                   emotion_labels)
         num_events += len(mention_counter.keys())
 
         end = time.time()
