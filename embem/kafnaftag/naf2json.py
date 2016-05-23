@@ -19,7 +19,7 @@ def create_event(emotion_label, text_id, year):
     event_object = {
         'actors': {},
         'event': event_name(emotion_label, text_id),
-        'group': "{}:{}".format(group_score, emotion_label),
+        'group': emotion_label,
         'groupName': emotion_label,
         'groupScore': str(group_score),
         'labels': [],
