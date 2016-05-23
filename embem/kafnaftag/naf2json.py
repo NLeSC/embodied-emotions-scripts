@@ -76,7 +76,6 @@ def process_emotions(soup, text_id, year, em_labels):
         # for some reason, BeautifulSoup does not see the capitals in
         # <externalRef>
         emotion_labels = emotion.find_all('externalref')
-        ems = [l['reference'].split(':')[1] for l in emotion_labels if l['reference'].startswith('emotionType:')]
         for el in emotion_labels:
             if el['resource'] == 'heem' and el['reference'].split(':')[1] in em_labels:
                 label = event_name(el['reference'].split(':')[1], text_id)
@@ -94,8 +93,26 @@ def process_emotions(soup, text_id, year, em_labels):
             if el['resource'] == 'heem:bodyParts':
                 #print 'found bodypart', el['reference']
                 #print ems
+                target_id = el.parent.parent.span.target['id']
+                targets = soup.find_all('target', id=target_id)
+                #print 'number of times target id used:', len(targets), target_id
+                ems = []
+                for target in targets:
+                    #print target.parent.parent.externalreferences.find_all('externalref')
+                    for l in target.parent.parent.externalreferences.find_all('externalref'):
+                        #print l
+                        if l['resource'] == 'heem':
+                            name = l['reference'].split(':')[1]
+                            if name in em_labels:
+                                ems.append(name)
+
+                #print ems
                 for e in ems:
-                    events[event_name(e, text_id)]['actors'][el['reference']] = [el['reference']]
+                    label = event_name(e, text_id)
+                    if label not in events.keys():
+                        #print 'created new event', label
+                        events[label] = create_event(e, text_id, year)
+                    events[label]['actors'][el['reference']] = [el['reference']]
                     #print 'event'
                     #print events[e+text_id]
                     #print 'actors'
@@ -134,8 +151,6 @@ def add_events(events, num_sentences, json_object):
         data['prefLabel'] = [data['event']]
         json_object['timeline']['events'].append(data)
 
-    return climax_scores
-
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -168,7 +183,6 @@ if __name__ == '__main__':
     }
 
     num_events = 0
-    climax_scores = []
 
     for i, fi in enumerate(xml_files):
         start = time.time()
@@ -190,7 +204,7 @@ if __name__ == '__main__':
         end = time.time()
         print 'processing took {} sec.'.format(end-start)
 
-        climax_scores.append(add_events(events, num_sentences, json_out))
+        add_events(events, num_sentences, json_out)
 
         print 'Now {} events in the JSON'.format(len(json_out['timeline']['events']))
         if num_events != len(json_out['timeline']['events']):
