@@ -204,18 +204,6 @@ if __name__ == '__main__':
         with recipy.open(temp_output_file, 'wb', encoding='utf-8') as f:
             json.dump(json_out, f, sort_keys=True, indent=4)
 
-    # normalize climax scores (0-100)
-
-    # Flatten list
-    cl_scores = [item for sublist in climax_scores for item in sublist]
-    min_climax = min(cl_scores)
-    max_climax = max(cl_scores)
-
-    print 'Found climax scores between {} and {}'.format(min_climax, max_climax)
-
-    for event in json_out['timeline']['events']:
-        event['climax'] = (event['climax'] - min_climax) / (max_climax - min_climax) * 100
-
     # write output
     with recipy.open(output_file, 'wb', encoding='utf-8') as f:
         json.dump(json_out, f, sort_keys=True, indent=4)
