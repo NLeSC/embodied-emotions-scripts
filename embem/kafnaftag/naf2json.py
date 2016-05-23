@@ -75,14 +75,14 @@ def process_emotions(soup, text_id, year):
         # for some reason, BeautifulSoup does not see the capitals in
         # <externalRef>
         emotion_labels = emotion.find_all('externalref')
-        ems = [l['reference'] for l in emotion_labels if l['reference'].startswith('emotionType:')]
+        ems = [l['reference'].split(':')[1] for l in emotion_labels if l['reference'].startswith('emotionType:')]
         for el in emotion_labels:
             if el['resource'] == 'heem':
-                label = event_name(el['reference'], text_id)
+                label = event_name(el['reference'].split(':')[1], text_id)
 
                 if label not in events.keys():
                     #print 'created new event', label
-                    events[label] = create_event(el['reference'], text_id, year)
+                    events[label] = create_event(el['reference'].split(':')[1], text_id, year)
                 m = create_mention(emotion, soup, text_id)
                 mention_counter[label] += 1
                 events[label]['mentions'].append(m)
