@@ -122,13 +122,18 @@ def add_source_text(soup, text_id, json_object):
 
 
 def add_events(events, num_sentences, json_object):
+    climax_scores = []
     for event, data in events.iteritems():
-        data['climax'] = len(data['mentions'])+0.0/num_sentences*100
+        climax = len(data['mentions'])+0.0/num_sentences*100
+        data['climax'] = climax
+        climax_scores.append(climax)
 
         # TODO: make more intelligent choice for prefLabel (if possible)
         # Also, it seems that prefLabel is not used in the visualization
         data['prefLabel'] = [data['event']]
         json_object['timeline']['events'].append(data)
+
+    return climax_scores
 
 
 if __name__ == '__main__':
@@ -159,6 +164,7 @@ if __name__ == '__main__':
     }
 
     num_events = 0
+    climax_scores = []
 
     for i, fi in enumerate(xml_files):
         start = time.time()
@@ -180,7 +186,7 @@ if __name__ == '__main__':
         end = time.time()
         print 'processing took {} sec.'.format(end-start)
 
-        add_events(events, num_sentences, json_out)
+        climax_scores.append(add_events(events, num_sentences, json_out))
 
         print 'Now {} events in the JSON'.format(len(json_out['timeline']['events']))
         if num_events != len(json_out['timeline']['events']):
@@ -193,6 +199,18 @@ if __name__ == '__main__':
         print temp_output_file
         with recipy.open(temp_output_file, 'wb', encoding='utf-8') as f:
             json.dump(json_out, f, sort_keys=True, indent=4)
+
+    # normalize climax scores (0-100)
+
+    # Flatten list
+    cl_scores = [item for sublist in climax_scores for item in sublist]
+    min_climax = min(cl_scores)
+    max_climax = max(cl_scores)
+
+    print 'Found climax scores between {} and {}'.format(min_climax, max_climax)
+
+    for event in json_out['timeline']['events']:
+        event['climax'] = (event['climax'] - min_climax) / (max_climax - min_climax) * 100
 
     # write output
     with recipy.open(output_file, 'wb', encoding='utf-8') as f:
