@@ -10,7 +10,7 @@ from embem.emotools.heem_utils import heem_concept_type_labels, \
 import pandas as pd
 from collections import Counter
 import codecs
-from genre2period import get_time_period
+from embem.corpus.genre2period import get_time_period
 import numpy as np
 
 
