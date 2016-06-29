@@ -19,7 +19,7 @@ def create_event(emotion_label, text_id, year):
     group_score = 100
     event_object = {
         'actors': {},
-        'event': event_name(emotion_label, text_id),
+        'event': event_name(emotion_label, year),
         'group': emotion_label,
         'groupName': emotion_label,
         'groupScore': str(group_score),
@@ -64,8 +64,8 @@ def get_label(soup, mention):
     return ' '.join(label_parts)
 
 
-def event_name(label, text_id):
-    return '{}_{}'.format(label, text_id)
+def event_name(emotion_label, unique):
+    return '{}_{}'.format(emotion_label, unique)
 
 
 def process_emotions(soup, text_id, year, source, em_labels):

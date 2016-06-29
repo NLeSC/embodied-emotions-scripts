@@ -73,7 +73,7 @@ def test_create_event():
 
     event_object = {
         'actors': {},
-        'event': event_name(emotion_label, text_id),
+        'event': event_name(emotion_label, year),
         'group': emotion_label,
         'groupName': emotion_label,
         'groupScore': str(group_score),
