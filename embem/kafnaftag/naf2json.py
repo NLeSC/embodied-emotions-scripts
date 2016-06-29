@@ -81,7 +81,7 @@ def process_emotions(soup, text_id, year, source, em_labels):
         emotion_labels = emotion.find_all('externalref')
         for el in emotion_labels:
             if el['resource'] == 'heem' and el['reference'].split(':')[1] in em_labels:
-                label = event_name(el['reference'].split(':')[1], text_id)
+                label = event_name(el['reference'].split(':')[1], year)
 
                 if label not in events.keys():
                     #print 'created new event', label
@@ -111,7 +111,7 @@ def process_emotions(soup, text_id, year, source, em_labels):
 
                 #print ems
                 for e in ems:
-                    label = event_name(e, text_id)
+                    label = event_name(e, year)
                     if label not in events.keys():
                         #print 'created new event', label
                         events[label] = create_event(e, text_id, year)
