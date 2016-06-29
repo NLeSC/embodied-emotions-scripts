@@ -1,11 +1,11 @@
-import recipy
-import codecs
-import argparse
+#import recipy
+from codecs import open
 import os
 import glob
 import json
 import time
 import pandas as pd
+import click
 
 from bs4 import BeautifulSoup
 from random import randint
@@ -154,17 +154,12 @@ def add_events(events, num_sentences, json_object):
         json_object['timeline']['events'].append(data)
 
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('input_dir', help='directory containing naf XML files')
-    parser.add_argument('metadata', help='the name of the csv file containing '
-                        'collection metadata')
-    parser.add_argument('output_file', help='filename of the output (.json)')
-    args = parser.parse_args()
-
-    input_dir = args.input_dir
-    output_file = args.output_file
-    output_dir = os.path.dirname(output_file)
+@click.command()
+@click.argument('input_dir', type=click.Path(exists=True))
+@click.argument('metadata', type=click.Path(exists=True))
+@click.argument('output_file', type=click.Path())
+def run(input_dir, metadata, output_file):
+    output_dir = os.path.dirname(click.format_filename(output_file))
 
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
@@ -172,9 +167,9 @@ if __name__ == '__main__':
     xml_files = glob.glob('{}/*.xml'.format(input_dir))
 
     text2period, text2year, text2genre, period2text, genre2text = \
-        corpus_metadata(args.metadata)
+        corpus_metadata(metadata)
 
-    metadata = pd.read_csv(args.metadata, header=None, sep='\\t', index_col=0,
+    metadata = pd.read_csv(metadata, header=None, sep='\\t', index_col=0,
                            encoding='utf-8', engine='python')
 
     # the labels for which groups are created (emotion labels only)
@@ -201,7 +196,7 @@ if __name__ == '__main__':
         print text_id
         print source
 
-        with recipy.open(fi, 'rb', encoding='utf-8') as f:
+        with open(fi, 'rb', encoding='utf-8') as f:
             soup = BeautifulSoup(f, 'lxml')
 
         year = text2year[text_id]
@@ -225,9 +220,13 @@ if __name__ == '__main__':
         # write intermediary output
         temp_output_file = output_file.replace('.json', '{}.json'.format(i))
         print temp_output_file
-        with recipy.open(temp_output_file, 'wb', encoding='utf-8') as f:
+        with open(temp_output_file, 'wb', encoding='utf-8') as f:
             json.dump(json_out, f, sort_keys=True, indent=4)
 
     # write output
-    with recipy.open(output_file, 'wb', encoding='utf-8') as f:
+    with open(output_file, 'wb', encoding='utf-8') as f:
         json.dump(json_out, f, sort_keys=True, indent=4)
+
+
+if __name__ == '__main__':
+    run()
