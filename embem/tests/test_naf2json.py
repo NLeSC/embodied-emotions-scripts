@@ -11,6 +11,7 @@ from embem.emotools.heem_utils import heem_labels_en, heem_emotion_labels
 
 def setup():
     global soup
+    global soup2
     global emotion
     global text_id
     global source
@@ -18,6 +19,9 @@ def setup():
 
     with open('embem/tests/example_naf.xml', 'rb', encoding='utf-8') as f:
         soup = BeautifulSoup(f, 'lxml')
+
+    with open('embem/tests/example_naf_confidence.xml', 'rb', encoding='utf-8') as f:
+        soup2 = BeautifulSoup(f, 'lxml')
 
     emotion = BeautifulSoup('<emotion id="emo1">'
                             '<emotion_target/>'
@@ -104,6 +108,22 @@ def test_process_emotions():
 
     yield assert_equal, 3, len(events)
     yield assert_equal, 3, len(mention_counter)
+
+
+def test_process_emotions_confidence_all():
+    year = 1719
+    events, mention_counter = process_emotions(soup2, text_id, year, source, emotion_labels, confidence=0.0)
+
+    yield assert_equal, 2, len(events)
+    yield assert_equal, 2, len(mention_counter)
+
+
+def test_process_emotions_confidence_not_all():
+    year = 1719
+    events, mention_counter = process_emotions(soup2, text_id, year, source, emotion_labels, confidence=0.8)
+
+    yield assert_equal, 1, len(events)
+    yield assert_equal, 1, len(mention_counter)
 
 
 def test_get_num_sentences():

@@ -69,7 +69,9 @@ def event_name(emotion_label, unique):
     return '{}_{}'.format(emotion_label, unique)
 
 
-def process_emotions(soup, text_id, year, source, em_labels):
+def process_emotions(soup, text_id, year, source, em_labels, confidence=0.5):
+    assert confidence <= 1.0, 'Confidence threshold > 1.0'
+
     events = {}
     mention_counter = Counter()
 
@@ -80,11 +82,17 @@ def process_emotions(soup, text_id, year, source, em_labels):
         # <externalRef>
         emotion_labels = emotion.find_all('externalref')
         for el in emotion_labels:
-            if el['resource'] == 'heem' and el['reference'].split(':')[1] in em_labels:
+            c = float(el.get('confidence', 1.0))
+            #print 'confidence', c
+            #print 'over threshold', c >= confidence
+
+            if el['resource'] == 'heem' and \
+               el['reference'].split(':')[1] in em_labels and \
+               c >= confidence:
                 label = event_name(el['reference'].split(':')[1], year)
 
                 if label not in events.keys():
-                    #print 'created new event', label
+                    print 'created new event', label
                     events[label] = create_event(el['reference'].split(':')[1], text_id, year)
                 m = create_mention(emotion, soup, text_id, source)
                 mention_counter[label] += 1
@@ -93,7 +101,8 @@ def process_emotions(soup, text_id, year, source, em_labels):
 
         for el in emotion_labels:
             #print 'checking for bodyparts'
-            if el['resource'] == 'heem:bodyParts':
+            c = float(el.get('confidence', 1.0))
+            if el['resource'] == 'heem:bodyParts' and c >= confidence:
                 #print 'found bodypart', el['reference']
                 #print ems
                 target_id = el.parent.parent.span.target['id']
@@ -104,7 +113,8 @@ def process_emotions(soup, text_id, year, source, em_labels):
                     #print target.parent.parent.externalreferences.find_all('externalref')
                     for l in target.parent.parent.externalreferences.find_all('externalref'):
                         #print l
-                        if l['resource'] == 'heem':
+                        c = float(l.get('confidence', 1.0))
+                        if l['resource'] == 'heem' and c >= confidence:
                             name = l['reference'].split(':')[1]
                             if name in em_labels:
                                 ems.append(name)
@@ -113,7 +123,7 @@ def process_emotions(soup, text_id, year, source, em_labels):
                 for e in ems:
                     label = event_name(e, year)
                     if label not in events.keys():
-                        #print 'created new event', label
+                        print 'created new event2', label
                         events[label] = create_event(e, text_id, year)
                     events[label]['actors'][el['reference']] = [el['reference']]
                     #print 'event'
@@ -159,7 +169,8 @@ def add_events(events, num_sentences, json_object):
 @click.argument('input_dir', type=click.Path(exists=True))
 @click.argument('metadata', type=click.Path(exists=True))
 @click.argument('output_file', type=click.Path())
-def run(input_dir, metadata, output_file):
+@click.option('--confidence', default=0.5, help='Confidence value threshold.')
+def run(input_dir, metadata, output_file, confidence):
     output_dir = os.path.dirname(click.format_filename(output_file))
 
     if not os.path.exists(output_dir):
@@ -218,7 +229,7 @@ def run(input_dir, metadata, output_file):
         num_sentences = get_num_sentences(soup)
 
         events, mention_counter = process_emotions(soup, text_id, year, source,
-                                                   emotion_labels)
+                                                   emotion_labels, confidence)
         num_events += len(mention_counter.keys())
 
         end = time.time()
