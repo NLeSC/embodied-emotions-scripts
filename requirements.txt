@@ -6,3 +6,4 @@ scipy
 pandas
 ipython[notebook]
 matplotlib
+click==6.6
