@@ -166,6 +166,10 @@ def run(input_dir, metadata, output_file):
         os.makedirs(output_dir)
 
     xml_files = glob.glob('{}/*.*'.format(input_dir))
+    # The naf files containing predicted labels are stored in different
+    # directories.
+    if len(xml_files) == 0:
+        xml_files = glob.glob('{}/*/*.*'.format(input_dir))
 
     text2period, text2year, text2genre, period2text, genre2text = \
         corpus_metadata(metadata)
