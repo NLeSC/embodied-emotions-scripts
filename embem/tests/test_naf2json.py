@@ -5,8 +5,11 @@ from codecs import open
 
 from embem.kafnaftag.naf2json import create_mention, get_label, create_event, \
     event_name, process_emotions, get_num_sentences, get_text, \
-    add_source_text, add_events
+    add_source_text, add_events, merge_events
 from embem.emotools.heem_utils import heem_labels_en, heem_emotion_labels
+
+
+assert_equal.__self__.maxDiff = None
 
 
 def setup():
@@ -173,6 +176,158 @@ def test_add_events():
     add_events(events, num_sentences, json_object)
 
     yield assert_equal, 6, len(json_object['timeline']['events'])
+
+
+def test_merge_events():
+    event1 = {
+                "actors": {
+                    "liver": [
+                        "liver"
+                    ]
+                },
+                "climax": 1.0,
+                "event": "anger_1715",
+                "group": "anger",
+                "groupName": "anger",
+                "groupScore": "100",
+                "labels": [
+                    "Wat hebje veur met dat Cyteeren"
+                ],
+                "mentions": [
+                    {
+                        "char": [
+                            "233",
+                            "264"
+                        ],
+                        "perspective": [
+                            {
+                                "source": "Beslikte Swaantje en drooge Fobert - Abraham Alewijn"
+                            }
+                        ],
+                        "tokens": [
+                            "alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.1.w.1",
+                            "alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.1.w.2",
+                            "alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.1.w.3",
+                            "alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.1.w.4",
+                            "alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.1.w.5",
+                            "alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.1.w.6"
+                        ],
+                        "uri": [
+                            "alew001besl01"
+                        ]
+                    }
+                ],
+                "prefLabel": [
+                    "anger_1715"
+                ],
+                "time": "17150101"
+            }
+    event2 = {
+                "actors": {
+                    "tears": [
+                        "tears"
+                    ]
+                },
+                "climax": 1.0,
+                "event": "anger_1715",
+                "group": "anger",
+                "groupName": "anger",
+                "groupScore": "100",
+                "labels": [
+                    "Zeg"
+                ],
+                "mentions": [
+                    {
+                        "char": [
+                            "426",
+                            "429"
+                        ],
+                        "perspective": [
+                            {
+                                "source": "Beslikte Swaantje en drooge Fobert - Abraham Alewijn"
+                            }
+                        ],
+                        "tokens": [
+                            "alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.2"
+                        ],
+                        "uri": [
+                            "alew001besl01"
+                        ]
+                    }
+                ],
+                "prefLabel": [
+                    "sadness_1715"
+                ],
+                "time": "17150101"
+            }
+    merged = {
+                "actors": {
+                    "liver": [
+                        "liver"
+                    ],
+                    "tears": [
+                        "tears"
+                    ]
+                },
+                "climax": 2.0,
+                "event": "anger_1715",
+                "group": "anger",
+                "groupName": "anger",
+                "groupScore": "100",
+                "labels": [
+                    "Wat hebje veur met dat Cyteeren",
+                    "Zeg"
+                ],
+                "mentions": [
+                    {
+                        "char": [
+                            "233",
+                            "264"
+                        ],
+                        "perspective": [
+                            {
+                                "source": "Beslikte Swaantje en drooge Fobert - Abraham Alewijn"
+                            }
+                        ],
+                        "tokens": [
+                            "alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.1.w.1",
+                            "alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.1.w.2",
+                            "alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.1.w.3",
+                            "alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.1.w.4",
+                            "alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.1.w.5",
+                            "alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.1.w.6"
+                        ],
+                        "uri": [
+                            "alew001besl01"
+                        ]
+                    },
+                    {
+                        "char": [
+                            "426",
+                            "429"
+                        ],
+                        "perspective": [
+                            {
+                                "source": "Beslikte Swaantje en drooge Fobert - Abraham Alewijn"
+                            }
+                        ],
+                        "tokens": [
+                            "alew001besl01_01.TEI.2.text.body.div.div.sp.237.s.2.w.2"
+                        ],
+                        "uri": [
+                            "alew001besl01"
+                        ]
+                    }
+                ],
+                "prefLabel": [
+                    "anger_1715"
+                ],
+                "time": "17150101"
+            }
+
+    result = merge_events(event1, event2)
+
+    yield assert_equal, merged, result
 
 
 def test_add_events_climax_score():

@@ -165,6 +165,19 @@ def add_events(events, num_sentences, json_object):
         json_object['timeline']['events'].append(data)
 
 
+def merge_events(event1, event2):
+    event = event1.copy()
+    for k, v in event2['actors'].iteritems():
+        event1['actors'][k] = v
+    event['climax'] = event1['climax'] + event2['climax']
+    # Do not change event, group, groupName, groupScore
+    event['labels'] = event1['labels'] + event2['labels']
+    event['mentions'] = event1['mentions'] + event2['mentions']
+    # Do not change prefLabel, time
+
+    return event
+
+
 @click.command()
 @click.argument('input_dir', type=click.Path(exists=True))
 @click.argument('metadata', type=click.Path(exists=True))
