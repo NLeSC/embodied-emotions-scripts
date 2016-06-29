@@ -6,6 +6,7 @@ import json
 import time
 import pandas as pd
 import click
+import zipfile
 
 from bs4 import BeautifulSoup
 from random import randint
@@ -164,7 +165,7 @@ def run(input_dir, metadata, output_file):
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
-    xml_files = glob.glob('{}/*.xml'.format(input_dir))
+    xml_files = glob.glob('{}/*.*'.format(input_dir))
 
     text2period, text2year, text2genre, period2text, genre2text = \
         corpus_metadata(metadata)
@@ -188,16 +189,26 @@ def run(input_dir, metadata, output_file):
         start = time.time()
 
         print '{} ({} of {})'.format(fi, (i + 1), len(xml_files))
-        text_id = fi[-20:-7]
+        text_id = os.path.basename(fi).split('.')[0]
+        text_id = text_id.split('_')[0]
+
         title = metadata.at[text_id, 3].decode('utf-8')
-        author = metadata.at[text_id, 4].decode('utf-8')
+        author = metadata.at[text_id, 4]
+        # compensate for the fact that the author field is sometines empty
+        if author:
+            author = author.decode('utf-8')
         source = u'{} - {}'.format(title, author)
 
         print text_id
         print source
 
-        with open(fi, 'rb', encoding='utf-8') as f:
-            soup = BeautifulSoup(f, 'lxml')
+        if zipfile.is_zipfile(fi):
+            zf = zipfile.ZipFile(fi, 'r')
+            xml = zf.read(zf.namelist()[0])
+            soup = BeautifulSoup(xml, 'lxml')
+        else:
+            with open(fi, 'rb', encoding='utf-8') as f:
+                soup = BeautifulSoup(f, 'lxml')
 
         year = text2year[text_id]
         num_sentences = get_num_sentences(soup)
