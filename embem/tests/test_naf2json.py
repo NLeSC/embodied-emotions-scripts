@@ -6,12 +6,15 @@ from codecs import open
 from embem.kafnaftag.naf2json import create_mention, get_label, create_event, \
     event_name, process_emotions, get_num_sentences, get_text, \
     add_source_text, add_events
+from embem.emotools.heem_utils import heem_labels_en, heem_emotion_labels
 
 
 def setup():
     global soup
     global emotion
     global text_id
+    global source
+    global emotion_labels
 
     with open('embem/tests/example_naf.xml', 'rb', encoding='utf-8') as f:
         soup = BeautifulSoup(f, 'lxml')
@@ -38,10 +41,13 @@ def setup():
                             '</externalReferences>'
                             '</emotion>', 'lxml')
     text_id = 'text_id'
+    source = 'Wat hebje veur met dat Cyteeren'
+    emotion_labels = [heem_labels_en[l].lower() for l in heem_emotion_labels]
 
 
 def test_create_mention():
     result = {'char': ['233', '264'],
+              'perspective': [{'source': '{}'.format(source)}],
               'tokens': ['alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.1.w.1',
                          'alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.1.w.2',
                          'alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.1.w.3',
@@ -50,13 +56,13 @@ def test_create_mention():
                          'alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.1.w.6'],
               'uri': ['text_id']}
 
-    m = create_mention(emotion, soup, text_id)
+    m = create_mention(emotion, soup, text_id, source)
 
     assert_equal(result, m)
 
 
 def test_get_label():
-    l = get_label(soup, create_mention(emotion, soup, text_id))
+    l = get_label(soup, create_mention(emotion, soup, text_id, source))
     assert_equal('Wat hebje veur met dat Cyteeren', l)
 
 
@@ -68,7 +74,7 @@ def test_create_event():
     event_object = {
         'actors': {},
         'event': event_name(emotion_label, text_id),
-        'group': "{}:{}".format(group_score, emotion_label),
+        'group': emotion_label,
         'groupName': emotion_label,
         'groupScore': str(group_score),
         'labels': [],
@@ -88,16 +94,16 @@ def test_process_emotions():
     # check whether the events object and the mention_counter are reset for
     # each text
     year = 1719
-    events, mention_counter = process_emotions(soup, text_id, year)
+    events, mention_counter = process_emotions(soup, text_id, year, source, emotion_labels)
 
-    yield assert_equal, 6, len(events)
-    yield assert_equal, 6, len(mention_counter)
+    yield assert_equal, 3, len(events)
+    yield assert_equal, 3, len(mention_counter)
 
     year = 1718
-    events, mention_counter = process_emotions(soup, text_id+'2', year)
+    events, mention_counter = process_emotions(soup, text_id+'2', year, source, emotion_labels)
 
-    yield assert_equal, 6, len(events)
-    yield assert_equal, 6, len(mention_counter)
+    yield assert_equal, 3, len(events)
+    yield assert_equal, 3, len(mention_counter)
 
 
 def test_get_num_sentences():
@@ -137,16 +143,16 @@ def test_add_events():
             'sources': []
         }
     }
-    events, mention_counter = process_emotions(soup, text_id, year)
+    events, mention_counter = process_emotions(soup, text_id, year, source, emotion_labels)
     num_sentences = get_num_sentences(soup)
 
     add_events(events, num_sentences, json_object)
 
-    yield assert_equal, 6, len(json_object['timeline']['events'])
+    yield assert_equal, 3, len(json_object['timeline']['events'])
 
     add_events(events, num_sentences, json_object)
 
-    yield assert_equal, 12, len(json_object['timeline']['events'])
+    yield assert_equal, 6, len(json_object['timeline']['events'])
 
 
 def test_add_events_climax_score():
@@ -157,7 +163,7 @@ def test_add_events_climax_score():
             'sources': []
         }
     }
-    events, mention_counter = process_emotions(soup, text_id, year)
+    events, mention_counter = process_emotions(soup, text_id, year, source, emotion_labels)
     num_sentences = get_num_sentences(soup)
     add_events(events, num_sentences, json_object)
 

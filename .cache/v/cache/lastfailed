@@ -1,0 +1,9 @@
+{
+  "embem/tests/test_naf2json.py::test_add_events": true, 
+  "embem/tests/test_naf2json.py::test_add_events_climax_score": true, 
+  "embem/tests/test_naf2json.py::test_add_source_text": true, 
+  "embem/tests/test_naf2json.py::test_create_event": true, 
+  "embem/tests/test_naf2json.py::test_create_mention": true, 
+  "embem/tests/test_naf2json.py::test_get_label": true, 
+  "embem/tests/test_naf2json.py::test_process_emotions": true
+}

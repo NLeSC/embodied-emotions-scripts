@@ -17,3 +17,4 @@ Ceneton*
 *.xlsx
 .ipynb_checkpoints
 .recipyrc
+.cache
