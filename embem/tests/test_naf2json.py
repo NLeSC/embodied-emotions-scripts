@@ -80,7 +80,7 @@ def test_create_event():
 
     event_object = {
         'actors': {},
-        'event': event_name(emotion_label, year),
+        'event': event_name(emotion_label, text_id),
         'group': emotion_label,
         'groupName': emotion_label,
         'groupScore': str(group_score),
@@ -176,7 +176,7 @@ def test_add_events():
     # are events merged?
     add_events(events, num_sentences, json_object)
 
-    yield assert_equal, 3, len(json_object['timeline']['events'])
+    yield assert_equal, 6, len(json_object['timeline']['events'])
 
 
 def test_merge_events():
