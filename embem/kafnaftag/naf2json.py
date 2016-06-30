@@ -153,16 +153,25 @@ def add_source_text(soup, text_id, json_object):
 
 
 def add_events(events, num_sentences, json_object):
-    climax_scores = []
+    new_events = []
+    for event in json_object['timeline']['events']:
+        event_id = event['event']
+        if event_id in events.keys():
+            add_climax_score(events[event_id], num_sentences)
+            new_events.append(merge_events(event, events[event_id]))
+            del events[event_id]
+        else:
+            new_events.append(event)
+
     for event, data in events.iteritems():
-        climax = len(data['mentions'])+0.0/num_sentences*100
-        data['climax'] = climax
-        climax_scores.append(climax)
+        add_climax_score(data, num_sentences)
 
         # TODO: make more intelligent choice for prefLabel (if possible)
         # Also, it seems that prefLabel is not used in the visualization
         data['prefLabel'] = [data['event']]
-        json_object['timeline']['events'].append(data)
+        new_events.append(data)
+
+    json_object['timeline']['events'] = new_events
 
 
 def merge_events(event1, event2):
@@ -176,6 +185,11 @@ def merge_events(event1, event2):
     # Do not change prefLabel, time
 
     return event
+
+
+def add_climax_score(event, num_sentences):
+    climax = len(event['mentions'])+0.0/num_sentences*100
+    event['climax'] = climax
 
 
 @click.command()
@@ -251,8 +265,6 @@ def run(input_dir, metadata, output_file, confidence):
         add_events(events, num_sentences, json_out)
 
         print 'Now {} events in the JSON'.format(len(json_out['timeline']['events']))
-        if num_events != len(json_out['timeline']['events']):
-            print 'Something is wrong with the event counts'
 
         add_source_text(soup, text_id, json_out)
 

@@ -5,7 +5,7 @@ from codecs import open
 
 from embem.kafnaftag.naf2json import create_mention, get_label, create_event, \
     event_name, process_emotions, get_num_sentences, get_text, \
-    add_source_text, add_events, merge_events
+    add_source_text, add_events, merge_events, add_climax_score
 from embem.emotools.heem_utils import heem_labels_en, heem_emotion_labels
 
 
@@ -173,9 +173,10 @@ def test_add_events():
 
     yield assert_equal, 3, len(json_object['timeline']['events'])
 
+    # are events merged?
     add_events(events, num_sentences, json_object)
 
-    yield assert_equal, 6, len(json_object['timeline']['events'])
+    yield assert_equal, 3, len(json_object['timeline']['events'])
 
 
 def test_merge_events():
@@ -346,3 +347,51 @@ def test_add_events_climax_score():
     for e in json_object['timeline']['events']:
         yield assert_true, e.get('climax')
         yield assert_equal, len(e['mentions'])+0.0/num_sentences*100, e.get('climax')
+
+
+def test_add_climax_score():
+    event = {
+                "actors": {
+                    "liver": [
+                        "liver"
+                    ]
+                },
+                "event": "anger_1715",
+                "group": "anger",
+                "groupName": "anger",
+                "groupScore": "100",
+                "labels": [
+                    "Wat hebje veur met dat Cyteeren"
+                ],
+                "mentions": [
+                    {
+                        "char": [
+                            "233",
+                            "264"
+                        ],
+                        "perspective": [
+                            {
+                                "source": "Beslikte Swaantje en drooge Fobert - Abraham Alewijn"
+                            }
+                        ],
+                        "tokens": [
+                            "alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.1.w.1",
+                            "alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.1.w.2",
+                            "alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.1.w.3",
+                            "alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.1.w.4",
+                            "alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.1.w.5",
+                            "alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.1.w.6"
+                        ],
+                        "uri": [
+                            "alew001besl01"
+                        ]
+                    }
+                ],
+                "prefLabel": [
+                    "anger_1715"
+                ],
+                "time": "17150101"
+            }
+    add_climax_score(event, 1)
+
+    assert_equal(event.get('climax'), 1.0)
