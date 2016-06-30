@@ -92,7 +92,7 @@ def process_emotions(soup, text_id, year, source, em_labels, confidence=0.5):
                 label = event_name(el['reference'].split(':')[1], year)
 
                 if label not in events.keys():
-                    print 'created new event', label
+                    #print 'created new event', label
                     events[label] = create_event(el['reference'].split(':')[1], text_id, year)
                 m = create_mention(emotion, soup, text_id, source)
                 mention_counter[label] += 1
@@ -123,7 +123,7 @@ def process_emotions(soup, text_id, year, source, em_labels, confidence=0.5):
                 for e in ems:
                     label = event_name(e, year)
                     if label not in events.keys():
-                        print 'created new event2', label
+                        #print 'created new event2', label
                         events[label] = create_event(e, text_id, year)
                     events[label]['actors'][el['reference']] = [el['reference']]
                     #print 'event'
