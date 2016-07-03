@@ -209,7 +209,7 @@ def run(input_dir, metadata, output_dir, confidence):
 
         print '{} ({} of {})'.format(fi, (i + 1), len(xml_files))
         text_id = os.path.basename(fi).split('.')[0]
-        text_id = text_id.split('_')[0]
+        text_id = text_id.rsplit('_', 1)[0]
 
         out_file = os.path.join(output_dir, '{}.json'.format(text_id))
         if not os.path.isfile(out_file):
