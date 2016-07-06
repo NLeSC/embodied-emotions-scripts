@@ -77,7 +77,9 @@ def process_emotions(soup, text_id, year, source, em_labels, confidence=0.5):
 
     emotions = soup.find_all('emotion')
     print 'text contains {} emotions'.format(len(emotions))
-    for emotion in emotions:
+    for i, emotion in enumerate(emotions):
+        if i % 500 == 0:
+            print 'Processing emotion {}'.format(i)
         # for some reason, BeautifulSoup does not see the capitals in
         # <externalRef>
         emotion_labels = emotion.find_all('externalref')
@@ -136,7 +138,7 @@ def process_emotions(soup, text_id, year, source, em_labels, confidence=0.5):
 
     print 'found {} events and {} mentions'.format(len(mention_counter.keys()), sum(mention_counter.values()))
     print 'top three events: {}'.format(' '.join(['{} ({})'.format(k, v) for k, v in mention_counter.most_common(3)]))
-    return events
+    return events, len(emotions)
 
 
 def get_num_sentences(soup):
@@ -234,8 +236,9 @@ def run(input_dir, metadata, output_dir, confidence):
             year = text2year[text_id]
             num_sentences = get_num_sentences(soup)
 
-            events = process_emotions(soup, text_id, year, source,
-                                      emotion_labels, confidence)
+            events, num_emotions = process_emotions(soup, text_id, year,
+                                                    source, emotion_labels,
+                                                    confidence)
             json_out = {
                 'timeline': {
                     'events': [],
@@ -252,6 +255,7 @@ def run(input_dir, metadata, output_dir, confidence):
 
             end = time.time()
             print 'processing took {} sec.'.format(end-start)
+            print '({} seconds on average per emotion)'.format((end-start)/num_emotions)
         else:
             print 'File already processed...'
 
