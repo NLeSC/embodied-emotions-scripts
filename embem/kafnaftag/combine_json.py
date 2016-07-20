@@ -2,6 +2,7 @@ import json
 import click
 import glob
 import os
+import pandas as pd
 
 from codecs import open
 
@@ -34,12 +35,16 @@ def combine_events(result, to_merge):
 
 @click.command()
 @click.argument('input_dir', type=click.Path(exists=True))
+@click.argument('metadata', type=click.Path(exists=True))
 @click.argument('output_file', type=click.Path())
-def cli(input_dir, output_file):
+def cli(input_dir, metadata, output_file):
     output_dir = os.path.dirname(click.format_filename(output_file))
 
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
+
+    metadata = pd.read_csv(metadata, header=None, sep='\\t', index_col=0,
+                           encoding='utf-8', engine='python')
 
     json_files = glob.glob('{}/*.json'.format(input_dir))
     print('Found {} json files'.format(len(json_files)))
