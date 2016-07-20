@@ -8,8 +8,7 @@ import pandas as pd
 import click
 import zipfile
 
-from bs4 import BeautifulSoup
-from random import randint
+from lxml import etree
 from collections import Counter
 
 from embem.machinelearningdata.count_labels import corpus_metadata
@@ -33,19 +32,13 @@ def create_event(emotion_label, text_id, year):
     return event_object
 
 
-def create_mention(emotion, soup, text_id, source):
-    terms = [t['id'] for t in emotion.find_all('target')]
-    tokens = [soup.find('term', id=t).span.target['id'] for t in terms]
+def create_mention(emotion, termid2tokenid, tokenid2token, text_id, source):
+    terms = emotion['terms']
+    tokens = [termid2tokenid[t] for t in terms]
     #sentence = soup.find('wf', id=tokens[0])['sent']
 
-    if terms > 1:
-        begin = soup.find('wf', id=tokens[0])['offset']
-        wf = soup.find('wf', id=tokens[-1])
-        end = int(wf['offset']) + int(wf['length'])
-    else:
-        wf = soup.find('wf', id=tokens[0])
-        begin = int(wf['offset'])
-        end = begin + int(wf['length'])
+    begin = tokenid2token[termid2tokenid[terms[0]]]['offset']
+    end = tokenid2token[termid2tokenid[terms[-1]]]['offset'] + tokenid2token[termid2tokenid[terms[-1]]]['length']
     chars = [str(begin), str(end)]
 
     mention = {
@@ -57,34 +50,32 @@ def create_mention(emotion, soup, text_id, source):
     return mention
 
 
-def get_label(soup, mention):
-    label_parts = []
-    for wid in mention['tokens']:
-        word = soup.find('wf', id=wid).text
-        label_parts.append(word)
-    return ' '.join(label_parts)
+def get_label(tokenid2token, mention):
+    words = [tokenid2token[tid]['text'] for tid in mention['tokens']]
+
+    return ' '.join(words)
 
 
 def event_name(emotion_label, unique):
     return '{}_{}'.format(emotion_label, unique)
 
 
-def process_emotions(soup, text_id, year, source, em_labels, confidence=0.5):
+def process_emotions(text_id, year, source, em_labels, tokenid2token,
+                     termid2tokenid, termid2emotionid, emotions, emoids,
+                     confidence=0.5):
     assert confidence <= 1.0, 'Confidence threshold > 1.0'
 
     events = {}
     mention_counter = Counter()
 
-    emotions = soup.find_all('emotion')
-    print 'text contains {} emotions'.format(len(emotions))
-    for i, emotion in enumerate(emotions):
-        if i % 500 == 0:
-            print 'Processing emotion {}'.format(i)
+    print 'text contains {} emotions'.format(len(emotions.keys()))
+    for emoid in emoids:
+        emotion = emotions[emoid]
         # for some reason, BeautifulSoup does not see the capitals in
         # <externalRef>
-        emotion_labels = emotion.find_all('externalref')
+        emotion_labels = emotion['heem labels']
         for el in emotion_labels:
-            c = float(el.get('confidence', 1.0))
+            c = el['confidence']
             #print 'confidence', c
             #print 'over threshold', c >= confidence
 
@@ -96,62 +87,45 @@ def process_emotions(soup, text_id, year, source, em_labels, confidence=0.5):
                 if label not in events.keys():
                     #print 'created new event', label
                     events[label] = create_event(el['reference'].split(':')[1], text_id, year)
-                m = create_mention(emotion, soup, text_id, source)
+                m = create_mention(emotion, termid2tokenid, tokenid2token, text_id, source)
                 mention_counter[label] += 1
                 events[label]['mentions'].append(m)
-                events[label]['labels'].append(get_label(soup, m))
+                events[label]['labels'].append(get_label(tokenid2token, m))
 
         for el in emotion_labels:
             #print 'checking for bodyparts'
-            c = float(el.get('confidence', 1.0))
+            c = el['confidence']
             if el['resource'] == 'heem:bodyParts' and c >= confidence:
-                #print 'found bodypart', el['reference']
-                #print ems
-                target_id = el.parent.parent.span.target['id']
-                targets = soup.find_all('target', id=target_id)
-                #print 'number of times target id used:', len(targets), target_id
-                ems = []
-                for target in targets:
-                    #print target.parent.parent.externalreferences.find_all('externalref')
-                    for l in target.parent.parent.externalreferences.find_all('externalref'):
-                        #print l
-                        c = float(l.get('confidence', 1.0))
-                        if l['resource'] == 'heem' and c >= confidence:
-                            name = l['reference'].split(':')[1]
-                            if name in em_labels:
-                                ems.append(name)
+                actor = el['reference']
+                #print actor
+                termid = emotion['terms'][0]
+                emos = termid2emotionid[termid]
+                #print emos
+                for emo in emos:
+                    emotion_labels = emotions[emo]['heem labels']
+                    #print emotion_labels
+                    for el in emotion_labels:
+                        #print el
+                        c = el['confidence']
+                        if el['resource'] == 'heem' and \
+                           el['reference'].split(':')[1] in em_labels and \
+                           c >= confidence:
+                            label = event_name(el['reference'].split(':')[1], text_id)
 
-                #print ems
-                for e in ems:
-                    label = event_name(e, text_id)
-                    if label not in events.keys():
-                        #print 'created new event2', label
-                        events[label] = create_event(e, text_id, year)
-                    events[label]['actors'][el['reference']] = [el['reference']]
-                    #print 'event'
-                    #print events[e+text_id]
-                    #print 'actors'
-                    #print events[e+text_id]['actors']
-                    #print 'actor value'
-                    #print events[e+text_id]['actors'][el['reference']]
-                    #print
+                            if label not in events.keys():
+                                #print 'created new event2', label
+                                events[label] = create_event(el['reference'].split(':')[1], text_id, year)
+                            events[label]['actors'][actor] = [actor]
+
 
     print 'found {} events and {} mentions'.format(len(mention_counter.keys()), sum(mention_counter.values()))
     print 'top three events: {}'.format(' '.join(['{} ({})'.format(k, v) for k, v in mention_counter.most_common(3)]))
     return events, len(emotions)
 
 
-def get_num_sentences(soup):
-    return int((soup.find_all('wf')[-1]).get('sent'))
-
-
-def get_text(soup):
-    return ' '.join([wf.text for wf in soup.find_all('wf')])
-
-
-def add_source_text(soup, text_id, json_object):
+def add_source_text(text, text_id, json_object):
     json_object['timeline']['sources'].append({'uri': text_id,
-                                               'text': get_text(soup)})
+                                               'text': text})
 
 
 def add_events(events, num_sentences, json_object):
@@ -211,7 +185,8 @@ def run(input_dir, metadata, output_dir, confidence):
 
         print '{} ({} of {})'.format(fi, (i + 1), len(xml_files))
         text_id = os.path.basename(fi).split('.')[0]
-        text_id = text_id.rsplit('_', 1)[0]
+        if text_id.endswith('_01'):
+            text_id = text_id.rsplit('_', 1)[0]
 
         out_file = os.path.join(output_dir, '{}.json'.format(text_id))
         if not os.path.isfile(out_file):
@@ -228,17 +203,70 @@ def run(input_dir, metadata, output_dir, confidence):
             if zipfile.is_zipfile(fi):
                 zf = zipfile.ZipFile(fi, 'r')
                 xml = zf.read(zf.namelist()[0])
-                soup = BeautifulSoup(xml, 'lxml')
+                lxmlsoup = etree.fromstring(xml)
             else:
                 with open(fi, 'rb', encoding='utf-8') as f:
-                    soup = BeautifulSoup(f, 'lxml')
+                    lxmlsoup = etree.parse(f)
 
             year = text2year[text_id]
-            num_sentences = get_num_sentences(soup)
 
-            events, num_emotions = process_emotions(soup, text_id, year,
-                                                    source, emotion_labels,
-                                                    confidence)
+            tokenid2token = {}
+            tokens = lxmlsoup.findall('.//wf')
+            words = []
+            num_sentences = int(tokens[-1].get('sent'))
+            #print num_sentences
+            #print len(tokens)
+            for token in tokens:
+                tokenid = token.get('id')
+                tokenid2token[tokenid] = {
+                    'text': token.text,
+                    'offset': int(token.get('offset')),
+                    'length': int(token.get('length'))
+                }
+                words.append(token.text)
+                #print tokenid2token[tokenid]
+            text = ' '.join(words)
+
+            termid2tokenid = {}
+            terms = lxmlsoup.findall('.//term')
+            for term in terms:
+                termid = term.get('id')
+                tokenid = term[0][0].get('id')
+                termid2tokenid[termid] = tokenid
+                #print termid, tokenid
+
+            termid2emotionid = {}
+            emotions = {}
+            emoids = []
+            xml_emotions = lxmlsoup.findall('.//emotion')
+            for e in xml_emotions:
+                emotionid = e.get('id')
+                xml_emotion = etree.fromstring(etree.tostring(e))
+                terms = xml_emotion.findall('.//target')
+                labels = xml_emotion.findall('.//externalRef')
+                for t in terms:
+                    termid = t.get('id')
+                    if termid not in termid2emotionid.keys():
+                        termid2emotionid[termid] = []
+                    termid2emotionid[termid].append(emotionid)
+
+                ls = [{'reference': l.get('reference'),
+                       'resource': l.get('resource'),
+                       'confidence': float(l.get('confidence', 1.0))} for l in labels]
+                emotions[emotionid] = {
+                    'terms': [t.get('id') for t in terms],
+                    'heem labels': ls
+                }
+                # to make sure the order of emotions is the same as before
+                # (so the resulting json is exactly the same)
+                emoids.append(emotionid)
+
+            events, num_emotions = process_emotions(text_id, year, source,
+                                                    emotion_labels,
+                                                    tokenid2token,
+                                                    termid2tokenid,
+                                                    termid2emotionid, emotions,
+                                                    emoids, confidence)
             json_out = {
                 'timeline': {
                     'events': [],
@@ -247,7 +275,7 @@ def run(input_dir, metadata, output_dir, confidence):
             }
 
             add_events(events, num_sentences, json_out)
-            add_source_text(soup, text_id, json_out)
+            add_source_text(text, text_id, json_out)
 
             # write output
             with open(out_file, 'wb', encoding='utf-8') as f:
