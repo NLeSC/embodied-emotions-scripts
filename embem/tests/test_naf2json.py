@@ -1,11 +1,11 @@
 from nose.tools import assert_equal, assert_true
 
-from bs4 import BeautifulSoup
+from lxml import etree
 from codecs import open
 
 from embem.kafnaftag.naf2json import create_mention, get_label, create_event, \
-    event_name, process_emotions, get_num_sentences, get_text, \
-    add_source_text, add_events, merge_events, add_climax_score
+    event_name, process_emotions, add_source_text, add_events, merge_events, \
+    add_climax_score
 from embem.emotools.heem_utils import heem_labels_en, heem_emotion_labels
 
 
@@ -19,14 +19,71 @@ def setup():
     global text_id
     global source
     global emotion_labels
+    global num_sentences
+    global tokenid2token
+    global termid2tokenid
+    global termid2emotionid
+    global emotions
+    global emoids
+    global indexed_emotion
 
     with open('embem/tests/example_naf.xml', 'rb', encoding='utf-8') as f:
-        soup = BeautifulSoup(f, 'lxml')
+        soup = etree.parse(f)
 
-    with open('embem/tests/example_naf_confidence.xml', 'rb', encoding='utf-8') as f:
-        soup2 = BeautifulSoup(f, 'lxml')
+    tokenid2token = {}
+    tokens = soup.findall('.//wf')
+    words = []
+    num_sentences = int(tokens[-1].get('sent'))
 
-    emotion = BeautifulSoup('<emotion id="emo1">'
+    for token in tokens:
+        tokenid = token.get('id')
+        tokenid2token[tokenid] = {
+            'text': token.text,
+            'offset': int(token.get('offset')),
+            'length': int(token.get('length'))
+        }
+        words.append(token.text)
+        #print tokenid2token[tokenid]
+    text = ' '.join(words)
+
+    termid2tokenid = {}
+    terms = soup.findall('.//term')
+    for term in terms:
+        termid = term.get('id')
+        tokenid = term[0][0].get('id')
+        termid2tokenid[termid] = tokenid
+        #print termid, tokenid
+
+    termid2emotionid = {}
+    emotions = {}
+    emoids = []
+    xml_emotions = soup.findall('.//emotion')
+    for e in xml_emotions:
+        emotionid = e.get('id')
+        xml_emotion = etree.fromstring(etree.tostring(e))
+        terms = xml_emotion.findall('.//target')
+        labels = xml_emotion.findall('.//externalRef')
+        for t in terms:
+            termid = t.get('id')
+            if termid not in termid2emotionid.keys():
+                termid2emotionid[termid] = []
+            termid2emotionid[termid].append(emotionid)
+
+        ls = [{'reference': l.get('reference'),
+               'resource': l.get('resource'),
+               'confidence': float(l.get('confidence', 1.0))} for l in labels]
+        emotions[emotionid] = {
+            'terms': [t.get('id') for t in terms],
+            'heem labels': ls
+        }
+        # to make sure the order of emotions is the same as before
+        # (so the resulting json is exactly the same)
+        emoids.append(emotionid)
+
+    #with open('embem/tests/example_naf_confidence.xml', 'rb', encoding='utf-8') as f:
+    #    soup2 = etree.parse(f)
+
+    emotion = etree.fromstring('<emotion id="emo1">'
                             '<emotion_target/>'
                             '<emotion_holder/>'
                             '<emotion_expression/>'
@@ -46,7 +103,14 @@ def setup():
                             '<externalRef reference="anger" resource="heem:clusters"/>'
                             '<externalRef reference="negative" resource="heem:posNeg"/>'
                             '</externalReferences>'
-                            '</emotion>', 'lxml')
+                            '</emotion>')
+    indexed_emotion = {'heem labels': [{'confidence': 1.0, 'resource': 'heem', 'reference': 'conceptType:bodilyProcess'},
+                         {'confidence': 1.0, 'resource': 'heem', 'reference': 'emotionType:anger'},
+                         {'confidence': 1.0, 'resource': 'heem:bodyParts', 'reference': 'liver'},
+                         {'confidence': 1.0, 'resource': 'heem:clusters', 'reference': 'anger'},
+                         {'confidence': 1.0, 'resource': 'heem:posNeg', 'reference': 'negative'}],
+         'terms': ['t45', 't46', 't47', 't48', 't49', 't50']}
+
     text_id = 'text_id'
     source = 'Wat hebje veur met dat Cyteeren'
     emotion_labels = [heem_labels_en[l].lower() for l in heem_emotion_labels]
@@ -63,13 +127,13 @@ def test_create_mention():
                          'alew001besl01_01.TEI.2.text.body.div.div.sp.225.s.1.w.6'],
               'uri': ['text_id']}
 
-    m = create_mention(emotion, soup, text_id, source)
+    m = create_mention(indexed_emotion, termid2tokenid, tokenid2token, text_id, source)
 
     assert_equal(result, m)
 
 
 def test_get_label():
-    l = get_label(soup, create_mention(emotion, soup, text_id, source))
+    l = get_label(tokenid2token, create_mention(indexed_emotion, termid2tokenid, tokenid2token, text_id, source))
     assert_equal('Wat hebje veur met dat Cyteeren', l)
 
 
@@ -101,41 +165,54 @@ def test_process_emotions():
     # check whether the events object and the mention_counter are reset for
     # each text
     year = 1719
-    events, mention_counter = process_emotions(soup, text_id, year, source, emotion_labels)
+    events, num_emotions = process_emotions(text_id, year, source,
+                                            emotion_labels,
+                                            tokenid2token,
+                                            termid2tokenid,
+                                            termid2emotionid, emotions,
+                                            emoids)
 
     yield assert_equal, 3, len(events)
-    yield assert_equal, 3, len(mention_counter)
+    yield assert_equal, 3, num_emotions
 
     year = 1718
-    events, mention_counter = process_emotions(soup, text_id+'2', year, source, emotion_labels)
+    events, num_emotions = process_emotions(text_id + '2', year, source,
+                                            emotion_labels,
+                                            tokenid2token,
+                                            termid2tokenid,
+                                            termid2emotionid, emotions,
+                                            emoids)
 
     yield assert_equal, 3, len(events)
-    yield assert_equal, 3, len(mention_counter)
+    yield assert_equal, 3, num_emotions
 
 
 def test_process_emotions_confidence_all():
+    # TODO: used soup2
     year = 1719
-    events, mention_counter = process_emotions(soup2, text_id, year, source, emotion_labels, confidence=0.0)
+    events, mention_counter = process_emotions(text_id, year, source,
+                                            emotion_labels,
+                                            tokenid2token,
+                                            termid2tokenid,
+                                            termid2emotionid, emotions,
+                                            emoids, confidence=0.0)
 
     yield assert_equal, 2, len(events)
     yield assert_equal, 2, len(mention_counter)
 
 
 def test_process_emotions_confidence_not_all():
+    # TODO: used soup2
     year = 1719
-    events, mention_counter = process_emotions(soup2, text_id, year, source, emotion_labels, confidence=0.8)
+    events, mention_counter = process_emotions(text_id, year, source,
+                                            emotion_labels,
+                                            tokenid2token,
+                                            termid2tokenid,
+                                            termid2emotionid, emotions,
+                                            emoids, confidence=0.8)
 
     yield assert_equal, 1, len(events)
     yield assert_equal, 1, len(mention_counter)
-
-
-def test_get_num_sentences():
-    assert_equal(12, get_num_sentences(soup))
-
-
-def test_get_text():
-    t = "Beslikte Swaantje , en Drooge Fobert ; of de boere rechtbank . Eerste bedryf . Eerste tooneel . Het Tooneel verbeeldeenig Geboomte , in 't verschiet een Heeren Huis . Crelis , en Kryn , malkander en op den weg ontmoetende . Crelis . Wat hebje veur met dat Cyteeren ? Wat meug jy leggen prossedeeren ? Myn goeje man ; 'k lag met jou plyt ; Ho , Kryn , je bent het byltje kwyt . Kryn . Wel , ouwe Cees , hoe keunje praeten ? 'k Zeg noch , ik zel 't ' er niet by laeten , Al zouw het onderst boven staen ; Lag jy vry uit ; 't zal zo niet gaen ."
-    assert_equal(t, get_text(soup))
 
 
 def test_add_source_text():
@@ -166,8 +243,12 @@ def test_add_events():
             'sources': []
         }
     }
-    events, mention_counter = process_emotions(soup, text_id, year, source, emotion_labels)
-    num_sentences = get_num_sentences(soup)
+    events, mention_counter = process_emotions(text_id, year, source,
+                                            emotion_labels,
+                                            tokenid2token,
+                                            termid2tokenid,
+                                            termid2emotionid, emotions,
+                                            emoids)
 
     add_events(events, num_sentences, json_object)
 
@@ -339,8 +420,12 @@ def test_add_events_climax_score():
             'sources': []
         }
     }
-    events, mention_counter = process_emotions(soup, text_id, year, source, emotion_labels)
-    num_sentences = get_num_sentences(soup)
+    events, mention_counter = process_emotions(text_id, year, source,
+                                            emotion_labels,
+                                            tokenid2token,
+                                            termid2tokenid,
+                                            termid2emotionid, emotions,
+                                            emoids)
     add_events(events, num_sentences, json_object)
 
     # every event has a climax score
