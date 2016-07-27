@@ -2,9 +2,11 @@ import json
 import click
 import glob
 import os
-import pandas as pd
 
 from codecs import open
+from collections import Counter
+
+from embem.machinelearningdata.count_labels import corpus_metadata
 
 from naf2json import merge_events
 
@@ -43,13 +45,14 @@ def cli(input_dir, metadata, output_file):
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
-    metadata = pd.read_csv(metadata, header=None, sep='\\t', index_col=0,
-                           encoding='utf-8', engine='python')
+    text2period, text2year, text2genre, period2text, genre2text = \
+        corpus_metadata(metadata)
 
     json_files = glob.glob('{}/*.json'.format(input_dir))
     print('Found {} json files'.format(len(json_files)))
 
     data = None
+    labels = Counter()
 
     for i, fi in enumerate(json_files):
         print '{} ({} of {})'.format(fi, (i + 1), len(json_files))
@@ -57,6 +60,16 @@ def cli(input_dir, metadata, output_file):
         print text_id
         with open(fi, 'r', encoding='utf-8') as f:
             t = json.load(f)
+
+        year = text2year[text_id]
+
+        # change event ids to year, so the events can be merged by year
+        for event in t['timeline']['events']:
+            emotion = event['event'].split('_')[0]
+            new_id = '{}_{}'.format(emotion, year)
+            event['event'] = new_id
+            labels[new_id] += 1
+            #print new_id
 
         if not data:
             data = t
@@ -66,6 +79,12 @@ def cli(input_dir, metadata, output_file):
 
             # merge source texts
             data['timeline']['sources'].append(t['timeline']['sources'][0])
+
+    print
+    print 'Number of events in result: {}'.format(len(data['timeline']['events']))
+    print 'Most frequent event ids:'
+    for l, count in labels.most_common(10):
+        print l, count
 
     with open(output_file, 'wb', encoding='utf-8') as f:
         json.dump(data, f, sort_keys=True, indent=4)
