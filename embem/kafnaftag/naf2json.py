@@ -15,6 +15,13 @@ from embem.machinelearningdata.count_labels import corpus_metadata
 from embem.emotools.heem_utils import heem_labels_en, heem_emotion_labels
 
 
+json_out = {
+    'timeline': {
+        'events': [],
+        'sources': []
+    }
+}
+
 def create_event(emotion_label, text_id, year):
     group_score = 100
     event_object = {
@@ -267,12 +274,6 @@ def run(input_dir, metadata, output_dir, confidence):
                                                     termid2tokenid,
                                                     termid2emotionid, emotions,
                                                     emoids, confidence)
-            json_out = {
-                'timeline': {
-                    'events': [],
-                    'sources': []
-                }
-            }
 
             add_events(events, num_sentences, json_out)
             add_source_text(text, text_id, json_out)

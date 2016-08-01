@@ -2,13 +2,13 @@ import json
 import click
 import glob
 import os
+import copy
 
 from codecs import open
-from collections import Counter
 
 from embem.machinelearningdata.count_labels import corpus_metadata
 
-from naf2json import merge_events
+from naf2json import merge_events, json_out
 
 
 def combine_events(result, to_merge):
@@ -38,10 +38,9 @@ def combine_events(result, to_merge):
 @click.command()
 @click.argument('input_dir', type=click.Path(exists=True))
 @click.argument('metadata', type=click.Path(exists=True))
-@click.argument('output_file', type=click.Path())
-def cli(input_dir, metadata, output_file):
-    output_dir = os.path.dirname(click.format_filename(output_file))
-
+@click.argument('output_dir', type=click.Path())
+@click.option('--save-per', prompt='How to divide the output over files? (options: single-file, emotion)', default='single-file', type=click.Choice(['single-file', 'emotion']))
+def cli(input_dir, metadata, output_dir, save_per):
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
@@ -51,8 +50,7 @@ def cli(input_dir, metadata, output_file):
     json_files = glob.glob('{}/*.json'.format(input_dir))
     print('Found {} json files'.format(len(json_files)))
 
-    data = None
-    labels = Counter()
+    data = {}
 
     for i, fi in enumerate(json_files):
         print '{} ({} of {})'.format(fi, (i + 1), len(json_files))
@@ -61,33 +59,46 @@ def cli(input_dir, metadata, output_file):
         with open(fi, 'r', encoding='utf-8') as f:
             t = json.load(f)
 
+        data_text = {}
+
         year = text2year[text_id]
 
         # change event ids to year, so the events can be merged by year
         for event in t['timeline']['events']:
             emotion = event['event'].split('_')[0]
+
+            if save_per == 'single-file':
+                label = 'all'
+            elif save_per == 'emotion':
+                label = emotion
+
+            if label not in data_text.keys():
+                data_text[label] = copy.deepcopy(json_out)
+
             new_id = '{}_{}'.format(emotion, year)
             event['event'] = new_id
-            labels[new_id] += 1
             #print new_id
 
-        if not data:
-            data = t
-        else:
-            # merge events
-            data = combine_events(data, t)
+            data_text[label]['timeline']['events'].append(event)
 
-            # merge source texts
-            data['timeline']['sources'].append(t['timeline']['sources'][0])
+        for label in data_text.keys():
+            if not data.get(label):
+                data[label] = data_text[label]
+            else:
+                # merge events
+                data[label] = combine_events(data[label], data_text[label])
+
+                # merge source texts
+                data[label]['timeline']['sources'].append(t['timeline']['sources'][0])
 
     print
-    print 'Number of events in result: {}'.format(len(data['timeline']['events']))
-    print 'Most frequent event ids:'
-    for l, count in labels.most_common(10):
-        print l, count
+    for label, d in data.iteritems():
+        print 'Writing data for label "{}"'.format(label)
+        print 'Number of events in result: {}'.format(len(d['timeline']['events']))
 
-    with open(output_file, 'wb', encoding='utf-8') as f:
-        json.dump(data, f, sort_keys=True, indent=4)
+        output_file = os.path.join(output_dir, '{}.json'.format(label))
+        with open(output_file, 'wb', encoding='utf-8') as f:
+            json.dump(data[label], f, sort_keys=True, indent=4)
 
 
 if __name__ == '__main__':
