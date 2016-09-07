@@ -9,6 +9,7 @@ import click
 import zipfile
 import sys
 import copy
+import re
 
 from lxml import etree
 from collections import Counter
@@ -44,7 +45,8 @@ def create_event(emotion_label, text_id, year, bodyparts):
     return event_object
 
 
-def create_mention(emotion, termid2tokenid, tokenid2token, text_id, source):
+def create_mention(emotion, termid2tokenid, tokenid2token, text_id, source,
+                   sentences):
     terms = emotion['terms']
     tokens = [termid2tokenid[t] for t in terms]
     #sentence = soup.find('wf', id=tokens[0])['sent']
@@ -53,11 +55,16 @@ def create_mention(emotion, termid2tokenid, tokenid2token, text_id, source):
     end = tokenid2token[termid2tokenid[terms[-1]]]['offset'] + tokenid2token[termid2tokenid[terms[-1]]]['length']
     chars = [str(begin), str(end)]
 
+    s = sentences[tokenid2token[termid2tokenid[terms[0]]]['sentence']]
+    #print s
+
     mention = {
         'char': chars,
         'tokens': tokens,
         'uri': [str(text_id)],
-        'perspective': [{'source': source}]
+        'perspective': [{'source': source}],
+        'snippet': [s],
+        'snippet_char': [1, 2]
     }
     return mention
 
@@ -68,13 +75,20 @@ def get_label(tokenid2token, mention):
     return ' '.join(words)
 
 
+def add_snippet_chars(mention, text):
+    print text
+    m = re.search(re.escape(text), mention['snippet'][0])
+    if m:
+        mention['snippet_char'] = list(m.span())
+
+
 def event_name(emotion_label, bodyparts, unique):
     return '{}_{}_{}'.format(emotion_label, '-'.join(bodyparts), unique)
 
 
-def process_emotions(text_id, year, source, em_labels, tokenid2token,
-                     termid2tokenid, termid2emotionid, emotions, emoids,
-                     confidence=0.5):
+def process_emotions(text_id, year, source, em_labels, sentences,
+                     tokenid2token, termid2tokenid, termid2emotionid, emotions,
+                     emoids, confidence=0.5):
     assert confidence <= 1.0, 'Confidence threshold > 1.0'
 
     events = {}
@@ -101,10 +115,12 @@ def process_emotions(text_id, year, source, em_labels, tokenid2token,
                 if label not in events.keys():
                     #print 'created new event', label
                     events[label] = create_event(el['reference'].split(':')[1], text_id, year, bps)
-                m = create_mention(emotion, termid2tokenid, tokenid2token, text_id, source)
+                m = create_mention(emotion, termid2tokenid, tokenid2token, text_id, source, sentences)
                 mention_counter[label] += 1
+                mt = get_label(tokenid2token, m)
+                add_snippet_chars(m, mt)
                 events[label]['mentions'].append(m)
-                events[label]['labels'].append(get_label(tokenid2token, m))
+                events[label]['labels'].append(mt)
 
     print 'found {} events and {} mentions'.format(len(mention_counter.keys()), sum(mention_counter.values()))
     print 'top three events: {}'.format(' '.join(['{} ({})'.format(k, v) for k, v in mention_counter.most_common(3)]))
@@ -210,16 +226,25 @@ def run(input_dir, metadata, output_dir, confidence):
             tokens = lxmlsoup.findall('.//wf')
             words = []
             num_sentences = int(tokens[-1].get('sent'))
+            s_id = tokens[-1].get('sent')
+            s = []
+            sentences = {}
             #print num_sentences
             #print len(tokens)
             for token in tokens:
+                if s_id != token.get('sent'):
+                    sentences[s_id] = ' '.join(s)
+                    s = []
+                    s_id = token.get('sent')
                 tokenid = token.get('id')
                 tokenid2token[tokenid] = {
                     'text': token.text,
                     'offset': int(token.get('offset')),
-                    'length': int(token.get('length'))
+                    'length': int(token.get('length')),
+                    'sentence': token.get('sent')
                 }
                 words.append(token.text)
+                s.append(token.text)
                 #print tokenid2token[tokenid]
             text = ' '.join(words)
 
@@ -285,6 +310,7 @@ def run(input_dir, metadata, output_dir, confidence):
 
             events, num_emotions = process_emotions(text_id, year, source,
                                                     emotion_labels,
+                                                    sentences,
                                                     tokenid2token,
                                                     termid2tokenid,
                                                     termid2emotionid, emotions,
