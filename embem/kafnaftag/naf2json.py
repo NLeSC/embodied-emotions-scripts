@@ -76,7 +76,7 @@ def get_label(tokenid2token, mention):
 
 
 def add_snippet_chars(mention, text):
-    print text
+    #print text
     m = re.search(re.escape(text), mention['snippet'][0])
     if m:
         mention['snippet_char'] = list(m.span())
@@ -323,7 +323,7 @@ def run(input_dir, metadata, output_dir, confidence):
 
             out = copy.deepcopy(json_out)
             add_events(events, num_sentences, out)
-            add_source_text(text, text_id, out)
+            #add_source_text(text, text_id, out)
 
             # write output
             with open(out_file, 'wb', encoding='utf-8') as f:

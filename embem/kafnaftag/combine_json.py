@@ -90,9 +90,6 @@ def cli(input_dir, metadata, output_dir, save_per):
                 # merge events
                 data[label] = combine_events(data[label], data_text[label])
 
-                # merge source texts
-                data[label]['timeline']['sources'].append(t['timeline']['sources'][0])
-
     print
     for label, d in data.iteritems():
         print 'Writing data for label "{}"'.format(label)
