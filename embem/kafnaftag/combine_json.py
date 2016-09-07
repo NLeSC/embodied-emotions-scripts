@@ -65,7 +65,9 @@ def cli(input_dir, metadata, output_dir, save_per):
 
         # change event ids to year, so the events can be merged by year
         for event in t['timeline']['events']:
-            emotion = event['event'].split('_')[0]
+            parts = event['event'].split('_')
+            emotion = parts[0]
+            bodyparts = parts[1]
 
             if save_per == 'single-file':
                 label = 'all'
@@ -75,9 +77,9 @@ def cli(input_dir, metadata, output_dir, save_per):
             if label not in data_text.keys():
                 data_text[label] = copy.deepcopy(json_out)
 
-            new_id = '{}_{}'.format(emotion, year)
+            new_id = '{}_{}_{}'.format(emotion, bodyparts, year)
             event['event'] = new_id
-            #print new_id
+            print new_id
 
             data_text[label]['timeline']['events'].append(event)
 
