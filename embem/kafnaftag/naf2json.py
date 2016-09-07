@@ -82,6 +82,10 @@ def add_snippet_chars(mention, text):
         mention['snippet_char'] = list(m.span())
 
 
+def remove_tokens(mention):
+    del mention['tokens']
+
+
 def event_name(emotion_label, bodyparts, unique):
     return '{}_{}_{}'.format(emotion_label, '-'.join(bodyparts), unique)
 
@@ -119,6 +123,7 @@ def process_emotions(text_id, year, source, em_labels, sentences,
                 mention_counter[label] += 1
                 mt = get_label(tokenid2token, m)
                 add_snippet_chars(m, mt)
+                remove_tokens(m)
                 events[label]['mentions'].append(m)
                 events[label]['labels'].append(mt)
 
