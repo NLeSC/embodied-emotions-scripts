@@ -7,6 +7,7 @@ import time
 import pandas as pd
 import click
 import zipfile
+import sys
 
 from lxml import etree
 from collections import Counter
@@ -22,11 +23,14 @@ json_out = {
     }
 }
 
-def create_event(emotion_label, text_id, year):
+def create_event(emotion_label, text_id, year, bodyparts):
     group_score = 100
+    actors = {}
+    for bp in bodyparts:
+        actors[bp] = bp
     event_object = {
-        'actors': {},
-        'event': event_name(emotion_label, text_id),
+        'actors': actors,
+        'event': event_name(emotion_label, bodyparts, text_id),
         'group': emotion_label,
         'groupName': emotion_label,
         'groupScore': str(group_score),
@@ -63,8 +67,8 @@ def get_label(tokenid2token, mention):
     return ' '.join(words)
 
 
-def event_name(emotion_label, unique):
-    return '{}_{}'.format(emotion_label, unique)
+def event_name(emotion_label, bodyparts, unique):
+    return '{}_{}_{}'.format(emotion_label, '-'.join(bodyparts), unique)
 
 
 def process_emotions(text_id, year, source, em_labels, tokenid2token,
@@ -77,10 +81,12 @@ def process_emotions(text_id, year, source, em_labels, tokenid2token,
 
     print 'text contains {} emotions'.format(len(emotions.keys()))
     for emoid in emoids:
+        #print emoid
         emotion = emotions[emoid]
-        # for some reason, BeautifulSoup does not see the capitals in
-        # <externalRef>
+
         emotion_labels = emotion['heem labels']
+        bps = [el['reference'] for el in emotion_labels if el['resource'] == 'heem:bodyParts']
+        #print bps
         for el in emotion_labels:
             c = el['confidence']
             #print 'confidence', c
@@ -89,41 +95,15 @@ def process_emotions(text_id, year, source, em_labels, tokenid2token,
             if el['resource'] == 'heem' and \
                el['reference'].split(':')[1] in em_labels and \
                c >= confidence:
-                label = event_name(el['reference'].split(':')[1], text_id)
+                label = event_name(el['reference'].split(':')[1], bps, text_id)
 
                 if label not in events.keys():
                     #print 'created new event', label
-                    events[label] = create_event(el['reference'].split(':')[1], text_id, year)
+                    events[label] = create_event(el['reference'].split(':')[1], text_id, year, bps)
                 m = create_mention(emotion, termid2tokenid, tokenid2token, text_id, source)
                 mention_counter[label] += 1
                 events[label]['mentions'].append(m)
                 events[label]['labels'].append(get_label(tokenid2token, m))
-
-        for el in emotion_labels:
-            #print 'checking for bodyparts'
-            c = el['confidence']
-            if el['resource'] == 'heem:bodyParts' and c >= confidence:
-                actor = el['reference']
-                #print actor
-                termid = emotion['terms'][0]
-                emos = termid2emotionid[termid]
-                #print emos
-                for emo in emos:
-                    emotion_labels = emotions[emo]['heem labels']
-                    #print emotion_labels
-                    for el in emotion_labels:
-                        #print el
-                        c = el['confidence']
-                        if el['resource'] == 'heem' and \
-                           el['reference'].split(':')[1] in em_labels and \
-                           c >= confidence:
-                            label = event_name(el['reference'].split(':')[1], text_id)
-
-                            if label not in events.keys():
-                                #print 'created new event2', label
-                                events[label] = create_event(el['reference'].split(':')[1], text_id, year)
-                            events[label]['actors'][actor] = [actor]
-
 
     print 'found {} events and {} mentions'.format(len(mention_counter.keys()), sum(mention_counter.values()))
     print 'top three events: {}'.format(' '.join(['{} ({})'.format(k, v) for k, v in mention_counter.most_common(3)]))
@@ -161,6 +141,14 @@ def merge_events(event1, event2):
 def add_climax_score(event, num_sentences):
     climax = len(event['mentions'])+0.0/num_sentences*100
     event['climax'] = climax
+
+
+def merge_emotions(em1, em2):
+    e = {
+        'terms': em1.get('terms'),
+        'heem labels': em1.get('heem labels') + em2.get('heem labels')
+    }
+    return e
 
 
 @click.command()
@@ -267,6 +255,32 @@ def run(input_dir, metadata, output_dir, confidence):
                 # to make sure the order of emotions is the same as before
                 # (so the resulting json is exactly the same)
                 emoids.append(emotionid)
+
+            print len(emoids)
+            for term, ems in termid2emotionid.iteritems():
+                if len(ems) == 2:
+                    if emotions.get(ems[0]) and emotions.get(ems[1]):
+                        if len(emotions.get(ems[0]).get('terms')) > len(emotions.get(ems[1]).get('terms')):
+                            em1, em2 = ems
+                        else:
+                            em2, em1 = ems
+                        #print 'merging', em1, em2
+                        #print emotions[em1]
+                        #print emotions[em2]
+                        emotions[em1] = merge_emotions(emotions[em1], emotions[em2])
+                        #print emotions[em1]
+                        del emotions[em2]
+                        emoids.remove(em2)
+                    else:
+                        print 'not merging', ems[0], ems[1]
+
+                elif len(ems) > 2:
+                    print 'Found a term that points to more than 2 emotions'
+                    print term
+                    print ems
+                    sys.exit()
+
+            print len(emoids)
 
             events, num_emotions = process_emotions(text_id, year, source,
                                                     emotion_labels,
