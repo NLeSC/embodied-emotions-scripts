@@ -8,6 +8,7 @@ import pandas as pd
 import click
 import zipfile
 import sys
+import copy
 
 from lxml import etree
 from collections import Counter
@@ -126,7 +127,7 @@ def add_events(events, num_sentences, json_object):
 
 
 def merge_events(event1, event2):
-    event = event1.copy()
+    event = copy.deepcopy(event1)
     for k, v in event2['actors'].iteritems():
         event1['actors'][k] = v
     event['climax'] = event1['climax'] + event2['climax']
@@ -289,12 +290,13 @@ def run(input_dir, metadata, output_dir, confidence):
                                                     termid2emotionid, emotions,
                                                     emoids, confidence)
 
-            add_events(events, num_sentences, json_out)
-            add_source_text(text, text_id, json_out)
+            out = copy.deepcopy(json_out)
+            add_events(events, num_sentences, out)
+            add_source_text(text, text_id, out)
 
             # write output
             with open(out_file, 'wb', encoding='utf-8') as f:
-                json.dump(json_out, f, sort_keys=True, indent=4)
+                json.dump(out, f, sort_keys=True, indent=4)
 
             end = time.time()
             print 'processing took {} sec.'.format(end-start)
